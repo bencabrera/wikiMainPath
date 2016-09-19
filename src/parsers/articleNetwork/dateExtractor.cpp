@@ -12,6 +12,33 @@ bool DateExtractor::operator()(const std::string& articleSyntax, std::tm& dateOb
 }
 
 
+
+std::tm DateExtractor::deserialize(std::string str)
+{
+	std::tm rtn;
+
+	std::istringstream ss(str);
+	std::string token;
+
+	std::getline(ss, token, '_');
+	rtn.tm_year = std::stoi(token);
+	std::getline(ss, token, '_');
+	rtn.tm_mon = std::stoi(token);
+	std::getline(ss, token, '_');
+	rtn.tm_mday = std::stoi(token);
+
+	return rtn;
+}
+
+std::string DateExtractor::serialize(std::tm date)
+{
+	std::ostringstream ss;
+	ss << date.tm_year << "_" << date.tm_mon << "_" << date.tm_mday;
+
+	return ss.str();
+}
+
+
 bool DateExtractor::extractDateFromInfobox(const std::string& articleSyntax, std::tm& dateObj) const
 {
 	std::size_t foundPos = articleSyntax.find("{{");

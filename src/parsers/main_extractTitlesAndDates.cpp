@@ -98,21 +98,21 @@ int main(int argc, char* argv[])
 
 	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	
 	for(auto article : articleTitlesHandler.articles)
-		articles_file << article.first << "\t" << article.second.tm_year << "-" << article.second.tm_mon << "-" << article.second.tm_mday << std::endl;
+		articles_file << article.first << "\t" << DateExtractor::serialize(article.second) << std::endl;
 
 	std::ofstream categories_file((outputFolder / "categories.txt").string());	
 	for(auto category : articleTitlesHandler.categoriesToArticles)
 	{
 		categories_file << category.first << "\t";
 		for (auto article : category.second) {
-			categories_file << article << ";";	
+			categories_file << article << ";-;";	
 		}
 		categories_file << std::endl;
 	}
 
 	std::ofstream redirects_file((outputFolder / "redirects.txt").string());	
 	for (auto redirect : articleTitlesHandler.redirects) 
-		redirects_file << redirect.first << ";" << redirect.second << std::endl;	
+		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
 	
 	// short feedback to user
 	std::cout << "Found ... articles of which ... had extractable dates. Also found ... categories." << std::endl;

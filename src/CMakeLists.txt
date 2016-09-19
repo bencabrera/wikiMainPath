@@ -20,6 +20,8 @@ set(MAIN
 	parsers/articleNetwork/linkListExtractor.cpp
 	parsers/articleNetwork/dateExtractor.h
 	parsers/articleNetwork/dateExtractor.cpp
+	parsers/articleNetwork/articleGraphIo.h
+	parsers/articleNetwork/articleGraphIo.cpp
 )
 
 add_library( Main STATIC ${MAIN} )
@@ -29,3 +31,9 @@ target_link_libraries(extractTitlesAndDates Main)
 target_link_libraries(extractTitlesAndDates ${Boost_LIBRARIES})
 target_link_libraries(extractTitlesAndDates xerces-c)
 target_link_libraries(extractTitlesAndDates pthread)
+
+add_executable(articleNetwork parsers/main_buildArticleNetwork.cpp)
+target_link_libraries(articleNetwork Main)
+target_link_libraries(articleNetwork ${Boost_LIBRARIES})
+target_link_libraries(articleNetwork xerces-c)
+target_link_libraries(articleNetwork pthread)
