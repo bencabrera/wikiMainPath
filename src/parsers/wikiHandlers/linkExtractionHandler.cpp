@@ -66,8 +66,6 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 			continue;
 		}
 
-		
-
 		if(!boost::edge(source,target,_graph).second)
 			boost::add_edge(source, target, _graph);
 

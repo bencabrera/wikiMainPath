@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 
 	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	
 	for(auto article : articleTitlesHandler.articles)
-		articles_file << article.first << "\t" << DateExtractor::serialize(article.second) << std::endl;
+		articles_file << article.first << "\t" << Date::serialize(article.second) << std::endl;
 
 	std::ofstream categories_file((outputFolder / "categories.txt").string());	
 	for(auto category : articleTitlesHandler.categoriesToArticles)
@@ -113,9 +113,11 @@ int main(int argc, char* argv[])
 	std::ofstream redirects_file((outputFolder / "redirects.txt").string());	
 	for (auto redirect : articleTitlesHandler.redirects) 
 		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
-	
+
 	// short feedback to user
-	std::cout << "Found ... articles of which ... had extractable dates. Also found ... categories." << std::endl;
+	std::cout << "Found " << articleTitlesHandler.count() << " articles of which " 
+		<< articleTitlesHandler.articles.size() << " had extractable dates. Also found " 
+		<< articleTitlesHandler.categoriesToArticles.size() << " categories." << std::endl;
 
 	xercesc::XMLPlatformUtils::Terminate();
 

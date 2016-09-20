@@ -6,8 +6,7 @@
 #include <string>
 #include <iomanip>
 
-
-Date Date::deserialize(std::string str)
+std::tm parseDateStr(std::string str)
 {
 	std::tm rtn;
 
@@ -22,6 +21,43 @@ Date Date::deserialize(std::string str)
 	rtn.tm_mday = std::stoi(token);
 
 	return rtn;
+}
+
+Date Date::deserialize(std::string str)
+{
+	Date rtn;
+	if(str[0] == 'r')
+	{
+		// range date
+		rtn.IsRange = true;
+		auto pos = str.find_first_of(":");
+		auto str1 = str.substr(1,pos-1); 
+		auto str2 = str.substr(pos+1,str.size()); 
+		rtn.Begin = parseDateStr(str1);
+		rtn.End = parseDateStr(str2);
+	}
+	else
+	{
+		// non-range date
+		rtn.IsRange = false;
+		str = str.substr(1,str.size()-1);	
+		rtn.Begin = parseDateStr(str);
+	}
+
+	return rtn;
+}
+
+
+void Date::Init()
+{
+	IsRange = false;
+	Begin.tm_year = 0;
+	Begin.tm_mon = 0;
+	Begin.tm_mday = 1;
+
+	End.tm_year = 0;
+	End.tm_mon = 0;
+	End.tm_mday = 1;
 }
 
 std::string Date::serialize(Date date)

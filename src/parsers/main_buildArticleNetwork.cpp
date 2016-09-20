@@ -60,22 +60,6 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 		dates.push_back(DateExtractor::deserialize(dateStr));
 	}			
 
-	while(std::getline(categories_file, line))
-	{
-		std::istringstream ss(line);
-		std::string categoryTitle, articlesStr;
-		std::getline(ss, categoryTitle, '\t');
-		std::getline(ss, articlesStr, '\t');
-		std::vector<std::string> articlesVec;
-		boost::split(articlesVec, articlesStr, ";-;");
-		std::cout << categoryTitle << "    -->   ";
-		for (auto i : articlesVec) {
-			std::cout << i << " --------- ";	
-		}
-		std::cout << std::endl;
-		categoriesToArticles.insert({ categoryTitle, articlesVec });
-	}
-
 	while(std::getline(redirects_file, line))
 	{
 		std::istringstream ss(line);

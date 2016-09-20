@@ -3,13 +3,13 @@
 #include <iomanip>
 #include <ctime>
 
+#include "date.h"
+
 class DateExtractor {
 public:
-	bool operator()(const std::string& articleSyntax, std::tm& dateObj) const;
+	bool operator()(const std::string& articleSyntax, Date& dateObj) const;
 
-	static std::tm deserialize(std::string str);
-	static std::string serialize(std::tm str);
 private:
-	bool extractDateFromInfobox(const std::string& text, std::tm& dateObj) const;
-	bool extractDateFromDateStr(std::string dateStr, std::tm& dateObj) const;
+	bool extractDateFromInfobox(const std::string& text, Date& dateObj) const;
+	bool extractDateFromDateStr(std::string dateStr, Date& dateObj) const;
 };

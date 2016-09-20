@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -8,6 +10,8 @@ public:
 	bool IsRange;
 	std::tm Begin;
 	std::tm End;
+
+	void Init();
 
 	static std::string serialize(Date date);
 	static Date deserialize(std::string str);

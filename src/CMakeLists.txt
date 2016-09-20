@@ -20,6 +20,8 @@ set(MAIN
 	parsers/articleNetwork/linkListExtractor.cpp
 	parsers/articleNetwork/dateExtractor.h
 	parsers/articleNetwork/dateExtractor.cpp
+	parsers/articleNetwork/date.h
+	parsers/articleNetwork/date.cpp
 	parsers/articleNetwork/articleGraphIo.h
 	parsers/articleNetwork/articleGraphIo.cpp
 )
@@ -40,3 +42,7 @@ target_link_libraries(articleNetwork pthread)
 
 add_executable(prog program/main_programm.cpp)
 target_link_libraries(prog ${Boost_LIBRARIES})
+
+add_executable(tests parsers/main_tests.cpp)
+target_link_libraries(tests Main)
+target_link_libraries(tests ${Boost_LIBRARIES})

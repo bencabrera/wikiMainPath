@@ -2,8 +2,21 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+
+ArticleTitlesHandler::ArticleTitlesHandler()
+:AbstractArticleHandler(),
+_count(0)
+{}
+
+std::size_t ArticleTitlesHandler::count() const
+{
+	return _count;
+}
+
 void ArticleTitlesHandler::HandleArticle(const ArticleData& data)
 {
+	_count++;
+
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
@@ -15,7 +28,7 @@ void ArticleTitlesHandler::HandleArticle(const ArticleData& data)
 	else
 	{
 		// if it is no redirect, check if a date can be extracted
-		std::tm dateObj;
+		Date dateObj;
 		if(extractDate(data.Content, dateObj))
 		{
 			// add article
