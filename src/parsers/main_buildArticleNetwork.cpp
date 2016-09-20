@@ -43,7 +43,7 @@ UndirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
 	return UndirectedArticleGraph();
 }
 
-void readDataFromFile (const fs::path& inputFolder, std::map<std::string, std::tm>& articles, std::map<std::string, std::vector<std::string>>& categoriesToArticles, std::map<std::string, std::string>& redirects)
+void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::tm>& dates, std::map<std::string, std::vector<std::string>>& categoriesToArticles, std::map<std::string, std::string>& redirects)
 {
 	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
 	std::ifstream categories_file((inputFolder / "categories.txt").string());	
@@ -56,7 +56,8 @@ void readDataFromFile (const fs::path& inputFolder, std::map<std::string, std::t
 		std::string title, dateStr;
 		std::getline(ss, title, '\t');
 		std::getline(ss, dateStr, '\t');
-		articles.insert({ title, DateExtractor::deserialize(dateStr) });
+		articles.push_back(title);
+		dates.push_back(DateExtractor::deserialize(dateStr));
 	}			
 
 	while(std::getline(categories_file, line))
@@ -134,11 +135,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::map<std::string, std::tm> articles;
+	std::vector<std::string> articles;
+	std::vector<std::tm> dates;
    	std::map<std::string, std::vector<std::string>> categoriesToArticles;
    	std::map<std::string, std::string> redirects;
 
-	readDataFromFile(inputArticleFolder, articles, categoriesToArticles, redirects);
+	readDataFromFile(inputArticleFolder, articles, dates, categoriesToArticles, redirects);
 
 	// initialize xerces
 	xercesc::XMLPlatformUtils::Initialize();
@@ -151,8 +153,9 @@ int main(int argc, char* argv[])
 			xmlFileList.push_back(dir_it->path());
 	}
 
-	UndirectedArticleGraph g = createGraphFromParameters(vm);
-	LinkExtractionHandler linkExtractionHandler(g); 
+	//UndirectedArticleGraph g = createGraphFromParameters(vm);
+	DirectedArticleGraph g = DirectedArticleGraph(articles.size());
+	LinkExtractionHandler linkExtractionHandler(g, articles, dates, categoriesToArticles, redirects); 
 
 	for (auto el : xmlFileList) {
 		std::cout << el << std::endl;
@@ -163,6 +166,9 @@ int main(int argc, char* argv[])
 		parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 		
 		WikiDumpHandler handler(linkExtractionHandler, true);
+		handler.TitleFilter = [](const std::string& title) {
+			return !(title.substr(0,5) == "User:" || title.substr(0,10) == "Wikipedia:" || title.substr(0,5) == "File:" || title.substr(0,5) == "Talk:" || title.substr(0,9) == "Category:");
+		};
 		parser->setContentHandler(&handler);
 		parser->setErrorHandler(&handler);
 		

@@ -9,21 +9,23 @@
 
 class LinkExtractionHandler : public AbstractArticleHandler{
 	public:
-		typedef UndirectedArticleGraph::vertex_descriptor VertexDescriptor;	
-		typedef UndirectedArticleGraph::edge_descriptor EdgeDescriptor;	
+		typedef DirectedArticleGraph::vertex_descriptor VertexDescriptor;	
+		typedef DirectedArticleGraph::edge_descriptor EdgeDescriptor;	
 
-		LinkExtractionHandler(UndirectedArticleGraph& g);
+		LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<std::tm>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs);
 
 		void HandleArticle(const ArticleData&);
 
-		VertexDescriptor GetOrAddVertex(const std::string& title);
+		bool GetOrAddVertex(const std::string& title, VertexDescriptor& v) const;
 
-		UndirectedArticleGraph& graph();
+		DirectedArticleGraph& graph();
 
 		std::vector<std::pair<std::string,ArticleNetwork::LinkTargetSet>> articles;
 	private:
-		ArticleNetwork::LinkListExtractor _linkListExtractor;
+		DirectedArticleGraph& _graph;
 
-		UndirectedArticleGraph& _graph;
-		std::map<std::string,VertexDescriptor> _vMap;
+		std::vector<std::string> _articles;
+		std::vector<std::tm> _dates;
+   		const std::map<std::string, std::vector<std::string>>& _categoriesToArticles;
+   		const std::map<std::string, std::string>& _redirects;
 };

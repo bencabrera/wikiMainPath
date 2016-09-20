@@ -1,26 +1,30 @@
 #include "linkExtractionHandler.h"
 
-LinkExtractionHandler::LinkExtractionHandler(UndirectedArticleGraph& g)
-:_graph(g)
-{}
-
-LinkExtractionHandler::VertexDescriptor LinkExtractionHandler::GetOrAddVertex(const std::string& title)
+LinkExtractionHandler::LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<std::tm>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs)
+:_graph(g),
+_articles(arts),
+_dates(dates),
+_categoriesToArticles(cats),
+_redirects(redirs)
 {
-	auto it = _vMap.find(title);
-	if(it == _vMap.end())
-	{
-		auto v = boost::add_vertex(_graph);
-		boost::put(boost::vertex_name, _graph, v, title);
-		_vMap.insert({ title, v });
+	if(boost::num_vertices(g) < _articles.size())
+		throw std::logic_error("Graph needs to have same number of vertices as articles vector as entries");
+}
 
-		return v;
+bool LinkExtractionHandler::GetOrAddVertex(const std::string& title, VertexDescriptor& v) const
+{
+	auto it = std::lower_bound(_articles.begin(), _articles.end(), title);
+	if(*it == title)
+	{
+		v = it-_articles.begin();
+		return true;
 	}	
 	else
-		return it->second;
+		return false;
 }
 
 
-UndirectedArticleGraph& LinkExtractionHandler::graph()
+DirectedArticleGraph& LinkExtractionHandler::graph()
 {
 	return _graph;
 }
@@ -30,19 +34,43 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
-	if(title.substr(0,8) == "Category" || title.substr(0,4) == "User" || title.substr(0,9) == "Wikipedia" || title.substr(0,4) == "Talk" || title.substr(0,4) == "File")
+	VertexDescriptor source, target;
+	if(!GetOrAddVertex(title, source))
 		return;
 
-	auto source = GetOrAddVertex(title);
+	std::size_t foundPos = data.Content.find("[[");
+	while(foundPos != std::string::npos)
+	{
+		std::size_t secondFoundPos = data.Content.find("]]", foundPos);
+		if(secondFoundPos == std::string::npos)
+			break;
 
-	auto linkStrList = _linkListExtractor(data.Content);
-	for (auto linkStr : linkStrList) {
-		if(linkStr.substr(0,8) == "Category" || linkStr.substr(0,4) == "User" || linkStr.substr(0,9) == "Wikipedia" || linkStr.substr(0,4) == "Talk" || linkStr.substr(0,4) == "File")
+		std::string linkTitle = data.Content.substr(foundPos + 2, secondFoundPos - foundPos - 2);
+
+		std::size_t pipePos = linkTitle.find("|");
+		if(pipePos != std::string::npos)
+			linkTitle = linkTitle.substr(0, pipePos);
+
+		boost::trim(linkTitle);
+
+		if(
+				linkTitle.substr(0,5) == "User:" 
+				|| linkTitle.substr(0,10) == "Wikipedia:" 
+				|| linkTitle.substr(0,5) == "File:" 
+				|| linkTitle.substr(0,5) == "Talk:" 
+				|| linkTitle.substr(0,9) == "Category:" 
+				|| !GetOrAddVertex(linkTitle, target)
+		  )
+		{
+			foundPos = data.Content.find("[[", secondFoundPos);
 			continue;
+		}
 
-		auto target = GetOrAddVertex(linkStr);	
 		
+
 		if(!boost::edge(source,target,_graph).second)
 			boost::add_edge(source, target, _graph);
+
+		foundPos = data.Content.find("[[", secondFoundPos);
 	}
 }
