@@ -37,3 +37,6 @@ target_link_libraries(articleNetwork Main)
 target_link_libraries(articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(articleNetwork xerces-c)
 target_link_libraries(articleNetwork pthread)
+
+add_executable(prog program/main_programm.cpp)
+target_link_libraries(prog ${Boost_LIBRARIES})
