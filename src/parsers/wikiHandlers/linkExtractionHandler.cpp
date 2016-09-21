@@ -1,6 +1,6 @@
 #include "linkExtractionHandler.h"
 
-LinkExtractionHandler::LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<std::tm>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs)
+LinkExtractionHandler::LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<Date>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs)
 :_graph(g),
 _articles(arts),
 _dates(dates),
@@ -14,7 +14,7 @@ _redirects(redirs)
 bool LinkExtractionHandler::GetOrAddVertex(const std::string& title, VertexDescriptor& v) const
 {
 	auto it = std::lower_bound(_articles.begin(), _articles.end(), title);
-	if(*it == title)
+	if(it != _articles.end() && *it == title)
 	{
 		v = it-_articles.begin();
 		return true;
@@ -66,8 +66,16 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 			continue;
 		}
 
-		if(!boost::edge(source,target,_graph).second)
-			boost::add_edge(source, target, _graph);
+		if(_dates[source] < _dates[target])
+		{
+			if(!boost::edge(source,target,_graph).second)
+				boost::add_edge(source, target, _graph);
+		}
+		else
+		{
+			if(!boost::edge(target,source,_graph).second)
+				boost::add_edge(target, source, _graph);
+		}
 
 		foundPos = data.Content.find("[[", secondFoundPos);
 	}

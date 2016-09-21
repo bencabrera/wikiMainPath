@@ -2,14 +2,14 @@
 
 const std::vector<std::string> layoutCommand = {"dot", "neato", "twopi", "circo", "fdp", "sfdp", "patchwork", "osage"};
 
-void writeToGraphViz(std::ostream& ostr, const UndirectedArticleGraph& g)
+void writeToGraphViz(std::ostream& ostr, const DirectedArticleGraph& g)
 {
 	auto vertex_label_writer = boost::make_label_writer(boost::get(boost::vertex_name, g));
 	
 	boost::write_graphviz (ostr, g, vertex_label_writer);
 }
 
-void drawToSvg(std::string filename, const UndirectedArticleGraph& g, const Layout layout)
+void drawToSvg(std::string filename, const DirectedArticleGraph& g, const Layout layout)
 {
 	std::ofstream tmp_file("tmp.dot");
 	writeToGraphViz (tmp_file, g);
@@ -20,7 +20,7 @@ void drawToSvg(std::string filename, const UndirectedArticleGraph& g, const Layo
 //	std::remove("tmp.dot");
 }
 
-boost::dynamic_properties generateDynamicProperties(UndirectedArticleGraph& g)
+boost::dynamic_properties generateDynamicProperties(DirectedArticleGraph& g)
 {
 	boost::dynamic_properties dp;
 	auto tmp = boost::get(boost::vertex_name, g);
@@ -28,7 +28,7 @@ boost::dynamic_properties generateDynamicProperties(UndirectedArticleGraph& g)
 	return dp;
 }
 
-void writeToGraphMl(std::ostream& ostr, UndirectedArticleGraph& g)
+void writeToGraphMl(std::ostream& ostr, DirectedArticleGraph& g)
 {
 	boost::dynamic_properties dp = generateDynamicProperties(g);
 	
@@ -36,7 +36,7 @@ void writeToGraphMl(std::ostream& ostr, UndirectedArticleGraph& g)
 }
 
 
-void writeMinimizedGraph(std::ofstream& ostr, const UndirectedArticleGraph& g)
+void writeMinimizedGraph(std::ofstream& ostr, const DirectedArticleGraph& g)
 {
 	ostr << boost::num_vertices(g) << " " << boost::num_edges(g) << std::endl;
 	for (auto v : boost::vertices(g)) 
@@ -46,9 +46,9 @@ void writeMinimizedGraph(std::ofstream& ostr, const UndirectedArticleGraph& g)
 		ostr << boost::source(e,g) << " " << boost::target(e,g) << std::endl;
 }
 
-UndirectedArticleGraph readMinimizedGraph(std::ifstream& istr)
+DirectedArticleGraph readMinimizedGraph(std::ifstream& istr)
 {
-	UndirectedArticleGraph g;
+	DirectedArticleGraph g;
 
 	std::size_t numVertices, numEdges;
 	istr >> numVertices >> numEdges;
@@ -63,7 +63,7 @@ UndirectedArticleGraph readMinimizedGraph(std::ifstream& istr)
 
 	for(std::size_t i = 0; i < numEdges; i++)
 	{
-		UndirectedArticleGraph::vertex_descriptor source, target;
+		DirectedArticleGraph::vertex_descriptor source, target;
 		istr >> source >> target;
 		boost::add_edge(source, target, g);
 	}
@@ -72,9 +72,9 @@ UndirectedArticleGraph readMinimizedGraph(std::ifstream& istr)
 }
 
 
-UndirectedArticleGraph readFromGraphMl(std::istream& istr)
+DirectedArticleGraph readFromGraphMl(std::istream& istr)
 {
-	UndirectedArticleGraph g;
+	DirectedArticleGraph g;
 	boost::dynamic_properties dp = generateDynamicProperties(g);
 	
 	boost::read_graphml(istr, g, dp);

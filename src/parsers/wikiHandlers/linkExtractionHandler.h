@@ -5,14 +5,14 @@
 #include <vector>
 
 #include "../articleNetwork/articleGraph.h"
-
+#include "../articleNetwork/date.h"
 
 class LinkExtractionHandler : public AbstractArticleHandler{
 	public:
 		typedef DirectedArticleGraph::vertex_descriptor VertexDescriptor;	
 		typedef DirectedArticleGraph::edge_descriptor EdgeDescriptor;	
 
-		LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<std::tm>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs);
+		LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<Date>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs);
 
 		void HandleArticle(const ArticleData&);
 
@@ -25,7 +25,7 @@ class LinkExtractionHandler : public AbstractArticleHandler{
 		DirectedArticleGraph& _graph;
 
 		std::vector<std::string> _articles;
-		std::vector<std::tm> _dates;
+		std::vector<Date> _dates;
    		const std::map<std::string, std::vector<std::string>>& _categoriesToArticles;
    		const std::map<std::string, std::string>& _redirects;
 };

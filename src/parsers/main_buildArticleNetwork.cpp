@@ -26,7 +26,7 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
-UndirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
+DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
 {
 	if(vm.count("input-graph-minimized"))
 	{
@@ -40,10 +40,10 @@ UndirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
 		return readFromGraphMl(inFile);
 	}
 
-	return UndirectedArticleGraph();
+	return DirectedArticleGraph();
 }
 
-void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::tm>& dates, std::map<std::string, std::vector<std::string>>& categoriesToArticles, std::map<std::string, std::string>& redirects)
+void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<Date>& dates, std::map<std::string, std::vector<std::string>>& categoriesToArticles, std::map<std::string, std::string>& redirects)
 {
 	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
 	std::ifstream categories_file((inputFolder / "categories.txt").string());	
@@ -57,7 +57,7 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 		std::getline(ss, title, '\t');
 		std::getline(ss, dateStr, '\t');
 		articles.push_back(title);
-		dates.push_back(DateExtractor::deserialize(dateStr));
+		dates.push_back(Date::deserialize(dateStr));
 	}			
 
 	while(std::getline(redirects_file, line))
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::vector<std::string> articles;
-	std::vector<std::tm> dates;
+	std::vector<Date> dates;
    	std::map<std::string, std::vector<std::string>> categoriesToArticles;
    	std::map<std::string, std::string> redirects;
 

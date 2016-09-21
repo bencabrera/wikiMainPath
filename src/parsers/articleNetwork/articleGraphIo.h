@@ -6,20 +6,20 @@
 
 #include "articleGraph.h"
 
-void writeToGraphViz(std::ostream& ostr, const UndirectedArticleGraph& g);
+void writeToGraphViz(std::ostream& ostr, const DirectedArticleGraph& g);
 
 enum Layout { DOT, NEATO, TWOPI, CIRCO, FDP, SFDP, PATCHWORK, OSAGE };
 
-void drawToSvg(std::string filename, const UndirectedArticleGraph& g, const Layout layout);
+void drawToSvg(std::string filename, const DirectedArticleGraph& g, const Layout layout);
 
-boost::dynamic_properties generateDynamicProperties(UndirectedArticleGraph& g);
+boost::dynamic_properties generateDynamicProperties(DirectedArticleGraph& g);
 
-void writeToGraphMl(std::ostream& ostr, UndirectedArticleGraph& g);
-
-
-void writeMinimizedGraph(std::ofstream& ostr, const UndirectedArticleGraph& g);
-
-UndirectedArticleGraph readMinimizedGraph(std::ifstream& istr);
+void writeToGraphMl(std::ostream& ostr, DirectedArticleGraph& g);
 
 
-UndirectedArticleGraph readFromGraphMl(std::istream& istr);
+void writeMinimizedGraph(std::ofstream& ostr, const DirectedArticleGraph& g);
+
+DirectedArticleGraph readMinimizedGraph(std::ifstream& istr);
+
+
+DirectedArticleGraph readFromGraphMl(std::istream& istr);
