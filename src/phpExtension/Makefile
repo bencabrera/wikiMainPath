@@ -18,7 +18,7 @@
 #	are automatically generated
 #
 
-NAME				=	testextension
+NAME = wikiMainPath
 
 
 #
@@ -122,7 +122,7 @@ all:					${OBJECTS} ${EXTENSION}
 ${EXTENSION}:			${OBJECTS}
 						${LINKER} ${LINKER_FLAGS} -o $@ ${OBJECTS} ${LINKER_DEPENDENCIES}
 
-${OBJECTS}:
+${OBJECTS}:				
 						${COMPILER} ${COMPILER_FLAGS} $@ ${@:%.o=%.cpp}
 
 install:		

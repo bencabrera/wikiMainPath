@@ -24,7 +24,15 @@ set(MAIN
 	parsers/articleNetwork/date.cpp
 	parsers/articleNetwork/articleGraphIo.h
 	parsers/articleNetwork/articleGraphIo.cpp
+	program/fullTextSearch.h
+	program/fullTextSearch.cpp
 )
+
+set(PHP_EXTENSION_FILES 
+	phpExtension/wikiMainPath.cpp
+)
+
+execute_process(COMMAND php-config7.0 --extension-dir OUTPUT_VARIABLE PHP_CONFIG_DIR)
 
 add_library( Main STATIC ${MAIN} )
 
@@ -42,7 +50,18 @@ target_link_libraries(articleNetwork pthread)
 
 add_executable(prog program/main_programm.cpp)
 target_link_libraries(prog ${Boost_LIBRARIES})
+target_link_libraries(prog Main)
 
 add_executable(tests parsers/main_tests.cpp)
 target_link_libraries(tests Main)
 target_link_libraries(tests ${Boost_LIBRARIES})
+
+add_library(wikiMainPath SHARED ${PHP_EXTENSION_FILES})
+set_target_properties(wikiMainPath PROPERTIES PREFIX "") #remove the lib in front of shared object file
+target_compile_options(wikiMainPath PUBLIC -fpic -shared)
+target_link_libraries(wikiMainPath phpcpp)
+
+add_custom_target(installExtension)
+add_custom_command(TARGET installExtension COMMAND cp $<TARGET_FILE:wikiMainPath> ${PHP_CONFIG_DIR}) 
+add_custom_command(TARGET installExtension COMMAND service apache2 restart) 
+# todo add apache restart in here
