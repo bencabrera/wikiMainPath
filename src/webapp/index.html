@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Main Path Extraction from Historic Events in Wikipedia</title>
+
+<link type="text/css" rel="stylesheet" href="libs/bootstrap/css/bootstrap.css"></link>
+
+<script src="libs/jquery/jquery.js"></script>
+<script src="libs/bootstrap/js/bootstrap.js"></script>
+
+<style type="text/css" media="screen">
+html, body {
+	height: 100%;
+}
+
+.search-bar-row {
+	padding: 15px 0px;
+}
+.search-field {
+	width: 100%;
+}
+.dropdown {
+	position: absolute;
+	border: 1px solid red;
+	display: none;
+}
+
+.search-input:focus + .dropdown {
+	display: block;
+}
+
+.search-result-box {
+	top: 48px; 
+	left: 15px; 
+	right: 15px; 
+	/*display: block;*/
+}
+
+.info-sidebar {
+	position: fixed;
+	padding: 10px;
+	top: 100px;
+	bottom: 50px;
+	width: 300px;
+	background-color: #f8f8f8;
+	border: 1px solid #e7e7e7;
+	min-height: 500px;
+}
+</style>
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+	<div class="container-fluid">
+		<div class="row search-bar-row">
+			<div class="col-md-12">
+				<div class="input-group input-group-lg search-field">
+					<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</span>
+				</div>
+				<ul class="dropdown-menu search-result-box">
+					<li class="dropdown-header">Matching categories for your search query</li>
+					<li><a href="#">Action</a></li>
+					<li><a href="#">Another action</a></li>
+					<li><a href="#">Something else here</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</nav>
+<div class="container-fluid">
+	<div class="row">
+		<div class="info-sidebar">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Category information</h3>
+				</div>
+				<div class="panel-body">
+					Panel content
+				</div>
+			</div>
+		</div>
+		<div class="col-md-10">
+
+		</div>
+	</div>
+</div>
+</body>
+</html>
