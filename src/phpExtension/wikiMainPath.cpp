@@ -9,23 +9,32 @@
 
 #include "../program/fullTextSearch.h"
 
+InvertedIndex invertedCategoryIndex;
+std::vector<std::string> articles;
+
+Php::Value queryCategories(Php::Parameters &params)
+{ 
+	Php::Value queryVal = params[0];
+	std::string queryStr = queryVal;
+
+	Php::Value rtn;
+
+	auto docs = query(invertedCategoryIndex, queryStr);
+
+	std::size_t i = 0;
+	for (auto docIdx : docs) {
+		rtn[i++] = articles[docIdx];
+	}
+
+	return rtn;
+}
+
 extern "C" {
 	namespace fs = boost::filesystem;
 
 	//const std::string pathToArticles = "/home/cabrera/UCSM/wikiMainPath/bin/debug/out";
 	//
-	InvertedIndex invertedCategoryIndex;
-	std::vector<std::string> articles;
-
-	void queryCategories()
-	{ 
-		std::string queryStr = "war";
-		auto docs = query(invertedCategoryIndex, queryStr);
-
-		for (auto docIdx : docs) {
-			Php::out << articles[docIdx] << std::endl;
-		}
-	}
+	
 
 	PHPCPP_EXPORT void *get_module() 
 	{

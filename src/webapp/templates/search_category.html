@@ -1,0 +1,21 @@
+
+<nav class="navbar navbar-default navbar-fixed-top">
+	<div class="container-fluid">
+		<div class="row search-bar-row">
+			<div class="col-md-12">
+				<div class="input-group input-group-lg search-field">
+					<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" [(ngModel)]="searchQuery">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" (click)="onSearch()">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</span>
+				</div>
+				<ul class="dropdown-menu search-result-box">
+					<li class="dropdown-header">Matching categories for your search query</li>
+					<li *ngFor="let res of searchResults | async"><a href="#">{{ res }}</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</nav>
