@@ -4,16 +4,16 @@
 		<div class="row search-bar-row">
 			<div class="col-md-12">
 				<div class="input-group input-group-lg search-field">
-					<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" [(ngModel)]="searchQuery">
+					<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" (click)="onSearch()">
 							<span class="glyphicon glyphicon-search"></span>
 						</button>
 					</span>
 				</div>
-				<ul class="dropdown-menu search-result-box">
+				<ul class="dropdown-menu search-result-box" *ngIf="resultsVisible">
 					<li class="dropdown-header">Matching categories for your search query</li>
-					<li *ngFor="let res of searchResults | async"><a href="#">{{ res }}</a></li>
+					<li *ngFor="let res of searchResults | async"><a href="#" (mousedown)="onSelectCategory(res)">{{ res }}</a></li>
 				</ul>
 			</div>
 		</div>

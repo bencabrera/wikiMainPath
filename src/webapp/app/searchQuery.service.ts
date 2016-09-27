@@ -27,7 +27,7 @@ export class SearchQueryService {
 
 	private extractData(res: Response) {
 		let body = res.json();
-		return body || { };
+		return body || Array();
 	}
 	private handleError (error: any) {
 		let errMsg = (error.message) ? error.message :
