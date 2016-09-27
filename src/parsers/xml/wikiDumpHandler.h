@@ -19,6 +19,7 @@ class WikiDumpHandler : public xercesc::DefaultHandler {
 		void fatalError(const xercesc::SAXParseException&);
 
 		std::function<bool(const std::string&)> TitleFilter;
+		std::function<void(std::size_t)> ProgressCallback;
 	private:
 		AbstractArticleHandler& _articleHandler;
 		ArticleData _currentArticleData;

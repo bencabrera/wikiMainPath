@@ -23,12 +23,30 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
+std::map<std::string, std::size_t> readPageCountsFile(std::string path)
+{
+	std::ifstream istr(path);
+	std::map<std::string, std::size_t> rtn;
+
+	while(!istr.eof())
+	{
+		std::string filename;
+		std::size_t count;
+		istr >> filename >> count;
+
+		rtn.insert({ filename, count });
+	}
+
+	return rtn;
+}
+
 int main(int argc, char* argv[])
 {
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
+		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
 	;
 	po::variables_map vm;
@@ -49,6 +67,8 @@ int main(int argc, char* argv[])
 
 	const fs::path inputFolder(vm["input-xml-folder"].as<std::string>());
 	const fs::path outputFolder(vm["output-folder"].as<std::string>());
+
+	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
 
 	if(!fs::is_directory(inputFolder))
 	{
@@ -78,8 +98,6 @@ int main(int argc, char* argv[])
 
 	for (auto el : xmlFileList) 
 	{
-		std::cout << el << std::endl;
-
 		xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
 		parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
 		parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
@@ -89,11 +107,22 @@ int main(int argc, char* argv[])
 		handler.TitleFilter = [](const std::string& title) {
 			return !(title.substr(0,5) == "User:" || title.substr(0,10) == "Wikipedia:" || title.substr(0,5) == "File:" || title.substr(0,5) == "Talk:" || title.substr(0,9) == "Category:");
 		};
+		handler.ProgressCallback = [&pageCounts, &el](std::size_t count)
+		{
+			auto it = pageCounts.find(el.filename().c_str());
+			if(it != pageCounts.end())
+				std::cout << el.filename() << ": " << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %] \r";
+			else
+				std::cout << el.filename() << ": " << count << "\r";
+			std::cout.flush();
+		};
 		parser->setContentHandler(&handler);
 		parser->setErrorHandler(&handler);
 		
 		parser->parse(el.c_str());
 		delete parser;
+
+		std::cout << std::endl;
 	}
 
 	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	

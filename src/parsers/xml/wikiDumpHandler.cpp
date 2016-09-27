@@ -58,8 +58,10 @@ void WikiDumpHandler::endElement(const XMLCh* const uri, const XMLCh* const loca
 		_insidePage = false;
 		_elementStack.clear();
 		articleCount++;
-		if(articleCount % 1000 == 0)
-			std::cerr << "Articles parsed so far: " << articleCount << std::endl;
+		if(articleCount % 1000 == 0 && ProgressCallback)
+		{
+			ProgressCallback(articleCount);
+		}
 	}
 	else
 		if(_insidePage)

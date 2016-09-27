@@ -17,6 +17,8 @@ set(MAIN
 	parsers/xml/articleData.h
 	parsers/xml/wikiDumpHandler.h
 	parsers/xml/wikiDumpHandler.cpp
+	parsers/xml/countPagesHandler.h
+	parsers/xml/countPagesHandler.cpp
 	parsers/wikiHandlers/articleTitlesHandler.h
 	parsers/wikiHandlers/articleTitlesHandler.cpp
 	parsers/wikiHandlers/linkExtractionHandler.h
@@ -49,6 +51,12 @@ target_link_libraries(extractTitlesAndDates Main)
 target_link_libraries(extractTitlesAndDates ${Boost_LIBRARIES})
 target_link_libraries(extractTitlesAndDates xerces-c)
 target_link_libraries(extractTitlesAndDates pthread)
+
+add_executable(countPages parsers/main_countPages.cpp)
+target_link_libraries(countPages Main)
+target_link_libraries(countPages ${Boost_LIBRARIES})
+target_link_libraries(countPages xerces-c)
+target_link_libraries(countPages pthread)
 
 add_executable(articleNetwork parsers/main_buildArticleNetwork.cpp)
 target_link_libraries(articleNetwork Main)

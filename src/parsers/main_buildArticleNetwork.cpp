@@ -26,7 +26,7 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
-DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
+//DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
 {
 	if(vm.count("input-graph-minimized"))
 	{
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 	std::cout << "Number of nodes: " << boost::num_vertices(linkExtractionHandler.graph()) << std::endl;
 	std::cout << "Number of edges: " << boost::num_edges(linkExtractionHandler.graph()) << std::endl;
 
-	drawToSvg("hallo.svg", linkExtractionHandler.graph(), DOT);
+	//drawToSvg("hallo.svg", linkExtractionHandler.graph(), DOT);
 
 	if(vm.count("output-graph-minimized"))
 	{
