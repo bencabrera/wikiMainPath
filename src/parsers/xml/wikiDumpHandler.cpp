@@ -2,8 +2,9 @@
 #include <iostream>
 #include <boost/algorithm/string/trim.hpp>
 
-WikiDumpHandler::WikiDumpHandler(AbstractArticleHandler& articleHandler, bool extractText)
-:_articleHandler(articleHandler),
+WikiDumpHandler::WikiDumpHandler(AbstractArticleHandler& articleHandler, bool extractText)	
+:ProgressReportInterval(10000),
+_articleHandler(articleHandler),
 _insidePage(false),
 _extractText(extractText),
 articleCount(0)
@@ -58,7 +59,7 @@ void WikiDumpHandler::endElement(const XMLCh* const uri, const XMLCh* const loca
 		_insidePage = false;
 		_elementStack.clear();
 		articleCount++;
-		if(articleCount % 1000 == 0 && ProgressCallback)
+		if(articleCount % ProgressReportInterval == 0 && ProgressCallback)
 		{
 			ProgressCallback(articleCount);
 		}
@@ -66,6 +67,15 @@ void WikiDumpHandler::endElement(const XMLCh* const uri, const XMLCh* const loca
 	else
 		if(_insidePage)
 			_elementStack.pop_back();
+}
+
+
+void WikiDumpHandler::endDocument()
+{
+	if(ProgressCallback)
+	{
+		ProgressCallback(articleCount);
+	}
 }
 
 void WikiDumpHandler::characters(const XMLCh* const chars, const XMLSize_t length)

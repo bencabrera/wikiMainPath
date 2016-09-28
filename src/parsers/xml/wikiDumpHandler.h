@@ -17,9 +17,11 @@ class WikiDumpHandler : public xercesc::DefaultHandler {
 		void endElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
 		void characters(const XMLCh* const chars, const XMLSize_t length);
 		void fatalError(const xercesc::SAXParseException&);
+		void endDocument();
 
 		std::function<bool(const std::string&)> TitleFilter;
 		std::function<void(std::size_t)> ProgressCallback;
+		std::size_t ProgressReportInterval;
 	private:
 		AbstractArticleHandler& _articleHandler;
 		ArticleData _currentArticleData;

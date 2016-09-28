@@ -26,7 +26,7 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
-//DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
+DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
 {
 	if(vm.count("input-graph-minimized"))
 	{
@@ -70,6 +70,23 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 	}
 }
 
+std::map<std::string, std::size_t> readPageCountsFile(std::string path)
+{
+	std::ifstream istr(path);
+	std::map<std::string, std::size_t> rtn;
+
+	while(!istr.eof())
+	{
+		std::string filename;
+		std::size_t count;
+		istr >> filename >> count;
+
+		rtn.insert({ filename, count });
+	}
+
+	return rtn;
+}
+
 int main(int argc, char* argv[])
 {
 	po::options_description desc("Allowed options");
@@ -81,6 +98,7 @@ int main(int argc, char* argv[])
 		("input-graph-minimized", po::value<std::string>(), "The graph file which contains an already extracted graph.")
 		("output-graph-graphml", po::value<std::string>(), "The .graphml file which should contain the output graph.")
 		("output-graph-minimized", po::value<std::string>(), "The graph file which should contain the output graph.")
+		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 	;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -100,6 +118,8 @@ int main(int argc, char* argv[])
 
 	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
 	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
+
+	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
 
 	if(!fs::is_directory(inputXmlFolder))
 	{
@@ -137,7 +157,6 @@ int main(int argc, char* argv[])
 			xmlFileList.push_back(dir_it->path());
 	}
 
-	//UndirectedArticleGraph g = createGraphFromParameters(vm);
 	DirectedArticleGraph g = DirectedArticleGraph(articles.size());
 	LinkExtractionHandler linkExtractionHandler(g, articles, dates, categoriesToArticles, redirects); 
 
@@ -153,9 +172,18 @@ int main(int argc, char* argv[])
 		handler.TitleFilter = [](const std::string& title) {
 			return !(title.substr(0,5) == "User:" || title.substr(0,10) == "Wikipedia:" || title.substr(0,5) == "File:" || title.substr(0,5) == "Talk:" || title.substr(0,9) == "Category:");
 		};
+		handler.ProgressCallback = [&pageCounts, &el](std::size_t count)
+		{
+			auto it = pageCounts.find(el.filename().c_str());
+			if(it != pageCounts.end())
+				std::cout << el.filename() << ": " << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
+			else
+				std::cout << el.filename() << ": " << count << "\r" << std::endl;
+			std::cout.flush();
+		};
 		parser->setContentHandler(&handler);
 		parser->setErrorHandler(&handler);
-		
+
 		parser->parse(el.c_str());
 		delete parser;
 	}
