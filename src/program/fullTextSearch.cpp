@@ -1,10 +1,13 @@
 #include "fullTextSearch.h"
 
+#include "porter2_stemmer/porter2_stemmer.h"
+
 typedef std::map<std::string, std::set<std::size_t>> InvertedIndex;
 typedef std::set<std::size_t> DocumentSet;
 
 std::string stem(std::string str)
 {
+    Porter2Stemmer::stem(str);
 	return boost::to_lower_copy(str);
 }
 

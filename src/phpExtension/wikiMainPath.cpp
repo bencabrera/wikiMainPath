@@ -14,6 +14,8 @@
 
 InvertedIndex invertedCategoryIndex;
 std::vector<std::string> articles;
+std::vector<std::string> categories;
+std::vector<std::set<std::size_t>> category_refs;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, boost::edge_index_t, boost::vecS> Graph;
 
@@ -21,7 +23,7 @@ Graph readGraph(std::istream& istr)
 {
 	std::size_t numVertices, numEdges;
 	istr >> numVertices >> numEdges;
-	
+
 	Graph g(numVertices);
 
 	while(!istr.eof())
@@ -59,7 +61,7 @@ Php::Value queryCategories(Php::Parameters &params)
 
 	std::size_t i = 0;
 	for (auto docIdx : docs) {
-		rtn[i++] = articles[docIdx];
+		rtn[i++] = categories[docIdx];
 	}
 
 	return rtn;
@@ -70,7 +72,7 @@ extern "C" {
 
 	//const std::string pathToArticles = "/home/cabrera/UCSM/wikiMainPath/bin/debug/out";
 	//
-	
+
 
 	PHPCPP_EXPORT void *get_module() 
 	{
@@ -124,8 +126,6 @@ extern "C" {
 		}
 
 		// read in categories file
-		std::vector<std::string> categories;
-		std::vector<std::set<std::size_t>> category_refs;
 
 		while(std::getline(categories_file, line))
 		{
@@ -147,7 +147,7 @@ extern "C" {
 			//category_refs.push_back(refs_idx);
 		}
 
-		invertedCategoryIndex = buildInvertedIndex(articles);
+		invertedCategoryIndex = buildInvertedIndex(categories);
 
 		extension.add<queryCategories>("queryCategories");
 

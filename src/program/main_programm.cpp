@@ -94,9 +94,10 @@ int main(int argc, char* argv[])
 		std::cout << "---------------------------------------------------" << std::endl;
 		std::cout << "Query: " << queryStr << std::endl << std::endl;
 		std::cout << "Results: " << std::endl;
-		for (auto docIdx : docs) {
-			std::cout << articles[docIdx] << std::endl;
-		}
+		std::cout << stem(queryStr) << std::endl;
+		//for (auto docIdx : docs) {
+		//	std::cout << articles[docIdx] << std::endl;
+		//}
 	}
 
 	return 0;

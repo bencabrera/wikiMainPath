@@ -23,6 +23,8 @@ html, body {
 	left: 15px; 
 	right: 15px; 
 	display: block;
+	max-height: 700px;
+	overflow-y: scroll;
 }
 
 .info-sidebar {

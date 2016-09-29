@@ -41,10 +41,21 @@ set(PHP_EXTENSION_FILES
 	program/fullTextSearch.cpp
 )
 
+set(PORTER_2_STEMMER_FILES
+	program/porter2_stemmer/porter2_stemmer.h
+	program/porter2_stemmer/porter2_stemmer.cpp
+	program/porter2_stemmer/util/string_view.h
+	program/porter2_stemmer/util/hash.h
+)
+
+
 execute_process(COMMAND php-config7.0 --extension-dir OUTPUT_VARIABLE PHP_CONFIG_DIR)
 set(PHP_APACHE_INI_DIR /etc/php/7.0/mods-available/)
 
 add_library( Main STATIC ${MAIN} )
+
+add_library( Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES} )
+target_compile_options(Porter2_Stemmer PUBLIC -fPIC -shared)
 
 add_executable(extractTitlesAndDates parsers/main_extractTitlesAndDates.cpp)
 target_link_libraries(extractTitlesAndDates Main)
@@ -67,6 +78,7 @@ target_link_libraries(articleNetwork pthread)
 add_executable(prog program/main_programm.cpp)
 target_link_libraries(prog ${Boost_LIBRARIES})
 target_link_libraries(prog Main)
+target_link_libraries(prog Porter2_Stemmer)
 
 add_executable(tests parsers/main_tests.cpp)
 target_link_libraries(tests Main)
@@ -76,6 +88,7 @@ add_library(wikiMainPath SHARED ${PHP_EXTENSION_FILES})
 set_target_properties(wikiMainPath PROPERTIES PREFIX "") #remove the lib in front of shared object file
 target_compile_options(wikiMainPath PUBLIC -fPIC -shared)
 target_link_libraries(wikiMainPath ${Boost_LIBRARIES})
+target_link_libraries(wikiMainPath Porter2_Stemmer)
 target_link_libraries(wikiMainPath phpcpp)
 
 add_custom_target(installExtension)

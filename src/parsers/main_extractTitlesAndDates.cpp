@@ -40,6 +40,18 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	return rtn;
 }
 
+bool getPosition(const std::vector<std::string>& vec, const std::string& str, std::size_t& v) 
+{
+	auto it = std::lower_bound(vec.begin(), vec.end(), str);
+	if(it != vec.end() && *it == str)
+	{
+		v = it-vec.begin();
+		return true;
+	}	
+	else
+		return false;
+}
+
 int main(int argc, char* argv[])
 {
 	po::options_description desc("Allowed options");
@@ -128,6 +140,22 @@ int main(int argc, char* argv[])
 	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	
 	for(auto article : articleTitlesHandler.articles)
 		articles_file << article.first << "\t" << Date::serialize(article.second) << std::endl;
+
+	std::cout << "Compute categories to integers" << std::endl;
+	std::vector<std::set<std::size_t>> category_articles(articleTitlesHandler.categoriesToArticles.size());
+
+	std::size_t i = 0;
+	for (auto cat : articleTitlesHandler.categoriesToArticles)
+	{
+		for (auto art : articleTitlesHandler.categoriesToArticles) 
+		{
+			std::size_t art_idx;
+			if(getPosition(articleTitlesHandler.articles, art, art_idx))
+				category_articles[i].insert(art_idx);	
+		}
+
+		i++;
+	}
 
 	std::ofstream categories_file((outputFolder / "categories.txt").string());	
 	for(auto category : articleTitlesHandler.categoriesToArticles)
