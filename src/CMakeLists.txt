@@ -21,6 +21,8 @@ set(MAIN
 	parsers/xml/countPagesHandler.cpp
 	parsers/wikiHandlers/articleTitlesHandler.h
 	parsers/wikiHandlers/articleTitlesHandler.cpp
+	parsers/wikiHandlers/articleDatesAndCategoriesHandler.h
+	parsers/wikiHandlers/articleDatesAndCategoriesHandler.cpp
 	parsers/wikiHandlers/linkExtractionHandler.h
 	parsers/wikiHandlers/linkExtractionHandler.cpp
 	parsers/articleNetwork/linkListExtractor.h
@@ -56,6 +58,12 @@ add_library( Main STATIC ${MAIN} )
 
 add_library( Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES} )
 target_compile_options(Porter2_Stemmer PUBLIC -fPIC -shared)
+
+add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
+target_link_libraries(s1_articlesAndCategories Main)
+target_link_libraries(s1_articlesAndCategories ${Boost_LIBRARIES})
+target_link_libraries(s1_articlesAndCategories xerces-c)
+target_link_libraries(s1_articlesAndCategories pthread)
 
 add_executable(extractTitlesAndDates parsers/main_extractTitlesAndDates.cpp)
 target_link_libraries(extractTitlesAndDates Main)
