@@ -15,10 +15,11 @@
 // boost
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <boost/container/flat_set.hpp>
 
 // local files
 #include "xml/wikiDumpHandler.h"
-#include "wikiHandlers/articleDatesAndCategoriesHandler.h"
+#include "wikiHandlers/categoryHasArticleHandler.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -26,21 +27,20 @@ namespace fs = boost::filesystem;
 class ParserWrapper 
 {
 	public:
-		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts)
+		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts, CategoryHasArticleHandler& hand)
 		:_path(path),
-		_pageCounts(pageCounts)
+		_pageCounts(pageCounts),
+		_artHandler(hand)
 		{}
 
-		ArticleDatesAndCategoriesHandler operator()(void)
+		void operator()(void)
 		{
-			ArticleDatesAndCategoriesHandler artHandler; 
-
 			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
 			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 
-			WikiDumpHandler handler(artHandler, true);
+			WikiDumpHandler handler(_artHandler, true);
 			handler.TitleFilter = [](const std::string& title) {
 				return !(
 						title.substr(0,5) == "User:" 
@@ -69,14 +69,12 @@ class ParserWrapper
 
 			parser->parse(this->_path.c_str());
 			delete parser;
-
-			return artHandler;
 		}
 
 	private:
 		fs::path _path;
-
 		const std::map<std::string, std::size_t>& _pageCounts;
+		CategoryHasArticleHandler& _artHandler;
 };
 
 std::string timingToReadable(std::size_t milliseconds)
@@ -109,6 +107,32 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	return rtn;
 }
 
+void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories, std::map<std::string, std::string>& redirects)
+{
+	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
+	std::ifstream categories_file((inputFolder / "categories.txt").string());	
+	std::ifstream redirects_file((inputFolder / "redirects.txt").string());	
+		
+	std::string line;
+	while(std::getline(articles_file, line))
+	{
+		std::istringstream ss(line);
+		std::string title, dateStr;
+		std::getline(ss, title, '\t');
+		std::getline(ss, dateStr, '\t');
+		articles.push_back(title);
+	}			
+
+	while(std::getline(redirects_file, line))
+	{
+		std::istringstream ss(line);
+		std::string sourceTitle, targetTitle;
+		std::getline(ss, sourceTitle, '\t');
+		std::getline(ss, targetTitle, '\t');
+		redirects.insert({ sourceTitle, targetTitle });
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	// setup timings stuff
@@ -121,6 +145,7 @@ int main(int argc, char* argv[])
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
+		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
 		;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -132,20 +157,21 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-xml-folder") || !vm.count("output-folder"))
+	if(!vm.count("input-xml-folder") || !vm.count("input-article-forlder") || !vm.count("output-folder"))
 	{
 		std::cerr << "Please specify the parameters --input-xml-folder and --output-folder." << std::endl;
 		return 1;
 	}
 
-	const fs::path inputFolder(vm["input-xml-folder"].as<std::string>());
+	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
+	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
 	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
 
-	if(!fs::is_directory(inputFolder))
+	if(!fs::is_directory(inputXmlFolder) && !fs::is_directory(inputArticleFolder))
 	{
-		std::cerr << "Parameter --input-xml-folder is no folder." << std::endl;
+		std::cerr << "Parameter --input-xml-folder or --input-article-folder is no folder." << std::endl;
 		return 1;
 	}
 
@@ -160,64 +186,66 @@ int main(int argc, char* argv[])
 
 	// scan for xml files in the input-folder
 	std::vector<fs::path> xmlFileList;
-	for(auto dir_it = fs::directory_iterator(inputFolder); dir_it != fs::directory_iterator(); dir_it++)
+	for(auto dir_it = fs::directory_iterator(inputXmlFolder); dir_it != fs::directory_iterator(); dir_it++)
 	{
 		if(!fs::is_directory(dir_it->path()))
 			xmlFileList.push_back(dir_it->path());
 	}
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Found the following files: " << std::endl;
+	std::cout << "Reading in already parsed files... " << std::endl;
+	auto startTime = std::chrono::steady_clock::now();
+	
+	std::vector<std::string> articles;
+	std::vector<std::string> categories;
+	std::map<std::string, std::string> redirects;
+	readDataFromFile(inputArticleFolder, articles, categories, redirects);	
+
+	auto endTime = std::chrono::steady_clock::now();
+	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
+	timings.push_back({ "Reading in already parsed files...", diff });
+
+
+
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+	std::cout << "Found the following .xml files: " << std::endl;
 	for (auto el : xmlFileList) {
 		std::cout << el << std::endl;
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
 
-	auto startTime = std::chrono::steady_clock::now();
+	startTime = std::chrono::steady_clock::now();
 
-	std::vector<std::future<ArticleDatesAndCategoriesHandler>> futures;
+	std::vector<CategoryHasArticleHandler> handlers;
+	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle;
+	VectorMutex<1000> vecMutex;
+	std::vector<std::future<void>> futures;
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts)));
-
-	std::map<std::string,Date> articlesWithDates;
-	std::vector<std::string> categories;
-	std::map<std::string,std::string> redirects;
-
-	for (auto& future : futures)
 	{
-		auto hand = future.get();
-		articlesWithDates.insert(hand.articles.begin(), hand.articles.end());
-		categories.insert(categories.end(), hand.categories.begin(), hand.categories.end());
-		redirects.insert(hand.redirects.begin(), hand.redirects.end());
+		handlers.push_back(CategoryHasArticleHandler(articles, categories, redirects, categoryHasArticle, vecMutex));
+		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,handlers.back())));
 	}
 
-	auto endTime = std::chrono::steady_clock::now();
-	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Parsing .xml files and merging data structures.", diff });
-
-
-	startTime = std::chrono::steady_clock::now();
-	
-	std::sort(categories.begin(), categories.end());
+	for (auto& future : futures)
+		future.get();
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Sorting categories vector.", diff });
+	timings.push_back({ "Parsing .xml files.", diff });
+
+
+
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	
-	for(auto article : articlesWithDates)
-		articles_file << article.first << "\t" << Date::serialize(article.second) << std::endl;
-
-	std::ofstream categories_file((outputFolder / "categories.txt").string());	
-	for(auto cat : categories)
-		categories_file << cat << std::endl;
-
-	std::ofstream redirects_file((outputFolder / "redirects.txt").string());	
-	for (auto redirect : redirects) 
-		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
+	std::ofstream catArtFile((outputFolder / "category_has_article.txt").string());	
+	for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
+	{
+		catArtFile << i << " ";
+		for (auto art : categoryHasArticle[i]) 
+			catArtFile << art << " ";	
+	}
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -228,14 +256,6 @@ int main(int argc, char* argv[])
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
 	timings.push_back({ "Total", diff });
-	
-	// short feedback to user
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Status: " << std::endl;
-	std::cout << std::setw(30) << "Total number of articles: " << "..." << std::endl;
-	std::cout << std::setw(30) << "Articles with extractable dates: " << articlesWithDates.size() << std::endl;
-	std::cout << std::setw(30) << "Categories extracted: " << categories.size() << std::endl;
-	std::cout << std::setw(30) << "Redirects extracted: " << redirects.size() << std::endl;
 	
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
