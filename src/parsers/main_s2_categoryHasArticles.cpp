@@ -17,6 +17,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/container/flat_set.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 // local files
 #include "xml/wikiDumpHandler.h"
@@ -29,20 +30,31 @@ namespace fs = boost::filesystem;
 class ParserWrapper 
 {
 	public:
-		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts, CategoryHasArticleHandler& hand)
+		ParserWrapper(
+			fs::path path, 
+			const std::map<std::string, std::size_t>& pageCounts, 
+			const std::vector<std::string>& arts, 
+			const std::vector<std::string>& cats, 
+			std::vector<boost::container::flat_set<std::size_t>>& catHasArt, 
+			VectorMutex<1000>& vecMut
+		)
 		:_path(path),
 		_pageCounts(pageCounts),
-		_artHandler(hand)
+		_articles(arts),
+		_categories(cats),
+		_categoryHasArticle(catHasArt),
+		_vecMutex(vecMut)
 		{}
 
 		void operator()(void)
 		{
+			CategoryHasArticleHandler artHandler(_articles, _categories, _categoryHasArticle, _vecMutex);
 			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
 			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 
-			WikiDumpHandler handler(_artHandler, true);
+			WikiDumpHandler handler(artHandler, true);
 			handler.TitleFilter = [](const std::string& title) {
 				return !(
 						title.substr(0,5) == "User:" 
@@ -68,14 +80,17 @@ class ParserWrapper
 	private:
 		fs::path _path;
 		const std::map<std::string, std::size_t>& _pageCounts;
-		CategoryHasArticleHandler& _artHandler;
+
+		const std::vector<std::string>& _articles;
+		const std::vector<std::string>& _categories; 
+		std::vector<boost::container::flat_set<std::size_t>>& _categoryHasArticle; 
+		VectorMutex<1000>& _vecMutex;
 };
 
-void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories, std::map<std::string, std::string>& redirects)
+void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories)
 {
 	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
 	std::ifstream categories_file((inputFolder / "categories.txt").string());	
-	std::ifstream redirects_file((inputFolder / "redirects.txt").string());	
 		
 	std::string line;
 	while(std::getline(articles_file, line))
@@ -87,13 +102,10 @@ void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& art
 		articles.push_back(title);
 	}			
 
-	while(std::getline(redirects_file, line))
+	while(std::getline(categories_file, line))
 	{
-		std::istringstream ss(line);
-		std::string sourceTitle, targetTitle;
-		std::getline(ss, sourceTitle, '\t');
-		std::getline(ss, targetTitle, '\t');
-		redirects.insert({ sourceTitle, targetTitle });
+		boost::trim(line);
+		categories.push_back(line);
 	}
 }
 
@@ -121,9 +133,9 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-xml-folder") || !vm.count("input-article-forlder") || !vm.count("output-folder"))
+	if(!vm.count("input-xml-folder") || !vm.count("input-article-folder") || !vm.count("output-folder"))
 	{
-		std::cerr << "Please specify the parameters --input-xml-folder and --output-folder." << std::endl;
+		std::cerr << "Please specify the parameters --input-xml-folder and --input-article-folder and --output-folder." << std::endl;
 		return 1;
 	}
 
@@ -162,8 +174,7 @@ int main(int argc, char* argv[])
 	
 	std::vector<std::string> articles;
 	std::vector<std::string> categories;
-	std::map<std::string, std::string> redirects;
-	readDataFromFile(inputArticleFolder, articles, categories, redirects);	
+	readDataFromFile(inputArticleFolder, articles, categories);	
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -184,14 +195,15 @@ int main(int argc, char* argv[])
 	startTime = std::chrono::steady_clock::now();
 
 	std::vector<CategoryHasArticleHandler> handlers;
-	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle;
+	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle(categories.size());
 	VectorMutex<1000> vecMutex;
 	std::vector<std::future<void>> futures;
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
 	{
-		handlers.push_back(CategoryHasArticleHandler(articles, categories, redirects, categoryHasArticle, vecMutex));
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,handlers.back())));
+		//ParserWrapper wrap(xmlPath,pageCounts,handlers.back());
+		//wrap();
+		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,articles,categories,categoryHasArticle,vecMutex)));
 	}
 
 	for (auto& future : futures)
@@ -210,6 +222,7 @@ int main(int argc, char* argv[])
 	{
 		for (auto art : categoryHasArticle[i]) 
 			catArtFile << art << " ";	
+		catArtFile << std::endl;
 	}
 
 	endTime = std::chrono::steady_clock::now();
@@ -226,7 +239,7 @@ int main(int argc, char* argv[])
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
 	for(auto timing : timings)
-		std::cout << std::left << std::setw(32) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

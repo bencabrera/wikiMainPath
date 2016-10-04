@@ -198,18 +198,24 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Total", diff });
 	
 	// short feedback to user
+	std::size_t totalArticleNumber = 0;
+	for (auto path : xmlFileList) {
+		auto it = pageCounts.find(path.filename().c_str());
+		if(it != pageCounts.end())
+			totalArticleNumber += it->second;
+	}
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Status: " << std::endl;
-	std::cout << std::setw(30) << "Total number of articles: " << "..." << std::endl;
-	std::cout << std::setw(30) << "Articles with extractable dates: " << articlesWithDates.size() << std::endl;
-	std::cout << std::setw(30) << "Categories extracted: " << categories.size() << std::endl;
-	std::cout << std::setw(30) << "Redirects extracted: " << redirects.size() << std::endl;
+	std::cout << std::left << std::setw(40) << "Total number of articles: " << totalArticleNumber << std::endl;
+	std::cout << std::left << std::setw(40) << "Articles with extractable dates: " << articlesWithDates.size() << std::endl;
+	std::cout << std::left << std::setw(40) << "Categories extracted: " << categories.size() << std::endl;
+	std::cout << std::left << std::setw(40) << "Redirects extracted: " << redirects.size() << std::endl;
 	
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
 	for(auto timing : timings)
-		std::cout << std::left << std::setw(32) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

@@ -5,15 +5,13 @@
 CategoryHasArticleHandler::CategoryHasArticleHandler(
 		const std::vector<std::string>& arts, 
 		const std::vector<std::string>& cats, 
-		const std::map<std::string, std::string>& rdirs, 
 		std::vector<boost::container::flat_set<std::size_t>>& catHasArt, 
 		VectorMutex<1000>& vecMut
-		)
+)
 :articles(arts),
-	categories(cats),
-	redirects(rdirs),
-	categoryHasArticle(catHasArt),
-	_vecMutex(vecMut)
+categories(cats),
+categoryHasArticle(catHasArt),
+_vecMutex(vecMut)
 {
 	if(catHasArt.size() != categories.size())
 		throw std::logic_error("categoryHasArticle has to have the same dimensions as categories.");
@@ -29,7 +27,6 @@ void CategoryHasArticleHandler::HandleArticle(const ArticleData& data)
 	if(!getPosition(articles, title, articleIdx))
 		return;
 
-	// if it is redirect, safe it to the redirects map for later
 	if(data.IsRedirect)
 		return;
 

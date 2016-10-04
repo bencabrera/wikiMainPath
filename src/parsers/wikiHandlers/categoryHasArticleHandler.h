@@ -16,7 +16,6 @@ class CategoryHasArticleHandler : public AbstractArticleHandler{
 		CategoryHasArticleHandler(
 			const std::vector<std::string>& arts, 
 			const std::vector<std::string>& cats, 
-			const std::map<std::string, std::string>& rdirs, 
 			std::vector<boost::container::flat_set<std::size_t>>& catHasArt, 
 			VectorMutex<1000>& vecMut
 		);
@@ -25,8 +24,6 @@ class CategoryHasArticleHandler : public AbstractArticleHandler{
 
 		const std::vector<std::string>& articles;
 		const std::vector<std::string>& categories;
-		const std::map<std::string,std::string>& redirects;
-
 
 		std::vector<boost::container::flat_set<std::size_t>>& categoryHasArticle;
 
