@@ -1,17 +1,23 @@
 #include "linkExtractionHandler.h"
 
-LinkExtractionHandler::LinkExtractionHandler(DirectedArticleGraph& g, const std::vector<std::string>& arts, const std::vector<Date>& dates, const std::map<std::string, std::vector<std::string>>& cats, const std::map<std::string, std::string>& redirs)
-:_graph(g),
-_articles(arts),
+LinkExtractionHandler::LinkExtractionHandler(
+	const std::vector<std::string>& arts, 
+	const std::vector<Date>& dates, 
+	const std::map<std::string, std::string>& redirs,
+	std::vector<boost::container::flat_set<std::size_t>>& adjList,
+	VectorMutex<1000>& vecMut
+)
+:_articles(arts),
 _dates(dates),
-_categoriesToArticles(cats),
-_redirects(redirs)
+_redirects(redirs),
+_adjList(adjList),
+_vecMutex(vecMut)
 {
-	if(boost::num_vertices(g) < _articles.size())
-		throw std::logic_error("Graph needs to have same number of vertices as articles vector as entries");
+	if(_adjList.size() != _articles.size())
+		throw std::logic_error("Dimensions are not correct.");
 }
 
-bool LinkExtractionHandler::GetOrAddVertex(const std::string& title, VertexDescriptor& v) const
+bool LinkExtractionHandler::GetPosition(const std::string& title, std::size_t& v) const
 {
 	auto it = std::lower_bound(_articles.begin(), _articles.end(), title);
 	if(it != _articles.end() && *it == title)
@@ -23,19 +29,13 @@ bool LinkExtractionHandler::GetOrAddVertex(const std::string& title, VertexDescr
 		return false;
 }
 
-
-DirectedArticleGraph& LinkExtractionHandler::graph()
-{
-	return _graph;
-}
-
 void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 {
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
-	VertexDescriptor source, target;
-	if(!GetOrAddVertex(title, source))
+	std::size_t source, target;
+	if(!GetPosition(title, source))
 		return;
 
 	std::size_t foundPos = data.Content.find("[[");
@@ -57,9 +57,14 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 				linkTitle.substr(0,5) == "User:" 
 				|| linkTitle.substr(0,10) == "Wikipedia:" 
 				|| linkTitle.substr(0,5) == "File:" 
-				|| linkTitle.substr(0,5) == "Talk:" 
-				|| linkTitle.substr(0,9) == "Category:" 
-				|| !GetOrAddVertex(linkTitle, target)
+				|| linkTitle.substr(0,9) == "Category:"
+				|| linkTitle.substr(0,9) == "Template:"
+				|| linkTitle.substr(0,14) == "Template talk:"
+				|| linkTitle.substr(0,14) == "Category talk:" 
+				|| linkTitle.substr(0,10) == "User talk:"
+				|| linkTitle.substr(0,10) == "File talk:"
+				|| linkTitle.substr(0,15) == "Wikipedia talk:"
+				|| !GetPosition(linkTitle, target)
 		  )
 		{
 			foundPos = data.Content.find("[[", secondFoundPos);
@@ -68,13 +73,15 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 
 		if(_dates[source] < _dates[target])
 		{
-			if(!boost::edge(source,target,_graph).second)
-				boost::add_edge(source, target, _graph);
+			_vecMutex.lock(source);
+			_adjList[source].insert(target);
+			_vecMutex.unlock(source);
 		}
 		else
 		{
-			if(!boost::edge(target,source,_graph).second)
-				boost::add_edge(target, source, _graph);
+			_vecMutex.lock(target);
+			_adjList[target].insert(source);
+			_vecMutex.unlock(target);
 		}
 
 		foundPos = data.Content.find("[[", secondFoundPos);

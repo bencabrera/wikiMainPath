@@ -16,6 +16,7 @@
 
 // boost
 #include <boost/algorithm/string/split.hpp>
+#include <boost/container/flat_set.hpp>
 
 // local files
 #include "wikiHandlers/linkExtractionHandler.h"
@@ -26,27 +27,9 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
-DirectedArticleGraph createGraphFromParameters(po::variables_map& vm)
-{
-	if(vm.count("input-graph-minimized"))
-	{
-		std::ifstream inFile(vm["input-graph-minimized"].as<std::string>());
-		return readMinimizedGraph(inFile);
-	}
-
-	if(vm.count("input-graph-graphml"))
-	{
-		std::ifstream inFile(vm["input-graph-graphml"].as<std::string>());
-		return readFromGraphMl(inFile);
-	}
-
-	return DirectedArticleGraph();
-}
-
-void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<Date>& dates, std::map<std::string, std::vector<std::string>>& categoriesToArticles, std::map<std::string, std::string>& redirects)
+void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<Date>& dates, std::map<std::string, std::string>& redirects)
 {
 	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
-	std::ifstream categories_file((inputFolder / "categories.txt").string());	
 	std::ifstream redirects_file((inputFolder / "redirects.txt").string());	
 		
 	std::string line;
@@ -87,6 +70,64 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	return rtn;
 }
 
+
+class ParserWrapper 
+{
+	public:
+		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts, LinkExtractionHandler& hand)
+		:_path(path),
+		_pageCounts(pageCounts),
+		_artHandler(hand)
+		{}
+
+		void operator()(void)
+		{
+			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
+			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
+			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
+			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
+
+			WikiDumpHandler handler(_artHandler, true);
+			handler.TitleFilter = [](const std::string& title) {
+				return !(
+						title.substr(0,5) == "User:" 
+						|| title.substr(0,10) == "Wikipedia:" 
+						|| title.substr(0,5) == "File:" 
+						|| title.substr(0,14) == "Category talk:" 
+						|| title.substr(0,9) == "Category:"
+						|| title.substr(0,14) == "Template talk:"
+						|| title.substr(0,9) == "Template:"
+						|| title.substr(0,10) == "User talk:"
+						|| title.substr(0,10) == "File talk:"
+						|| title.substr(0,15) == "Wikipedia talk:"
+						);
+			};
+			handler.ProgressCallback = [this](std::size_t count)
+			{
+				auto it = this->_pageCounts.find(this->_path.filename().c_str());
+				if(it != this->_pageCounts.end())
+					std::cout << this->_path.filename() << ": " << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
+				else
+					std::cout << this->_path.filename() << ": " << count << "\r" << std::endl;
+				std::cout.flush();
+			};
+			parser->setContentHandler(&handler);
+			parser->setErrorHandler(&handler);
+
+			parser->parse(_path.c_str());
+			delete parser;
+		}
+
+	private:
+		fs::path _path;
+		const std::map<std::string, std::size_t>& _pageCounts;
+		LinkExtractionHandler& _artHandler;
+};
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 	po::options_description desc("Allowed options");
@@ -94,12 +135,9 @@ int main(int argc, char* argv[])
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
-		("input-graph-graphml", po::value<std::string>(), "The .graphml file which contains an already extracted graph.")
-		("input-graph-minimized", po::value<std::string>(), "The graph file which contains an already extracted graph.")
-		("output-graph-graphml", po::value<std::string>(), "The .graphml file which should contain the output graph.")
-		("output-graph-minimized", po::value<std::string>(), "The graph file which should contain the output graph.")
+		("output-graph", po::value<std::string>(), "The graph file which should contain the output graph.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
-	;
+		;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm);
@@ -110,7 +148,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-article-folder") || !vm.count("input-xml-folder") || !(vm.count("output-graph-graphml") || vm.count("output-graph-minimized")))
+	if(!vm.count("input-article-folder") || !vm.count("input-xml-folder") || !(vm.count("output-graph") ))
 	{
 		std::cerr << "Please specify the parameters --input-article-folder, --input-xml-folder and --output-graph-graphml or --output-graph-minimized." << std::endl;
 		return 1;
@@ -141,10 +179,9 @@ int main(int argc, char* argv[])
 
 	std::vector<std::string> articles;
 	std::vector<Date> dates;
-   	std::map<std::string, std::vector<std::string>> categoriesToArticles;
-   	std::map<std::string, std::string> redirects;
+	std::map<std::string, std::string> redirects;
 
-	readDataFromFile(inputArticleFolder, articles, dates, categoriesToArticles, redirects);
+	readDataFromFile(inputArticleFolder, articles, dates, redirects);
 
 	// initialize xerces
 	xercesc::XMLPlatformUtils::Initialize();
@@ -157,52 +194,24 @@ int main(int argc, char* argv[])
 			xmlFileList.push_back(dir_it->path());
 	}
 
-	DirectedArticleGraph g = DirectedArticleGraph(articles.size());
-	LinkExtractionHandler linkExtractionHandler(g, articles, dates, categoriesToArticles, redirects); 
-
-	for (auto el : xmlFileList) {
-		std::cout << el << std::endl;
-
-		xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-		parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-		parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-		parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
-		
-		WikiDumpHandler handler(linkExtractionHandler, true);
-		handler.TitleFilter = [](const std::string& title) {
-			return !(title.substr(0,5) == "User:" || title.substr(0,10) == "Wikipedia:" || title.substr(0,5) == "File:" || title.substr(0,5) == "Talk:" || title.substr(0,9) == "Category:");
-		};
-		handler.ProgressCallback = [&pageCounts, &el](std::size_t count)
-		{
-			auto it = pageCounts.find(el.filename().c_str());
-			if(it != pageCounts.end())
-				std::cout << el.filename() << ": " << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
-			else
-				std::cout << el.filename() << ": " << count << "\r" << std::endl;
-			std::cout.flush();
-		};
-		parser->setContentHandler(&handler);
-		parser->setErrorHandler(&handler);
-
-		parser->parse(el.c_str());
-		delete parser;
+	std::vector<LinkExtractionHandler> handlers;
+	std::vector<std::future<void>> futures;
+	VectorMutex<1000> vecMutex;
+	std::vector<boost::container::flat_set<std::size_t>> adjList(articles.size());
+	for(std::size_t i = 0; i < xmlFileList.size(); i++)
+	{
+		auto xmlPath = xmlFileList[i];
+		handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
+		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,handlers.back())));
 	}
 
-	std::cout << "Number of nodes: " << boost::num_vertices(linkExtractionHandler.graph()) << std::endl;
-	std::cout << "Number of edges: " << boost::num_edges(linkExtractionHandler.graph()) << std::endl;
-
-	//drawToSvg("hallo.svg", linkExtractionHandler.graph(), DOT);
-
-	if(vm.count("output-graph-minimized"))
+	std::ofstream graphFile(vm["output-graph-minimized"].as<std::string>());
+	for (auto arts : adjList) 
 	{
-		std::ofstream graphFile(vm["output-graph-minimized"].as<std::string>());
-		writeMinimizedGraph(graphFile, linkExtractionHandler.graph());
-	}
-
-	if(vm.count("output-graph-graphml"))
-	{
-		std::ofstream graphFile(vm["output-graph-graphml"].as<std::string>());
-		writeToGraphMl(graphFile, linkExtractionHandler.graph());
+		for (auto art : arts) 
+			std::cout << art << " ";
+			
+		std::cout << std::endl;
 	}
 
 	xercesc::XMLPlatformUtils::Terminate();

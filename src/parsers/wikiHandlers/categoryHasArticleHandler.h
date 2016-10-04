@@ -28,7 +28,7 @@ class CategoryHasArticleHandler : public AbstractArticleHandler{
 		const std::map<std::string,std::string>& redirects;
 
 
-		std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle;
+		std::vector<boost::container::flat_set<std::size_t>>& categoryHasArticle;
 
 
 	private:

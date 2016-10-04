@@ -77,6 +77,12 @@ target_link_libraries(s2_categoryHasArticles ${Boost_LIBRARIES})
 target_link_libraries(s2_categoryHasArticles xerces-c)
 target_link_libraries(s2_categoryHasArticles pthread)
 
+add_executable(s3_articleNetwork parsers/main_s3_articleNetwork.cpp)
+target_link_libraries(s3_articleNetwork Main)
+target_link_libraries(s3_articleNetwork ${Boost_LIBRARIES})
+target_link_libraries(s3_articleNetwork xerces-c)
+target_link_libraries(s3_articleNetwork pthread)
+
 add_executable(extractTitlesAndDates parsers/main_extractTitlesAndDates.cpp)
 target_link_libraries(extractTitlesAndDates Main)
 target_link_libraries(extractTitlesAndDates ${Boost_LIBRARIES})

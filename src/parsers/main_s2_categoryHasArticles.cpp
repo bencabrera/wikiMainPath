@@ -242,7 +242,6 @@ int main(int argc, char* argv[])
 	std::ofstream catArtFile((outputFolder / "category_has_article.txt").string());	
 	for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
 	{
-		catArtFile << i << " ";
 		for (auto art : categoryHasArticle[i]) 
 			catArtFile << art << " ";	
 	}
