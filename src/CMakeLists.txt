@@ -37,6 +37,8 @@ set(MAIN
 	parsers/articleNetwork/articleGraphIo.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
+	parsers/shared.h
+	parsers/shared.cpp
 )
 
 set(PHP_EXTENSION_FILES 
@@ -83,23 +85,11 @@ target_link_libraries(s3_articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(s3_articleNetwork xerces-c)
 target_link_libraries(s3_articleNetwork pthread)
 
-add_executable(extractTitlesAndDates parsers/main_extractTitlesAndDates.cpp)
-target_link_libraries(extractTitlesAndDates Main)
-target_link_libraries(extractTitlesAndDates ${Boost_LIBRARIES})
-target_link_libraries(extractTitlesAndDates xerces-c)
-target_link_libraries(extractTitlesAndDates pthread)
-
 add_executable(countPages parsers/main_countPages.cpp)
 target_link_libraries(countPages Main)
 target_link_libraries(countPages ${Boost_LIBRARIES})
 target_link_libraries(countPages xerces-c)
 target_link_libraries(countPages pthread)
-
-add_executable(articleNetwork parsers/main_buildArticleNetwork.cpp)
-target_link_libraries(articleNetwork Main)
-target_link_libraries(articleNetwork ${Boost_LIBRARIES})
-target_link_libraries(articleNetwork xerces-c)
-target_link_libraries(articleNetwork pthread)
 
 add_executable(prog program/main_programm.cpp)
 target_link_libraries(prog ${Boost_LIBRARIES})

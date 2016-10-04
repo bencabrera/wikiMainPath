@@ -21,8 +21,8 @@
 // local files
 #include "wikiHandlers/linkExtractionHandler.h"
 #include "xml/wikiDumpHandler.h"
-#include "articleNetwork/articleGraphIo.h"
 #include "articleNetwork/dateExtractor.h"
+#include "shared.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -51,23 +51,6 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 		std::getline(ss, targetTitle, '\t');
 		redirects.insert({ sourceTitle, targetTitle });
 	}
-}
-
-std::map<std::string, std::size_t> readPageCountsFile(std::string path)
-{
-	std::ifstream istr(path);
-	std::map<std::string, std::size_t> rtn;
-
-	while(!istr.eof())
-	{
-		std::string filename;
-		std::size_t count;
-		istr >> filename >> count;
-
-		rtn.insert({ filename, count });
-	}
-
-	return rtn;
 }
 
 
@@ -102,15 +85,8 @@ class ParserWrapper
 						|| title.substr(0,15) == "Wikipedia talk:"
 						);
 			};
-			handler.ProgressCallback = [this](std::size_t count)
-			{
-				auto it = this->_pageCounts.find(this->_path.filename().c_str());
-				if(it != this->_pageCounts.end())
-					std::cout << this->_path.filename() << ": " << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
-				else
-					std::cout << this->_path.filename() << ": " << count << "\r" << std::endl;
-				std::cout.flush();
-			};
+			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
+
 			parser->setContentHandler(&handler);
 			parser->setErrorHandler(&handler);
 
@@ -125,11 +101,12 @@ class ParserWrapper
 };
 
 
-
-
-
 int main(int argc, char* argv[])
 {
+	// setup timings stuff
+	auto globalStartTime = std::chrono::steady_clock::now();
+	std::vector<std::pair<std::string, double>> timings;
+
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "Produce help message.")
@@ -177,23 +154,37 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+	std::cout << "Reading in already parsed files... " << std::endl;
+	auto startTime = std::chrono::steady_clock::now();
+
 	std::vector<std::string> articles;
 	std::vector<Date> dates;
 	std::map<std::string, std::string> redirects;
 
 	readDataFromFile(inputArticleFolder, articles, dates, redirects);
 
+	auto endTime = std::chrono::steady_clock::now();
+	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
+	timings.push_back({ "Reading in already parsed files...", diff });
+
 	// initialize xerces
 	xercesc::XMLPlatformUtils::Initialize();
 
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+	std::cout << "Found the following .xml files: " << std::endl;
 	// scan xml folder for files and put them into list
 	std::vector<fs::path> xmlFileList;
 	for(auto dir_it = fs::directory_iterator(inputXmlFolder); dir_it != fs::directory_iterator(); dir_it++)
 	{
 		if(!fs::is_directory(dir_it->path()))
 			xmlFileList.push_back(dir_it->path());
+		std::cout << dir_it->path() << std::endl;
 	}
 
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+	std::cout << "Parsing .xml files" << std::endl;
+	startTime = std::chrono::steady_clock::now();
 	std::vector<LinkExtractionHandler> handlers;
 	std::vector<std::future<void>> futures;
 	VectorMutex<1000> vecMutex;
@@ -205,7 +196,17 @@ int main(int argc, char* argv[])
 		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,handlers.back())));
 	}
 
-	std::ofstream graphFile(vm["output-graph-minimized"].as<std::string>());
+	for (auto& fut : futures) 
+		fut.get();	
+
+	endTime = std::chrono::steady_clock::now();
+	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
+	timings.push_back({ "Parsing .xml files.", diff });
+	
+
+	startTime = std::chrono::steady_clock::now();
+
+	std::ofstream graphFile(vm["output-graph"].as<std::string>());
 	for (auto arts : adjList) 
 	{
 		for (auto art : arts) 
@@ -214,7 +215,25 @@ int main(int argc, char* argv[])
 		std::cout << std::endl;
 	}
 
+	endTime = std::chrono::steady_clock::now();
+	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
+	timings.push_back({ "Writing output files", diff });
+
 	xercesc::XMLPlatformUtils::Terminate();
+
+	endTime = std::chrono::steady_clock::now();
+	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
+	timings.push_back({ "Total", diff });
+	
+	// output timings
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+	std::cout << "Timings: " << std::endl << std::endl;
+	for(auto timing : timings)
+		std::cout << std::left << std::setw(32) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+
+	std::cout << "-----------------------------------------------------------------------" << std::endl;
+
+
 
 	return 0;
 }

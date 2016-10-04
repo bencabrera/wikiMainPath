@@ -5,6 +5,7 @@
 #include <future>
 #include <thread>
 #include <fstream>
+#include <functional>
 
 // xerces
 #include <xercesc/sax2/SAX2XMLReader.hpp>
@@ -19,6 +20,7 @@
 // local files
 #include "xml/wikiDumpHandler.h"
 #include "wikiHandlers/articleDatesAndCategoriesHandler.h"
+#include "shared.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -40,6 +42,7 @@ class ParserWrapper
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
 			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 
+			// set up call back handlers
 			WikiDumpHandler handler(artHandler, true);
 			handler.TitleFilter = [](const std::string& title) {
 				return !(
@@ -54,19 +57,12 @@ class ParserWrapper
 						|| title.substr(0,15) == "Wikipedia talk:"
 						);
 			};
-			handler.ProgressCallback = [this](std::size_t count)
-			{
-				auto it = this->_pageCounts.find(this->_path.filename().c_str());
-				if(it != this->_pageCounts.end())
-					std::cout << this->_path.filename() << ": " << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
-				else
-					std::cout << this->_path.filename() << ": " << std::right << count << std::endl;
-				std::cout.flush();
-			};
+			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
 
 			parser->setContentHandler(&handler);
 			parser->setErrorHandler(&handler);
 
+			// run parser
 			parser->parse(this->_path.c_str());
 			delete parser;
 
@@ -79,35 +75,7 @@ class ParserWrapper
 		const std::map<std::string, std::size_t>& _pageCounts;
 };
 
-std::string timingToReadable(std::size_t milliseconds)
-{
-	std::stringstream ss;
-	
-	auto hours = (milliseconds / (1000*60*60));
-	auto mins =  (milliseconds % (1000*60*60)) / (1000*60);
-	auto seconds =  ((milliseconds % (1000*60*60)) % (1000*60)) / 1000;
-	auto milli =  (((milliseconds % (1000*60*60)) % (1000*60)) % 1000);
-	ss << hours << "h " << mins << "m " << seconds << "s " << milli << "ms";
 
-	return ss.str();
-}
-
-std::map<std::string, std::size_t> readPageCountsFile(std::string path)
-{
-	std::ifstream istr(path);
-	std::map<std::string, std::size_t> rtn;
-
-	while(!istr.eof())
-	{
-		std::string filename;
-		std::size_t count;
-		istr >> filename >> count;
-
-		rtn.insert({ filename, count });
-	}
-
-	return rtn;
-}
 
 int main(int argc, char* argv[])
 {
