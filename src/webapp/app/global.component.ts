@@ -7,21 +7,25 @@ import { AppComponent } from './app.component';
 
 @Component({
 	selector: 'global',
-	templateUrl: '../templates/global.html',
-	directives: [ AppComponent ]
+	templateUrl: '../templates/global.html'
 })
 export class GlobalComponent 
 { 
 	category: string;
+	public articleList: Observable<string[]>;
+	public showArticleList: boolean;
 
-	constructor()
+	constructor(private searchQueryService: SearchQueryService)
 	{
 		this.category = "hello";
+		this.articleList = new Observable<string[]>();
+		this.showArticleList = false;
 	}
 
-	computeMainPath(title : string) : void
+	public computeMainPath(title : string) : void
 	{
 		this.category = title;
-		console.log("in computeMainPath():", title);
+		this.articleList = this.searchQueryService.getArticlesInCategory(title);
+		this.showArticleList = true;
 	}
 }

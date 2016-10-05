@@ -32,8 +32,16 @@ html, body {
 	padding: 10px;
 	top: 100px;
 	bottom: 50px;
-	width: 300px;
+	width: 15%;
 	background-color: #f8f8f8;
 	border: 1px solid #e7e7e7;
 	min-height: 500px;
+}
+
+.main-content {
+	position: fixed;
+	right: 50px;
+	top: 100px;
+	bottom: 100px;
+	width: 80%;
 }

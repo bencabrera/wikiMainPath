@@ -16,7 +16,7 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const ArticleData& data)
 	{
 		if(title.size() > 9 && title.substr(0,9) == "Category:")
 		{
-			categories.push_back(title.substr(10));
+			categories.push_back(title.substr(9));
 		}
 		else
 		{

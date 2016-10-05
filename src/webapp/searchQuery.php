@@ -1,4 +1,4 @@
 <?php
 	$queryStr = $_GET['query'];	
-	echo json_encode(queryCategories($queryStr), JSON_UNESCAPED_UNICODE);
+	echo json_encode(query_categories($queryStr), JSON_UNESCAPED_UNICODE);
 ?>

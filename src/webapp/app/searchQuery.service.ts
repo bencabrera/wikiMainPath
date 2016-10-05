@@ -19,9 +19,15 @@ export class SearchQueryService {
 
 	constructor(private http: Http) {}
 
-	getResults(queryString: string): Observable<string[]>
+	public getResults(queryString: string): Observable<string[]>
 	{
 		var url : string = encodeURI("searchQuery.php?query=" + queryString);
+		return this.http.get(url).map(this.extractData).catch(this.handleError);	
+	}
+
+	public getArticlesInCategory(category: string): Observable<string[]>
+	{
+		var url : string = encodeURI("listArticlesInCategory.php?category=" + category);
 		return this.http.get(url).map(this.extractData).catch(this.handleError);	
 	}
 

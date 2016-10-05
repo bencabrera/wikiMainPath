@@ -57,20 +57,33 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 class ParserWrapper 
 {
 	public:
-		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts, LinkExtractionHandler& hand)
+		ParserWrapper(
+			fs::path path, 
+			const std::map<std::string, std::size_t>& pageCounts, 
+			const std::vector<std::string>& arts, 
+			const std::vector<Date>& dates, 
+			const std::map<std::string, std::string>& redirs,
+			std::vector<boost::container::flat_set<std::size_t>>& adjList,
+			VectorMutex<1000>& vecMut	
+		)
 		:_path(path),
 		_pageCounts(pageCounts),
-		_artHandler(hand)
+		_articles(arts),
+		_dates(dates),
+		_redirects(redirs),
+		_adjList(adjList),
+		_vecMutex(vecMut)
 		{}
 
 		void operator()(void)
 		{
+			LinkExtractionHandler artHandler(_articles, _dates, _redirects, _adjList, _vecMutex); 
 			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
 			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
 			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 
-			WikiDumpHandler handler(_artHandler, true);
+			WikiDumpHandler handler(artHandler, true);
 			handler.TitleFilter = [](const std::string& title) {
 				return !(
 						title.substr(0,5) == "User:" 
@@ -97,7 +110,12 @@ class ParserWrapper
 	private:
 		fs::path _path;
 		const std::map<std::string, std::size_t>& _pageCounts;
-		LinkExtractionHandler& _artHandler;
+
+		const std::vector<std::string>& _articles;
+		const std::vector<Date>& _dates; 
+		const std::map<std::string, std::string>& _redirects;
+		std::vector<boost::container::flat_set<std::size_t>>& _adjList;
+		VectorMutex<1000>& _vecMutex;
 };
 
 
@@ -192,8 +210,8 @@ int main(int argc, char* argv[])
 	for(std::size_t i = 0; i < xmlFileList.size(); i++)
 	{
 		auto xmlPath = xmlFileList[i];
-		handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,handlers.back())));
+		//handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
+		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex)));
 	}
 
 	for (auto& fut : futures) 
@@ -210,9 +228,9 @@ int main(int argc, char* argv[])
 	for (auto arts : adjList) 
 	{
 		for (auto art : arts) 
-			std::cout << art << " ";
+			graphFile << art << " ";
 			
-		std::cout << std::endl;
+		graphFile << std::endl;
 	}
 
 	endTime = std::chrono::steady_clock::now();
@@ -229,7 +247,7 @@ int main(int argc, char* argv[])
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
 	for(auto timing : timings)
-		std::cout << std::left << std::setw(32) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

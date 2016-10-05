@@ -32,7 +32,7 @@ class CategoryHasArticleHandler : public AbstractArticleHandler{
 		inline static bool getPosition(const std::vector<std::string>& vec, std::string str, std::size_t& pos)
 		{
 			auto it = std::lower_bound(vec.begin(), vec.end(), str);	
-			if(it == vec.end())
+			if(it == vec.end() || *it != str)
 				return false;
 			else
 			{

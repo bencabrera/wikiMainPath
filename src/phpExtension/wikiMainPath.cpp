@@ -11,11 +11,13 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "../program/fullTextSearch.h"
+#include "../parsers/articleNetwork/dateExtractor.h"
 
 InvertedIndex invertedCategoryIndex;
 std::vector<std::string> articles;
+std::vector<Date> dates;
 std::vector<std::string> categories;
-std::vector<std::set<std::size_t>> category_refs;
+std::vector<std::vector<std::size_t>> category_has_article;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, boost::edge_index_t, boost::vecS> Graph;
 
@@ -67,6 +69,28 @@ Php::Value queryCategories(Php::Parameters &params)
 	return rtn;
 }
 
+Php::Value listArticlesInCategory(Php::Parameters& params)
+{
+	Php::Value category_title_param = params[0];
+	std::string category_title = category_title_param;
+	boost::trim(category_title);
+
+	Php::Value rtn;
+
+	auto it = std::lower_bound(categories.begin(), categories.end(), category_title);
+	if(it != categories.end() && *it == category_title)
+	{
+		std::size_t category_idx = it - categories.begin();
+		for (std::size_t i = 0; i < category_has_article[category_idx].size(); i++) {
+			rtn[i] = articles[category_has_article.at(category_idx).at(i)];
+		}
+
+		return rtn;
+	}
+	else
+		return false;
+}
+
 extern "C" {
 	namespace fs = boost::filesystem;
 
@@ -83,9 +107,10 @@ extern "C" {
 
 
 		//std::string pathToArticles = Php::ini_get("wikiMainPath.path_to_articles");
-		std::string pathToArticles = "/home/cabrera/UCSM/wikiMainPath/bin/debug/out/articles_with_dates.txt";
-		std::string pathToCategories= "/home/cabrera/UCSM/wikiMainPath/bin/debug/out/categories.txt";
-
+		const std::string pathToArticles = "/home/cabrera/UCSM/wikiMainPath/bin/release/out/articles_with_dates.txt";
+		const std::string pathToCategories = "/home/cabrera/UCSM/wikiMainPath/bin/release/out/categories.txt";
+		const std::string pathToCategoryHasArticle = "/home/cabrera/UCSM/wikiMainPath/bin/release/out/category_has_article.txt";
+		const std::string pathToAdjList = "/home/cabrera/UCSM/wikiMainPath/bin/release/out/adjList.txt";
 
 		const fs::path inputArticlePath(pathToArticles);
 		if(!fs::exists(inputArticlePath))
@@ -97,7 +122,21 @@ extern "C" {
 		const fs::path inputCategoriesPath(pathToCategories);
 		if(!fs::exists(inputCategoriesPath))
 		{
-			Php::error << "The path " << inputArticlePath << " specified for wikiMainPath.path_to_articles does not exist." << std::endl;
+			Php::error << "The path " << inputCategoriesPath << " specified for wikiMainPath.path_to_categories does not exist." << std::endl;
+			return extension;
+		}
+
+		const fs::path inputCategoryHasArticlePath(pathToCategoryHasArticle);
+		if(!fs::exists(inputCategoryHasArticlePath))
+		{
+			Php::error << "The path " << inputCategoryHasArticlePath << " specified for wikiMainPath.path_to_category_has_article does not exist." << std::endl;
+			return extension;
+		}
+
+		const fs::path inputAdjListPath(pathToAdjList);
+		if(!fs::exists(inputAdjListPath))
+		{
+			Php::error << "The path " << inputAdjListPath << " specified for wikiMainPath.path_to_adj_list does not exist." << std::endl;
 			return extension;
 		}
 
@@ -111,11 +150,26 @@ extern "C" {
 		std::ifstream categories_file(inputCategoriesPath.string());	
 		if(!categories_file.is_open())
 		{
-			Php::error << "Could not open file specified in path " << inputCategoriesPath << " specified for wikiMainPath.path_to_articles." << std::endl;
+			Php::error << "Could not open file specified in path " << inputCategoriesPath << " specified for wikiMainPath.path_to_categories." << std::endl;
+			return extension;
+		}
+
+		std::ifstream category_has_article_file(inputCategoryHasArticlePath.string());	
+		if(!category_has_article_file.is_open())
+		{
+			Php::error << "Could not open file specified in path " << inputCategoryHasArticlePath << " specified for wikiMainPath.path_to_category_has_article." << std::endl;
+			return extension;
+		}
+
+		std::ifstream adj_list_file(inputAdjListPath.string());	
+		if(!adj_list_file.is_open())
+		{
+			Php::error << "Could not open file specified in path " << inputAdjListPath << " specified for wikiMainPath.path_to_adj_list." << std::endl;
 			return extension;
 		}
 
 		std::string line;
+		std::size_t count = 0;
 		while(std::getline(articles_file, line))
 		{
 			std::istringstream ss(line);
@@ -123,33 +177,39 @@ extern "C" {
 			std::getline(ss, title, '\t');
 			std::getline(ss, dateStr, '\t');
 			articles.push_back(title);
+			dates.push_back(Date::deserialize(dateStr));
+			count++;
 		}
 
 		// read in categories file
-
 		while(std::getline(categories_file, line))
 		{
+			boost::trim(line);
+			categories.push_back(line);
+		}
+
+		category_has_article.reserve(categories.size());
+		while(std::getline(category_has_article_file, line))
+		{
+			std::vector<std::size_t> linked_articles;	
+
 			std::istringstream ss(line);
-			std::string title, refsStr;
-			std::getline(ss, title, '\t');
-			std::getline(ss, refsStr, '\t');
-			categories.push_back(title);
+			while(!ss.eof())
+			{
+				std::string tmpStr;
+				ss >> tmpStr;
+				boost::trim(tmpStr);
+				if(tmpStr != "")
+					linked_articles.push_back(std::stoi(tmpStr));
+			}
 
-			//std::vector<std::string> refs;
-			//boost::split_regex(refs, refsStr, boost::regex(";-;"));
-
-			//std::set<std::size_t> refs_idx;
-			//std::size_t	ref_idx;
-			//for (auto r : refs) 
-			//	if(getPosition(articles, r, ref_idx))
-			//		refs_idx.insert(ref_idx);	
-
-			//category_refs.push_back(refs_idx);
+			category_has_article.push_back(linked_articles);
 		}
 
 		invertedCategoryIndex = buildInvertedIndex(categories);
 
-		extension.add<queryCategories>("queryCategories");
+		extension.add<queryCategories>("query_categories");
+		extension.add<listArticlesInCategory>("list_articles_in_category");
 
 
 		return extension;

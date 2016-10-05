@@ -45,6 +45,12 @@ set(PHP_EXTENSION_FILES
 	phpExtension/wikiMainPath.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
+	parsers/articleNetwork/dateExtractor.h
+	parsers/articleNetwork/dateExtractor.cpp
+	parsers/articleNetwork/date.h
+	parsers/articleNetwork/date.cpp
+	parsers/shared.h
+	parsers/shared.cpp
 )
 
 set(PORTER_2_STEMMER_FILES
