@@ -102,6 +102,13 @@ target_link_libraries(prog ${Boost_LIBRARIES})
 target_link_libraries(prog Main)
 target_link_libraries(prog Porter2_Stemmer)
 
+add_executable(prog2 program/main_programm2.cpp)
+target_link_libraries(prog2 ${Boost_LIBRARIES})
+target_link_libraries(prog2 Main)
+target_link_libraries(prog2 Porter2_Stemmer)
+
+
+
 add_executable(tests parsers/main_tests.cpp)
 target_link_libraries(tests Main)
 target_link_libraries(tests ${Boost_LIBRARIES})

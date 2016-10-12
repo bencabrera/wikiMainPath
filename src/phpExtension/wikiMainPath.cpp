@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/subgraph.hpp>
 #include <boost/algorithm/string/regex.hpp>
 
 #include "../program/fullTextSearch.h"
@@ -20,6 +21,7 @@ std::vector<std::string> categories;
 std::vector<std::vector<std::size_t>> category_has_article;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, boost::edge_index_t, boost::vecS> Graph;
+typedef boost::subgraph<Graph> Subgraph;
 
 Graph readGraph(std::istream& istr)
 {
@@ -206,11 +208,30 @@ extern "C" {
 			category_has_article.push_back(linked_articles);
 		}
 
+		Subgraph graph(articles.size());
+		std::size_t source = 0;
+		while(std::getline(adj_list_file, line))
+		{
+			std::istringstream ss(line);
+			while(!ss.eof())
+			{
+				std::string tmpStr;
+				ss >> tmpStr;
+				boost::trim(tmpStr);
+				if(tmpStr != "")
+				{
+					std::size_t target = std::stoi(tmpStr);
+					boost::add_edge(source, target, graph);
+				}
+			}
+
+			source++;
+		}
+
 		invertedCategoryIndex = buildInvertedIndex(categories);
 
 		extension.add<queryCategories>("query_categories");
 		extension.add<listArticlesInCategory>("list_articles_in_category");
-
 
 		return extension;
 	}
