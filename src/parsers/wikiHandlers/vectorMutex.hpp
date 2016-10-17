@@ -10,6 +10,16 @@ class VectorMutex
 			return _mutices.at(idx % _mutices.size()).lock();
 		}
 
+		bool try_lock(std::size_t idx)
+		{
+			return _mutices.at(idx % _mutices.size()).try_lock();
+		}
+
+		std::mutex& get(std::size_t idx)
+		{
+			return _mutices.at(idx % _mutices.size());
+		}
+
 		void unlock(std::size_t idx)
 		{
 			return _mutices.at(idx % _mutices.size()).unlock();

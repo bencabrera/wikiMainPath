@@ -19,3 +19,5 @@ public:
 
 bool operator<(const std::tm& date1, const std::tm& date2);
 bool operator<(const Date& date1, const Date& date2);
+bool operator==(const Date& date1, const Date& date2);
+std::ostream& operator<<(std::ostream& ostr, const Date& date);

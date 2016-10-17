@@ -51,13 +51,8 @@ Date Date::deserialize(std::string str)
 void Date::Init()
 {
 	IsRange = false;
-	Begin.tm_year = 0;
-	Begin.tm_mon = 0;
-	Begin.tm_mday = 1;
-
-	End.tm_year = 0;
-	End.tm_mon = 0;
-	End.tm_mday = 1;
+	Begin = std::tm{};
+	End = std::tm{};
 }
 
 std::string Date::serialize(Date date)
@@ -95,4 +90,17 @@ bool operator<(const Date& date1, const Date& date2)
 	//}
 
 	throw std::logic_error("Not implemented.");
+}
+
+bool operator==(const Date& date1, const Date& date2)
+{
+	return (date1 < date2) && (date2 < date1);
+}
+
+std::ostream& operator<<(std::ostream& ostr, const Date& date)
+{
+	auto str = Date::serialize(date);
+	ostr << str;
+
+	return ostr;
 }

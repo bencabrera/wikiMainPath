@@ -1,6 +1,7 @@
 #include "dateExtractor.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/regex.hpp>
 
 #include <regex>
 #include <string>
@@ -35,7 +36,11 @@ bool DateExtractor::extractDateFromInfobox(const std::string& articleSyntax, Dat
 				continue;
 			}
 
-			return extractDateFromDateStr(dateStrMatch[1], dateObj);
+			std::string dateStr = dateStrMatch[1];
+			dateStr = boost::regex_replace(dateStr, boost::regex("&\\w+;"), " ");
+			std::cout << "str extracted: " << dateStr << std::endl;
+
+			return extractDateFromDateStr(dateStr, dateObj);
 		}
 
 		foundPos = articleSyntax.find("{{", secondFoundPos);

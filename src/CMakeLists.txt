@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
 set(BOOST_ROOT /usr/local/include/boost/)
 set(BOOST_LIBRARYDIR /usr/local/lib/)
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph)
+find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -25,6 +25,8 @@ set(MAIN
 	parsers/wikiHandlers/articleDatesAndCategoriesHandler.cpp
 	parsers/wikiHandlers/categoryHasArticleHandler.h
 	parsers/wikiHandlers/categoryHasArticleHandler.cpp
+	parsers/wikiHandlers/categoryRecursiveHandler.h
+	parsers/wikiHandlers/categoryRecursiveHandler.cpp
 	parsers/wikiHandlers/linkExtractionHandler.h
 	parsers/wikiHandlers/linkExtractionHandler.cpp
 	parsers/articleNetwork/linkListExtractor.h
@@ -73,6 +75,10 @@ add_executable(testVectorMutex parsers/main_testVectorMutex.cpp)
 target_link_libraries(testVectorMutex ${Boost_LIBRARIES})
 target_link_libraries(testVectorMutex pthread)
 
+add_executable(testVectorMutex2 parsers/main_testVectorMutex2.cpp)
+target_link_libraries(testVectorMutex2 ${Boost_LIBRARIES})
+target_link_libraries(testVectorMutex2 pthread)
+
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories Main)
 target_link_libraries(s1_articlesAndCategories ${Boost_LIBRARIES})
@@ -85,11 +91,17 @@ target_link_libraries(s2_categoryHasArticles ${Boost_LIBRARIES})
 target_link_libraries(s2_categoryHasArticles xerces-c)
 target_link_libraries(s2_categoryHasArticles pthread)
 
-add_executable(s3_articleNetwork parsers/main_s3_articleNetwork.cpp)
-target_link_libraries(s3_articleNetwork Main)
-target_link_libraries(s3_articleNetwork ${Boost_LIBRARIES})
-target_link_libraries(s3_articleNetwork xerces-c)
-target_link_libraries(s3_articleNetwork pthread)
+add_executable(s3_recursiveCategories parsers/main_s3_recursiveCategories.cpp)
+target_link_libraries(s3_recursiveCategories Main)
+target_link_libraries(s3_recursiveCategories ${Boost_LIBRARIES})
+target_link_libraries(s3_recursiveCategories xerces-c)
+target_link_libraries(s3_recursiveCategories pthread)
+
+add_executable(s4_articleNetwork parsers/main_s4_articleNetwork.cpp)
+target_link_libraries(s4_articleNetwork Main)
+target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
+target_link_libraries(s4_articleNetwork xerces-c)
+target_link_libraries(s4_articleNetwork pthread)
 
 add_executable(countPages parsers/main_countPages.cpp)
 target_link_libraries(countPages Main)
@@ -109,9 +121,9 @@ target_link_libraries(prog2 Porter2_Stemmer)
 
 
 
-add_executable(tests parsers/main_tests.cpp)
-target_link_libraries(tests Main)
-target_link_libraries(tests ${Boost_LIBRARIES})
+add_executable(parserTests parsers/tests/main_tests.cpp)
+target_link_libraries(parserTests Main)
+target_link_libraries(parserTests ${Boost_LIBRARIES})
 
 add_library(wikiMainPath SHARED ${PHP_EXTENSION_FILES})
 set_target_properties(wikiMainPath PROPERTIES PREFIX "") #remove the lib in front of shared object file
