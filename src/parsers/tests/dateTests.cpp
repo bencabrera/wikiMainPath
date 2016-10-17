@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample1)
 	correct_date.IsRange = false;
 	correct_date.Begin.tm_mday = 14;
 	correct_date.Begin.tm_mon = 9;
-	correct_date.Begin.tm_year = 1066;
+	correct_date.Begin.tm_year = 1066-1900;
 
 	BOOST_CHECK_EQUAL(result_date, correct_date);
 }
@@ -48,9 +48,8 @@ BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample1)
 BOOST_AUTO_TEST_CASE(StdDateExtractionExample1)
 {
 	std::string str = "14 October 1066";
-	std::string format = "%d%t%b%t%Y";
+	std::string format = "%d %B %Y";
 
-	std::cout << str << std::endl;
 	std::tm dateObj{};
 	std::istringstream ss(str);
 	ss.imbue(std::locale("en_US.utf-8"));

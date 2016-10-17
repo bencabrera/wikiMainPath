@@ -38,7 +38,6 @@ bool DateExtractor::extractDateFromInfobox(const std::string& articleSyntax, Dat
 
 			std::string dateStr = dateStrMatch[1];
 			dateStr = boost::regex_replace(dateStr, boost::regex("&\\w+;"), " ");
-			std::cout << "str extracted: " << dateStr << std::endl;
 
 			return extractDateFromDateStr(dateStr, dateObj);
 		}
@@ -54,6 +53,7 @@ bool DateExtractor::extractDateFromDateStr(std::string dateStr, Date& dateObj) c
 	dateObj.IsRange = false;
 
 	const std::vector<std::string> parserFormats = {
+		"%d %B %Y",
 		"%d %b %Y",
 		"%Y"
 	};

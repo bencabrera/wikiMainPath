@@ -94,7 +94,7 @@ bool operator<(const Date& date1, const Date& date2)
 
 bool operator==(const Date& date1, const Date& date2)
 {
-	return (date1 < date2) && (date2 < date1);
+	return !(date1 < date2) && !(date2 < date1);
 }
 
 std::ostream& operator<<(std::ostream& ostr, const Date& date)
