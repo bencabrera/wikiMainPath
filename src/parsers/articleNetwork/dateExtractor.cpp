@@ -55,6 +55,8 @@ bool DateExtractor::extractDateFromDateStr(std::string dateStr, Date& dateObj) c
 	const std::vector<std::string> parserFormats = {
 		"%d %B %Y",
 		"%d %b %Y",
+		"%b %d, %Y",
+		"%B %d, %Y",
 		"%Y"
 	};
 

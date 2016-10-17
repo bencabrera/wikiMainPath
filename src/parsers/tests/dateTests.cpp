@@ -45,6 +45,46 @@ BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample1)
 	BOOST_CHECK_EQUAL(result_date, correct_date);
 }
 
+BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample2)
+{
+	DateExtractor extract_date;
+	std::ifstream file("../../src/parsers/tests/data/battle_of_lexington.wikisyntax");
+	std::string str((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+
+	Date result_date;
+	auto extraction_worked = extract_date(str, result_date);
+
+	BOOST_CHECK_EQUAL(extraction_worked, true);
+
+	Date correct_date;
+	correct_date.IsRange = false;
+	correct_date.Begin.tm_mday = 19;
+	correct_date.Begin.tm_mon = 3;
+	correct_date.Begin.tm_year = 1775-1900;
+
+	BOOST_CHECK_EQUAL(result_date, correct_date);
+}
+
+BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample3)
+{
+	DateExtractor extract_date;
+	std::ifstream file("../../src/parsers/tests/data/storming_of_the_bastille.wikisyntax");
+	std::string str((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+
+	Date result_date;
+	auto extraction_worked = extract_date(str, result_date);
+
+	BOOST_CHECK_EQUAL(extraction_worked, true);
+
+	Date correct_date;
+	correct_date.IsRange = false;
+	correct_date.Begin.tm_mday = 14;
+	correct_date.Begin.tm_mon = 6;
+	correct_date.Begin.tm_year = 1789-1900;
+
+	BOOST_CHECK_EQUAL(result_date, correct_date);
+}
+
 BOOST_AUTO_TEST_CASE(StdDateExtractionExample1)
 {
 	std::string str = "14 October 1066";
