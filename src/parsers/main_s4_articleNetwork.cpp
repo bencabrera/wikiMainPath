@@ -23,6 +23,7 @@
 #include "xml/wikiDumpHandler.h"
 #include "articleNetwork/dateExtractor.h"
 #include "shared.h"
+#include "parserWrappers/s4_wrapper.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -53,70 +54,6 @@ void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& ar
 	}
 }
 
-
-class ParserWrapper 
-{
-	public:
-		ParserWrapper(
-			fs::path path, 
-			const std::map<std::string, std::size_t>& pageCounts, 
-			const std::vector<std::string>& arts, 
-			const std::vector<Date>& dates, 
-			const std::map<std::string, std::string>& redirs,
-			std::vector<boost::container::flat_set<std::size_t>>& adjList,
-			VectorMutex<1000>& vecMut	
-		)
-		:_path(path),
-		_pageCounts(pageCounts),
-		_articles(arts),
-		_dates(dates),
-		_redirects(redirs),
-		_adjList(adjList),
-		_vecMutex(vecMut)
-		{}
-
-		void operator()(void)
-		{
-			LinkExtractionHandler artHandler(_articles, _dates, _redirects, _adjList, _vecMutex); 
-			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
-
-			WikiDumpHandler handler(artHandler, true);
-			handler.TitleFilter = [](const std::string& title) {
-				return !(
-						title.substr(0,5) == "User:" 
-						|| title.substr(0,10) == "Wikipedia:" 
-						|| title.substr(0,5) == "File:" 
-						|| title.substr(0,14) == "Category talk:" 
-						|| title.substr(0,9) == "Category:"
-						|| title.substr(0,14) == "Template talk:"
-						|| title.substr(0,9) == "Template:"
-						|| title.substr(0,10) == "User talk:"
-						|| title.substr(0,10) == "File talk:"
-						|| title.substr(0,15) == "Wikipedia talk:"
-						);
-			};
-			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
-
-			parser->setContentHandler(&handler);
-			parser->setErrorHandler(&handler);
-
-			parser->parse(_path.c_str());
-			delete parser;
-		}
-
-	private:
-		fs::path _path;
-		const std::map<std::string, std::size_t>& _pageCounts;
-
-		const std::vector<std::string>& _articles;
-		const std::vector<Date>& _dates; 
-		const std::map<std::string, std::string>& _redirects;
-		std::vector<boost::container::flat_set<std::size_t>>& _adjList;
-		VectorMutex<1000>& _vecMutex;
-};
 
 
 int main(int argc, char* argv[])
@@ -211,7 +148,7 @@ int main(int argc, char* argv[])
 	{
 		auto xmlPath = xmlFileList[i];
 		//handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex)));
+		futures.emplace_back(std::async(std::launch::async, S4ParserWrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex)));
 	}
 
 	for (auto& fut : futures) 

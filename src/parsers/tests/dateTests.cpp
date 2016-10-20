@@ -1,3 +1,4 @@
+#pragma once
 #include <boost/test/included/unit_test.hpp>
 
 #include <fstream>
@@ -81,6 +82,49 @@ BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample3)
 	correct_date.Begin.tm_mday = 14;
 	correct_date.Begin.tm_mon = 6;
 	correct_date.Begin.tm_year = 1789-1900;
+
+	BOOST_CHECK_EQUAL(result_date, correct_date);
+}
+
+BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample4)
+{
+	DateExtractor extract_date;
+	std::ifstream file("../../src/parsers/tests/data/september_11.wikisyntax");
+	std::string str((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+
+	Date result_date;
+	auto extraction_worked = extract_date(str, result_date);
+
+	BOOST_CHECK_EQUAL(extraction_worked, true);
+
+	Date correct_date;
+	correct_date.IsRange = false;
+	correct_date.Begin.tm_mday = 11;
+	correct_date.Begin.tm_mon = 8;
+	correct_date.Begin.tm_year = 2001-1900;
+
+	BOOST_CHECK_EQUAL(result_date, correct_date);
+}
+
+BOOST_AUTO_TEST_CASE(DateExtractionShouldWorkForExample5)
+{
+	DateExtractor extract_date;
+	std::ifstream file("../../src/parsers/tests/data/battle_of_los_angeles.wikisyntax");
+	std::string str((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+
+	Date result_date;
+	auto extraction_worked = extract_date(str, result_date);
+
+	BOOST_CHECK_EQUAL(extraction_worked, true);
+
+	Date correct_date;
+	correct_date.IsRange = true;
+	correct_date.Begin.tm_mday = 24;
+	correct_date.Begin.tm_mon = 1;
+	correct_date.Begin.tm_year = 1942-1900;
+	correct_date.End.tm_mday = 25;
+	correct_date.End.tm_mon = 1;
+	correct_date.End.tm_year = 1942-1900;
 
 	BOOST_CHECK_EQUAL(result_date, correct_date);
 }

@@ -2,6 +2,10 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler()
+:ExtractOnlyArticlesWithDates(true)
+{}
+
 void ArticleDatesAndCategoriesHandler::HandleArticle(const ArticleData& data)
 {
 	std::string title = data.MetaData.at("title");
@@ -21,7 +25,8 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const ArticleData& data)
 		else
 		{
 			Date dateObj;
-			if(extractDate(data.Content, dateObj))
+			dateObj.Init();
+			if(extractDate(data.Content, dateObj) || !ExtractOnlyArticlesWithDates)
 			{
 				articles.insert({ title, dateObj });
 			}

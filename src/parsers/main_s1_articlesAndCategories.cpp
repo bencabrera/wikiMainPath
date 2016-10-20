@@ -21,60 +21,10 @@
 #include "xml/wikiDumpHandler.h"
 #include "wikiHandlers/articleDatesAndCategoriesHandler.h"
 #include "shared.h"
+#include "parserWrappers/s1_wrapper.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
-
-class ParserWrapper 
-{
-	public:
-		ParserWrapper(fs::path path, const std::map<std::string, std::size_t>& pageCounts)
-		:_path(path),
-		_pageCounts(pageCounts)
-		{}
-
-		ArticleDatesAndCategoriesHandler operator()(void)
-		{
-			ArticleDatesAndCategoriesHandler artHandler; 
-
-			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
-
-			// set up call back handlers
-			WikiDumpHandler handler(artHandler, true);
-			handler.TitleFilter = [](const std::string& title) {
-				return !(
-						title.substr(0,5) == "User:" 
-						|| title.substr(0,10) == "Wikipedia:" 
-						|| title.substr(0,5) == "File:" 
-						|| title.substr(0,14) == "Category talk:" 
-						|| title.substr(0,14) == "Template talk:"
-						|| title.substr(0,9) == "Template:"
-						|| title.substr(0,10) == "User talk:"
-						|| title.substr(0,10) == "File talk:"
-						|| title.substr(0,15) == "Wikipedia talk:"
-						);
-			};
-			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
-
-			parser->setContentHandler(&handler);
-			parser->setErrorHandler(&handler);
-
-			// run parser
-			parser->parse(this->_path.c_str());
-			delete parser;
-
-			return artHandler;
-		}
-
-	private:
-		fs::path _path;
-
-		const std::map<std::string, std::size_t>& _pageCounts;
-};
-
 
 
 int main(int argc, char* argv[])
@@ -147,7 +97,7 @@ int main(int argc, char* argv[])
 	std::vector<std::future<ArticleDatesAndCategoriesHandler>> futures;
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts)));
+		futures.emplace_back(std::async(std::launch::async, S1ParserWrapper(xmlPath,pageCounts)));
 
 	std::map<std::string,Date> articlesWithDates;
 	std::vector<std::string> categories;

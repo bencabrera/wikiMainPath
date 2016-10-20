@@ -28,86 +28,13 @@
 #include "xml/wikiDumpHandler.h"
 #include "wikiHandlers/categoryRecursiveHandler.h"
 #include "shared.h"
+#include "parserWrappers/s3_wrapper.h"
+#include "parserWrappers/s3_recursiveFillCategories.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
-
-class CycleDetectorDfsVisitor : public boost::default_dfs_visitor
-{
-	public:
-		template<typename EdgeDescriptor, typename Graph>
-		void tree_edge(EdgeDescriptor e, Graph g)
-		{
-				
-
-		}
-
-};
-
-namespace std {
-	template<typename T>
-	T begin(const std::pair<T,T>& eItPair)
-	{
-		return eItPair.first;
-	}
-	
-	template<typename T>
-	T end(const std::pair<T,T>& eItPair)
-	{
-		return eItPair.second;
-	}
-}
-
-class ParserWrapper 
-{
-	public:
-		ParserWrapper(
-			fs::path path, 
-			const std::map<std::string, std::size_t>& pageCounts, 
-			const std::vector<std::string>& cats, 
-			Graph& graph,
-			VectorMutex<1000>& vecMut
-		)
-		:_path(path),
-		_pageCounts(pageCounts),
-		_categories(cats),
-		_graph(graph),
-		_vecMutex(vecMut)
-		{
-			if(boost::num_vertices(_graph) != _categories.size())
-				throw std::logic_error("Graph for recursive categories does not have the correct number of vertices.");
-		}
-
-		void operator()(void)
-		{
-			CategoryRecursiveHandler artHandler(_categories, _graph, _vecMutex);
-			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
-
-			WikiDumpHandler handler(artHandler, true);
-			handler.TitleFilter = [](const std::string& title) {
-				return title.substr(0,9) == "Category:";
-			};
-			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
-
-			parser->setContentHandler(&handler);
-			parser->setErrorHandler(&handler);
-
-			parser->parse(this->_path.c_str());
-			delete parser;
-		}
-
-	private:
-		fs::path _path;
-		const std::map<std::string, std::size_t>& _pageCounts;
-		const std::vector<std::string>& _categories; 
-		Graph& _graph;
-		VectorMutex<1000>& _vecMutex;
-};
 
 std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
 {
@@ -231,7 +158,7 @@ int main(int argc, char* argv[])
 	Graph graph(categories.size());
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath, pageCounts, categories, graph, vecMutex)));
+		futures.emplace_back(std::async(std::launch::async, S3ParserWrapper(xmlPath, pageCounts, categories, graph, vecMutex)));
 
 	for (auto& future : futures)
 		future.get();
@@ -245,59 +172,7 @@ int main(int argc, char* argv[])
 	std::cout << "Running over graph and adding categories recursively" << std::endl;
 	startTime = std::chrono::steady_clock::now();
 
-	bool allIsolated = false;
-	while(!allIsolated)
-	{
-		std::cout << "HELLO" << std::endl << std::endl;
-		allIsolated = true;
-		for(std::size_t v = 0; v < boost::num_vertices(graph); v++)
-		{
-			if(boost::out_degree(v,graph) == 0 && boost::in_degree(v,graph) == 0)
-				continue;
-
-			std::cout << v << " " << boost::out_degree(v,graph) <<  " " << boost::in_degree(v,graph) << std::endl;
-			// if algo reaches this point then not all vertices are isolated
-			allIsolated = false;
-
-			// has no outgoing edges
-			if(boost::out_degree(v,graph) == 0)
-			{
-				for(auto e : boost::in_edges(v,graph))
-				{
-					std::size_t parentIdx = boost::source(e,graph);		
-					std::size_t childIdx = boost::target(e,graph);		
-
-					std::cout << "Category '" << categories[childIdx] << "' is a child of category '" << categories[parentIdx] << "'" << std::endl;
-
-					std::cout << categories[childIdx] << " before: ";
-					for (auto i : category_has_article[childIdx]) 
-						std::cout << i << "   ;;;   ";	
-					std::cout << std::endl;
-
-					std::cout << categories[parentIdx] << " before: ";
-					for (auto i : category_has_article[parentIdx]) 
-						std::cout << i << "   ;;;   ";	
-					std::cout << std::endl;
-					
-					category_has_article[parentIdx].insert(category_has_article[childIdx].begin(), category_has_article[childIdx].end());
-
-					std::cout << categories[childIdx] << " after: ";
-					for (auto i : category_has_article[childIdx]) 
-						std::cout << i << "   ;;;   ";	
-					std::cout << std::endl;
-
-					std::cout << categories[parentIdx] << " after: ";
-					for (auto i : category_has_article[parentIdx]) 
-						std::cout << i << "   ;;;   ";	
-					std::cout << std::endl;
-					
-
-				}	
-
-				boost::clear_vertex(v, graph);
-			}
-		}
-	}
+	recursiveFillCategories(graph, category_has_article);	
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

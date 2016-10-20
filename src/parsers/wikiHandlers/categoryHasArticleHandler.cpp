@@ -34,7 +34,7 @@ void CategoryHasArticleHandler::HandleArticle(const ArticleData& data)
 	std::size_t foundPos = data.Content.find("[[Category:");
 	while(foundPos != std::string::npos)
 	{
-		std::size_t secondFoundPos = data.Content.find("]]", foundPos);
+		std::size_t secondFoundPos = std::min(data.Content.find("]]", foundPos), data.Content.find("|", foundPos));
 		if(secondFoundPos == std::string::npos)
 			break;
 

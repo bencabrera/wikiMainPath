@@ -23,69 +23,10 @@
 #include "xml/wikiDumpHandler.h"
 #include "wikiHandlers/categoryHasArticleHandler.h"
 #include "shared.h"
+#include "parserWrappers/s2_wrapper.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
-
-class ParserWrapper 
-{
-	public:
-		ParserWrapper(
-			fs::path path, 
-			const std::map<std::string, std::size_t>& pageCounts, 
-			const std::vector<std::string>& arts, 
-			const std::vector<std::string>& cats, 
-			std::vector<boost::container::flat_set<std::size_t>>& catHasArt, 
-			VectorMutex<1000>& vecMut
-		)
-		:_path(path),
-		_pageCounts(pageCounts),
-		_articles(arts),
-		_categories(cats),
-		_categoryHasArticle(catHasArt),
-		_vecMutex(vecMut)
-		{}
-
-		void operator()(void)
-		{
-			CategoryHasArticleHandler artHandler(_articles, _categories, _categoryHasArticle, _vecMutex);
-			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
-
-			WikiDumpHandler handler(artHandler, true);
-			handler.TitleFilter = [](const std::string& title) {
-				return !(
-						title.substr(0,5) == "User:" 
-						|| title.substr(0,10) == "Wikipedia:" 
-						|| title.substr(0,5) == "File:" 
-						|| title.substr(0,14) == "Category talk:" 
-						|| title.substr(0,14) == "Template talk:"
-						|| title.substr(0,9) == "Template:"
-						|| title.substr(0,10) == "User talk:"
-						|| title.substr(0,10) == "File talk:"
-						|| title.substr(0,15) == "Wikipedia talk:"
-						);
-			};
-			handler.ProgressCallback = std::bind(printProgress, _pageCounts, _path, std::placeholders::_1);
-
-			parser->setContentHandler(&handler);
-			parser->setErrorHandler(&handler);
-
-			parser->parse(this->_path.c_str());
-			delete parser;
-		}
-
-	private:
-		fs::path _path;
-		const std::map<std::string, std::size_t>& _pageCounts;
-
-		const std::vector<std::string>& _articles;
-		const std::vector<std::string>& _categories; 
-		std::vector<boost::container::flat_set<std::size_t>>& _categoryHasArticle; 
-		VectorMutex<1000>& _vecMutex;
-};
 
 void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories)
 {
@@ -203,7 +144,7 @@ int main(int argc, char* argv[])
 	{
 		//ParserWrapper wrap(xmlPath,pageCounts,handlers.back());
 		//wrap();
-		futures.emplace_back(std::async(std::launch::async, ParserWrapper(xmlPath,pageCounts,articles,categories,categoryHasArticle,vecMutex)));
+		futures.emplace_back(std::async(std::launch::async, S2ParserWrapper(xmlPath,pageCounts,articles,categories,categoryHasArticle,vecMutex)));
 	}
 
 	for (auto& future : futures)

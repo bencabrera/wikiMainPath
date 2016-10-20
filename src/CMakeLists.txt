@@ -37,6 +37,12 @@ set(MAIN
 	parsers/articleNetwork/date.cpp
 	parsers/articleNetwork/articleGraphIo.h
 	parsers/articleNetwork/articleGraphIo.cpp
+	parsers/parserWrappers/s1_wrapper.cpp
+	parsers/parserWrappers/s2_wrapper.cpp
+	parsers/parserWrappers/s3_wrapper.cpp
+	parsers/parserWrappers/s3_recursiveFillCategories.cpp
+	parsers/parserWrappers/s3_cycle_detector_visitor.cpp
+	parsers/parserWrappers/s4_wrapper.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
 	parsers/shared.h
@@ -124,6 +130,7 @@ target_link_libraries(prog2 Porter2_Stemmer)
 add_executable(parserTests parsers/tests/main_tests.cpp)
 target_link_libraries(parserTests Main)
 target_link_libraries(parserTests ${Boost_LIBRARIES})
+target_link_libraries(parserTests xerces-c)
 
 add_library(wikiMainPath SHARED ${PHP_EXTENSION_FILES})
 set_target_properties(wikiMainPath PROPERTIES PREFIX "") #remove the lib in front of shared object file
