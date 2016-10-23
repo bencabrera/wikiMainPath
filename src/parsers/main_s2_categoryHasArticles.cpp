@@ -20,8 +20,6 @@
 #include <boost/algorithm/string/trim.hpp>
 
 // local files
-#include "xml/wikiDumpHandler.h"
-#include "wikiHandlers/categoryHasArticleHandler.h"
 #include "shared.h"
 #include "parserWrappers/s2_wrapper.h"
 

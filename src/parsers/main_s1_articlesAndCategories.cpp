@@ -18,8 +18,6 @@
 #include <boost/program_options.hpp>
 
 // local files
-#include "xml/wikiDumpHandler.h"
-#include "wikiHandlers/articleDatesAndCategoriesHandler.h"
 #include "shared.h"
 #include "parserWrappers/s1_wrapper.h"
 

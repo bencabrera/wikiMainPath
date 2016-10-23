@@ -13,22 +13,22 @@ find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options gr
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(MAIN
-	parsers/xml/abstractArticleHandler.h
-	parsers/xml/articleData.h
-	parsers/xml/wikiDumpHandler.h
-	parsers/xml/wikiDumpHandler.cpp
-	parsers/xml/countPagesHandler.h
-	parsers/xml/countPagesHandler.cpp
-	parsers/wikiHandlers/articleTitlesHandler.h
-	parsers/wikiHandlers/articleTitlesHandler.cpp
-	parsers/wikiHandlers/articleDatesAndCategoriesHandler.h
-	parsers/wikiHandlers/articleDatesAndCategoriesHandler.cpp
-	parsers/wikiHandlers/categoryHasArticleHandler.h
-	parsers/wikiHandlers/categoryHasArticleHandler.cpp
-	parsers/wikiHandlers/categoryRecursiveHandler.h
-	parsers/wikiHandlers/categoryRecursiveHandler.cpp
-	parsers/wikiHandlers/linkExtractionHandler.h
-	parsers/wikiHandlers/linkExtractionHandler.cpp
+	parsers/xercesHandlers/abstractArticleHandler.h
+	parsers/xercesHandlers/articleData.h
+	parsers/xercesHandlers/wikiDumpHandler.h
+	parsers/xercesHandlers/wikiDumpHandler.cpp
+	parsers/xercesHandlers/countPagesHandler.h
+	parsers/xercesHandlers/countPagesHandler.cpp
+	parsers/wikiArticleHandlers/articleTitlesHandler.h
+	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
+	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.h
+	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
+	parsers/wikiArticleHandlers/categoryHasArticleHandler.h
+	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
+	parsers/wikiArticleHandlers/categoryRecursiveHandler.h
+	parsers/wikiArticleHandlers/categoryRecursiveHandler.cpp
+	parsers/wikiArticleHandlers/linkExtractionHandler.h
+	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
 	parsers/articleNetwork/linkListExtractor.h
 	parsers/articleNetwork/linkListExtractor.cpp
 	parsers/articleNetwork/dateExtractor.h
@@ -45,6 +45,8 @@ set(MAIN
 	parsers/parserWrappers/s4_wrapper.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
+	program/readDataFromFile.h
+	program/readDataFromFile.cpp
 	parsers/shared.h
 	parsers/shared.cpp
 )

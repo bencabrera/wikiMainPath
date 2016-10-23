@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../xml/abstractArticleHandler.h"
+#include "../xercesHandlers/abstractArticleHandler.h"
 #include "../articleNetwork/linkListExtractor.h"
 
 #include <boost/container/flat_set.hpp>
@@ -8,7 +8,7 @@
 
 #include "../articleNetwork/articleGraph.h"
 #include "../articleNetwork/date.h"
-#include "../wikiHandlers/vectorMutex.hpp"
+#include "../wikiArticleHandlers/vectorMutex.hpp"
 
 class LinkExtractionHandler : public AbstractArticleHandler
 {

@@ -16,8 +16,8 @@
 #include <xercesc/util/XMLString.hpp>
 
 // local files
-#include "../xml/wikiDumpHandler.h"
-#include "../wikiHandlers/categoryRecursiveHandler.h"
+#include "../xercesHandlers/wikiDumpHandler.h"
+#include "../wikiArticleHandlers/categoryRecursiveHandler.h"
 #include "../shared.h"
 
 namespace fs = boost::filesystem;

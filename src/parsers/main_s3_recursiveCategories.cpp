@@ -25,8 +25,6 @@
 
 
 // local files
-#include "xml/wikiDumpHandler.h"
-#include "wikiHandlers/categoryRecursiveHandler.h"
 #include "shared.h"
 #include "parserWrappers/s3_wrapper.h"
 #include "parserWrappers/s3_recursiveFillCategories.h"

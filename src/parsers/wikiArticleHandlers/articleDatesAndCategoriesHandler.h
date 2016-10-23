@@ -4,23 +4,22 @@
 #include <set>
 #include <map>
 
-#include "../xml/abstractArticleHandler.h"
+#include "../xercesHandlers/abstractArticleHandler.h"
 #include "../articleNetwork/dateExtractor.h"
 #include "../articleNetwork/date.h"
 
-class ArticleTitlesHandler : public AbstractArticleHandler{
+class ArticleDatesAndCategoriesHandler : public AbstractArticleHandler{
 	public:
-		ArticleTitlesHandler();
+		ArticleDatesAndCategoriesHandler();
 
 		void HandleArticle(const ArticleData&);
 
 		std::map<std::string, Date> articles;
-		std::map<std::string, std::vector<std::string>> categoriesToArticles;
+		std::vector<std::string> categories;
 		std::map<std::string, std::string> redirects;
 
-		std::size_t count() const;
+		bool ExtractOnlyArticlesWithDates;
 
 	private:
 		DateExtractor extractDate;
-		std::size_t _count;
 };

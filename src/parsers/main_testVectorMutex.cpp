@@ -4,7 +4,7 @@
 #include <vector>
 #include <chrono>
 
-#include "wikiHandlers/vectorMutex.hpp"
+#include "wikiArticleHandlers/vectorMutex.hpp"
 
 #include <random>
 

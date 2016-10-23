@@ -17,7 +17,7 @@
 #include <boost/program_options.hpp>
 
 // local files
-#include "xml/countPagesHandler.h"
+#include "xercesHandlers/countPagesHandler.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;

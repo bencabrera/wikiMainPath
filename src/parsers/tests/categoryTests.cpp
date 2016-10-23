@@ -11,11 +11,7 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include "../xml/wikiDumpHandler.h"
-#include "../wikiHandlers/articleDatesAndCategoriesHandler.h"
-#include "../wikiHandlers/categoryHasArticleHandler.h"
 #include "../shared.h"
-#include "../wikiHandlers/vectorMutex.hpp"
 
 #include "../parserWrappers/s1_wrapper.h"
 #include "../parserWrappers/s2_wrapper.h"

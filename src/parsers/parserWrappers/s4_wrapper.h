@@ -11,8 +11,8 @@
 #include <boost/container/flat_set.hpp>
 
 // local files
-#include "../wikiHandlers/linkExtractionHandler.h"
-#include "../xml/wikiDumpHandler.h"
+#include "../wikiArticleHandlers/linkExtractionHandler.h"
+#include "../xercesHandlers/wikiDumpHandler.h"
 #include "../articleNetwork/dateExtractor.h"
 #include "../shared.h"
 

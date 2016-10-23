@@ -8,7 +8,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#include "../xml/abstractArticleHandler.h"
+#include "../xercesHandlers/abstractArticleHandler.h"
 #include "../articleNetwork/dateExtractor.h"
 #include "../articleNetwork/date.h"
 #include "vectorMutex.hpp"

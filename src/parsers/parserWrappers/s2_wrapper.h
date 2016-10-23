@@ -12,8 +12,8 @@
 #include <boost/algorithm/string/trim.hpp>
 
 // local files
-#include "../xml/wikiDumpHandler.h"
-#include "../wikiHandlers/categoryHasArticleHandler.h"
+#include "../xercesHandlers/wikiDumpHandler.h"
+#include "../wikiArticleHandlers/categoryHasArticleHandler.h"
 #include "../shared.h"
 
 namespace fs = boost::filesystem;

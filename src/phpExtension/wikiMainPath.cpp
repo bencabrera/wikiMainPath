@@ -13,6 +13,7 @@
 
 #include "../program/fullTextSearch.h"
 #include "../parsers/articleNetwork/dateExtractor.h"
+#include "../program/readDataFromFile.h"
 
 InvertedIndex invertedCategoryIndex;
 std::vector<std::string> articles;
@@ -20,7 +21,7 @@ std::vector<Date> dates;
 std::vector<std::string> categories;
 std::vector<std::vector<std::size_t>> category_has_article;
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, boost::edge_index_t, boost::vecS> Graph;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::property<boost::edge_index_t,std::size_t>, boost::vecS> Graph;
 typedef boost::subgraph<Graph> Subgraph;
 
 Graph readGraph(std::istream& istr)
