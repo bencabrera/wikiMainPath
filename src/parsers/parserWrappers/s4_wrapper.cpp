@@ -23,6 +23,9 @@ S4ParserWrapper::S4ParserWrapper(
 void S4ParserWrapper::operator()(void)
 {
 	LinkExtractionHandler artHandler(_articles, _dates, _redirects, _adjList, _vecMutex); 
+	if(OrderCallback)
+		artHandler.OrderCallback = OrderCallback;
+
 	xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
 	parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
 	parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional

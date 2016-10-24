@@ -34,6 +34,8 @@ class S4ParserWrapper
 		void operator()(void);
 
 		std::function<void(std::size_t)> ProgressCallback;
+		std::function<bool(std::size_t, std::size_t)> OrderCallback;
+
 	private:
 		fs::path _path;
 		const std::map<std::string, std::size_t>& _pageCounts;

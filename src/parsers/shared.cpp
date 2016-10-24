@@ -39,3 +39,15 @@ void printProgress(const std::map<std::string, std::size_t>& pageCounts, const b
 		std::cout << path.filename() << ": " << std::right << count << std::endl;
 	std::cout.flush();
 }
+
+bool getPosition(const std::vector<std::string>& vec, std::string str, std::size_t& pos)
+{
+	auto it = std::lower_bound(vec.begin(), vec.end(), str);	
+	if(it == vec.end() || *it != str)
+		return false;
+	else
+	{
+		pos = it - vec.begin();
+		return true;
+	}
+}

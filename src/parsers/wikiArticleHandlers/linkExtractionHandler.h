@@ -6,7 +6,6 @@
 #include <boost/container/flat_set.hpp>
 #include <vector>
 
-#include "../articleNetwork/articleGraph.h"
 #include "../articleNetwork/date.h"
 #include "../wikiArticleHandlers/vectorMutex.hpp"
 
@@ -22,6 +21,8 @@ class LinkExtractionHandler : public AbstractArticleHandler
 		);
 
 		void HandleArticle(const ArticleData&);
+
+		std::function<bool(std::size_t, std::size_t)> OrderCallback;
 
 	private:
 		bool GetPosition(const std::string& title, std::size_t& v) const;

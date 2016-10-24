@@ -5,3 +5,4 @@
 #include "articleListTests.cpp"
 #include "categoryTests.cpp"
 #include "cycleDectionTests.cpp"
+#include "articleNetworkTests.cpp"

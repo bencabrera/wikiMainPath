@@ -15,6 +15,12 @@ _vecMutex(vecMut)
 {
 	if(_adjList.size() != _articles.size())
 		throw std::logic_error("Dimensions are not correct.");
+
+	// default behaviour use dates to order
+	OrderCallback = [this](std::size_t source, std::size_t target)
+	{
+		return (this->_dates[source] < this->_dates[target]);
+	};
 }
 
 bool LinkExtractionHandler::GetPosition(const std::string& title, std::size_t& v) const
@@ -71,7 +77,7 @@ void LinkExtractionHandler::HandleArticle(const ArticleData& data)
 			continue;
 		}
 
-		if(_dates[source] < _dates[target])
+		if(OrderCallback(source, target))
 		{
 			_vecMutex.lock(source);
 			_adjList[source].insert(target);
