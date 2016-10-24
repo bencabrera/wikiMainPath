@@ -15,14 +15,18 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/subgraph.hpp>
 #include <boost/graph/copy.hpp>
+#include <boost/regex.hpp>
 
 // local files
 #include "fullTextSearch.h"
 #include "../parsers/articleNetwork/dateExtractor.h"
 
-#include "../mpaComputation/checkGraphProperties.hpp"
-#include "../mpaComputation/edgeWeightGeneration.hpp"
-#include "../mpaComputation/mpa_algorithms.hpp"
+#include <mainPathAnalysis/checkGraphProperties.hpp>
+#include <mainPathAnalysis/edgeWeightGeneration.hpp>
+#include <mainPathAnalysis/mpaAlgorithms.hpp>
+#include <mainPathAnalysis/io/dotfileCreation.hpp>
+#include <mainPathAnalysis/io/dotfileToImage.hpp>
+
 #include "readDataFromFile.h"
 
 namespace po = boost::program_options;
@@ -34,6 +38,7 @@ int main(int argc, char* argv[])
 	desc.add_options()
 		("help", "Produce help message.")
 		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
+		("output-folder", po::value<std::string>(), "Folder to which the graph drawings should be put.")
 		;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -45,13 +50,14 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-article-folder"))
+	if(!vm.count("input-article-folder") || !vm.count("output-folder"))
 	{
-		std::cerr << "Please specify the parameters --input-article-folder." << std::endl;
+		std::cerr << "Please specify the parameters --input-article-folder and --output-folder." << std::endl;
 		return 1;
 	}
 
 	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
+	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	if(!fs::is_directory(inputArticleFolder))
 	{
@@ -59,6 +65,11 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	if(!fs::is_directory(outputFolder))
+	{
+		std::cerr << "Parameter --output-xml-folder is no folder. Creating it." << std::endl;
+		fs::create_directory(outputFolder);
+	}
 
 	std::vector<std::string> articles;
 	std::vector<Date> dates; 
@@ -66,8 +77,6 @@ int main(int argc, char* argv[])
 	std::vector<std::vector<std::size_t>> category_has_article;
 
 	auto graph = readDataFromFile(inputArticleFolder, articles, dates, categories, category_has_article);
-
-
 
 	auto invertedIndex = buildInvertedIndex(categories);
 
@@ -114,7 +123,7 @@ int main(int argc, char* argv[])
 		std::cout << std::endl;
 		std::cout << std::endl;
 
-		if(MpaComputation::check_if_acyclic(sub))
+		if(MainPathAnalysis::check_if_acyclic(sub))
 			std::cout << "Graph is acyclic" << std::endl;
 		else
 			std::cout << "Graph is NOT acyclic" << std::endl;
@@ -122,20 +131,39 @@ int main(int argc, char* argv[])
 		std::vector<std::size_t> localArticleMapping(boost::num_vertices(sub));
 		for(std::size_t i = 0; i < boost::num_vertices(sub); i++)
 			localArticleMapping[i] = sub.local_to_global(i);
+		std::vector<std::string> local_articles;
+		for (auto el : localArticleMapping) 
+			local_articles.push_back(articles[el]);	
 
 		Graph g;
 		boost::copy_graph(sub, g);
 
 		Graph::vertex_descriptor s, t;
-		MpaComputation::addSourceAndSinkVertex<Graph>(g, s, t);
-		auto weights = MpaComputation::generate_spc_weights(g, s, t);
-		auto mpa = MpaComputation::localForward(g, weights, s, t);
-		std::cout << "Main path: " << std::endl;
-		for (auto e : mpa) {
-			std::cout << localArticleMapping[boost::source(e,g)] << " --> " << localArticleMapping[boost::target(e,g)] << std::endl;
-			std::cout << articles[localArticleMapping[boost::source(e,g)]] << " --> " << articles[localArticleMapping[boost::target(e,g)]] << std::endl;
-		}
+		MainPathAnalysis::addSourceAndSinkVertex<Graph>(g, s, t);
 
+		auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
+		auto mpa = MainPathAnalysis::global(g, weights, s, t);
+		
+		MainPathAnalysis::removeEdgesContainingSourceOrSink(g, s, t, mpa);
+		MainPathAnalysis::removeSourceAndSinkVertex(g, s, t);
+
+		std::string category_escaped = boost::regex_replace(categories[category_idx], boost::regex("[ \\(\\)\\[\\],]"), "_");
+		category_escaped = boost::regex_replace(category_escaped, boost::regex("_+"), "_");
+
+		auto dot_file_path_fullGraph = outputFolder / (category_escaped+".dot");	
+		std::ofstream dot_file_fullPath(dot_file_path_fullGraph.c_str());
+		MainPathAnalysis::dotFileFullGraph(dot_file_fullPath, g, local_articles);
+		MainPathAnalysis::dotToPng((outputFolder / (category_escaped+".png")).string(), dot_file_path_fullGraph.string(), MainPathAnalysis::DOT);
+
+		auto dot_file_path_fullGraphWeights = outputFolder / (category_escaped+".dot");	
+		std::ofstream dot_file_fullPathWeights(dot_file_path_fullGraphWeights.c_str());
+		MainPathAnalysis::dotFileFullGraphWeights(dot_file_fullPathWeights, g, weights, local_articles);
+		MainPathAnalysis::dotToPng((outputFolder / (category_escaped+"_weights.png")).string(), dot_file_path_fullGraphWeights.string(), MainPathAnalysis::DOT);
+
+		auto dot_file_path_fullGraphWeightsPath = outputFolder / (category_escaped+".dot");	
+		std::ofstream dot_file_fullPathWeightsPath(dot_file_path_fullGraphWeightsPath.c_str());
+		MainPathAnalysis::dotFileFullGraphWeightsAndPath(dot_file_fullPathWeightsPath, g, weights, mpa, local_articles);
+		MainPathAnalysis::dotToPng((outputFolder / (category_escaped+"_weightsPath.png")).string(), dot_file_path_fullGraphWeights.string(), MainPathAnalysis::DOT);
 	}
 
 	return 0;
