@@ -12,7 +12,7 @@
 #include <boost/algorithm/string/regex.hpp>
 
 #include "../program/fullTextSearch.h"
-#include "../parsers/articleNetwork/dateExtractor.h"
+#include "../parsers/date/dateExtractor.h"
 #include "../program/readDataFromFile.h"
 
 InvertedIndex invertedCategoryIndex;

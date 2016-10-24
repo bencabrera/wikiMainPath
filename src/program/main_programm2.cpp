@@ -19,7 +19,7 @@
 
 // local files
 #include "fullTextSearch.h"
-#include "../parsers/articleNetwork/dateExtractor.h"
+#include "../parsers/date/dateExtractor.h"
 
 #include <mainPathAnalysis/checkGraphProperties.hpp>
 #include <mainPathAnalysis/edgeWeightGeneration.hpp>

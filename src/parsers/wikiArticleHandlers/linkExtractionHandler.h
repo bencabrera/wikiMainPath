@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../articleNetwork/linkListExtractor.h"
 
 #include <boost/container/flat_set.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <vector>
 
-#include "../articleNetwork/date.h"
+#include "../date/date.h"
 #include "../wikiArticleHandlers/vectorMutex.hpp"
 
 class LinkExtractionHandler : public AbstractArticleHandler

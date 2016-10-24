@@ -5,8 +5,8 @@
 #include <streambuf>
 #include <string>
 
-#include "../articleNetwork/date.h"
-#include "../articleNetwork/dateExtractor.h"
+#include "../date/date.h"
+#include "../date/dateExtractor.h"
 
 BOOST_AUTO_TEST_SUITE(DateTests)
 

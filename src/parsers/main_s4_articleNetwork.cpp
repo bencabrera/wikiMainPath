@@ -19,7 +19,7 @@
 #include <boost/container/flat_set.hpp>
 
 // local files
-#include "articleNetwork/date.h"
+#include "date/date.h"
 #include "shared.h"
 #include "parserWrappers/s4_wrapper.h"
 

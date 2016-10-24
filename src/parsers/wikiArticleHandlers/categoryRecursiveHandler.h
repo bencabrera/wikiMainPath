@@ -9,8 +9,6 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../articleNetwork/dateExtractor.h"
-#include "../articleNetwork/date.h"
 #include "vectorMutex.hpp"
 
 class CategoryRecursiveHandler : public AbstractArticleHandler{

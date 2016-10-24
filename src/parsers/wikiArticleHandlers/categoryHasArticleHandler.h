@@ -7,8 +7,6 @@
 #include <boost/container/flat_set.hpp>
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../articleNetwork/dateExtractor.h"
-#include "../articleNetwork/date.h"
 #include "vectorMutex.hpp"
 
 class CategoryHasArticleHandler : public AbstractArticleHandler{

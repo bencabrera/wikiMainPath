@@ -29,14 +29,10 @@ set(MAIN
 	parsers/wikiArticleHandlers/categoryRecursiveHandler.cpp
 	parsers/wikiArticleHandlers/linkExtractionHandler.h
 	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
-	parsers/articleNetwork/linkListExtractor.h
-	parsers/articleNetwork/linkListExtractor.cpp
-	parsers/articleNetwork/dateExtractor.h
-	parsers/articleNetwork/dateExtractor.cpp
-	parsers/articleNetwork/date.h
-	parsers/articleNetwork/date.cpp
-	parsers/articleNetwork/articleGraphIo.h
-	parsers/articleNetwork/articleGraphIo.cpp
+	parsers/date/dateExtractor.h
+	parsers/date/dateExtractor.cpp
+	parsers/date/date.h
+	parsers/date/date.cpp
 	parsers/parserWrappers/s1_wrapper.cpp
 	parsers/parserWrappers/s2_wrapper.cpp
 	parsers/parserWrappers/s3_wrapper.cpp
@@ -55,10 +51,10 @@ set(PHP_EXTENSION_FILES
 	phpExtension/wikiMainPath.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
-	parsers/articleNetwork/dateExtractor.h
-	parsers/articleNetwork/dateExtractor.cpp
-	parsers/articleNetwork/date.h
-	parsers/articleNetwork/date.cpp
+	parsers/date/dateExtractor.h
+	parsers/date/dateExtractor.cpp
+	parsers/date/date.h
+	parsers/date/date.cpp
 	parsers/shared.h
 	parsers/shared.cpp
 )

@@ -13,7 +13,7 @@
 // local files
 #include "../wikiArticleHandlers/linkExtractionHandler.h"
 #include "../xercesHandlers/wikiDumpHandler.h"
-#include "../articleNetwork/dateExtractor.h"
+#include "../date/dateExtractor.h"
 #include "../shared.h"
 
 namespace fs = boost::filesystem;

@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-#include "../parsers/articleNetwork/dateExtractor.h"
+#include "../parsers/date/dateExtractor.h"
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::property<boost::edge_index_t,std::size_t>, boost::vecS> Graph;
 typedef boost::subgraph<Graph> Subgraph;

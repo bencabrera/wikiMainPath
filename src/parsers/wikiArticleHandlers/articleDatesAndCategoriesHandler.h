@@ -5,8 +5,8 @@
 #include <map>
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../articleNetwork/dateExtractor.h"
-#include "../articleNetwork/date.h"
+#include "../date/dateExtractor.h"
+#include "../date/date.h"
 
 class ArticleDatesAndCategoriesHandler : public AbstractArticleHandler{
 	public:
