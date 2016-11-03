@@ -22,7 +22,7 @@ S4ParserWrapper::S4ParserWrapper(
 
 void S4ParserWrapper::operator()(void)
 {
-	LinkExtractionHandler artHandler(_articles, _dates, _redirects, _adjList, _vecMutex); 
+	LinkExtractionHandler artHandler(_articles, _redirects, _adjList, _vecMutex); 
 	if(OrderCallback)
 		artHandler.OrderCallback = OrderCallback;
 

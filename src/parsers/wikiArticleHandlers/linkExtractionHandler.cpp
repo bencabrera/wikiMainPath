@@ -2,13 +2,11 @@
 
 LinkExtractionHandler::LinkExtractionHandler(
 	const std::vector<std::string>& arts, 
-	const std::vector<Date>& dates, 
 	const std::map<std::string, std::string>& redirs,
 	std::vector<boost::container::flat_set<std::size_t>>& adjList,
 	VectorMutex<1000>& vecMut
 )
 :_articles(arts),
-_dates(dates),
 _redirects(redirs),
 _adjList(adjList),
 _vecMutex(vecMut)
@@ -16,10 +14,10 @@ _vecMutex(vecMut)
 	if(_adjList.size() != _articles.size())
 		throw std::logic_error("Dimensions are not correct.");
 
-	// default behaviour use dates to order
+	// default behaviour uses position in articles vector to order
 	OrderCallback = [this](std::size_t source, std::size_t target)
 	{
-		return (this->_dates[source] < this->_dates[target]);
+		return source < target;
 	};
 }
 

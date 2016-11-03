@@ -146,7 +146,12 @@ int main(int argc, char* argv[])
 	{
 		auto xmlPath = xmlFileList[i];
 		//handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
-		futures.emplace_back(std::async(std::launch::async, S4ParserWrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex)));
+		S4ParserWrapper wrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex);
+		wrapper.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
+		{
+			return dates[art1] < dates[art2];
+		};
+		futures.emplace_back(std::async(std::launch::async, wrapper));
 	}
 
 	for (auto& fut : futures) 
