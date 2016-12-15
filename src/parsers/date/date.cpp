@@ -23,26 +23,29 @@ std::tm parseDateStr(std::string str)
 	return rtn;
 }
 
-Date Date::deserialize(std::string str)
+Date::Date()
 {
+	Init();
+
+}
+
+Date Date::deserialize(const std::string str)
+{
+	using namespace boost::spirit::qi;
+	using namespace boost::phoenix;
+	using boost::phoenix::val;
+	using boost::phoenix::construct;
+
 	Date rtn;
-	if(str[0] == 'r')
-	{
-		// range date
-		rtn.IsRange = true;
-		auto pos = str.find_first_of(":");
-		auto str1 = str.substr(1,pos-1); 
-		auto str2 = str.substr(pos+1,str.size()); 
-		rtn.Begin = parseDateStr(str1);
-		rtn.End = parseDateStr(str2);
-	}
-	else
-	{
-		// non-range date
-		rtn.IsRange = false;
-		str = str.substr(1,str.size()-1);	
-		rtn.Begin = parseDateStr(str);
-	}
+
+	boost::spirit::qi::rule<std::string::const_iterator, Date()> dateRule;
+	boost::spirit::qi::rule<std::string::const_iterator, std::tm()> tmDateRule;
+
+	dateRule = (lit("r") [at_c<0>(_val) = true] >> tmDateRule [at_c<1>(_val) = boost::spirit::qi::_1] >> tmDateRule [at_c<2>(_val) = boost::spirit::qi::_1])
+				| (eps [at_c<0>(_val) = false] >> tmDateRule [at_c<1>(_val) = boost::spirit::qi::_1]);
+	tmDateRule = int_ [at_c<0>(_val) = boost::spirit::qi::_1] >> int_ [at_c<1>(_val) = boost::spirit::qi::_1] >> int_ [at_c<2>(_val) = boost::spirit::qi::_1];
+	
+	boost::spirit::qi::parse(str.cbegin(), str.cend(), dateRule, rtn);
 
 	return rtn;
 }
@@ -58,10 +61,10 @@ void Date::Init()
 std::string Date::serialize(Date date)
 {
 	std::ostringstream ss;
-	ss << (date.IsRange ? "r" : "n");
+	ss << (date.IsRange ? "r" : "");
 	ss << date.Begin.tm_year << "_" << date.Begin.tm_mon << "_" << date.Begin.tm_mday;
 	if(date.IsRange)
-	ss << ":" << date.End.tm_year << "_" << date.End.tm_mon << "_" << date.End.tm_mday;
+		ss << ":" << date.End.tm_year << "_" << date.End.tm_mon << "_" << date.End.tm_mday;
 
 	return ss.str();
 }
