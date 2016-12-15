@@ -18,6 +18,7 @@ BOOST_AUTO_TEST_CASE(TestIfDateSerializationWorks)
 	d1.Begin.tm_year = 100;
 	d1.Begin.tm_mon = 8;
 	d1.Begin.tm_mday = 8;
+	d1.Description = "Test";
 
 	std::string str = Date::serialize(d1);
 	Date d = Date::deserialize(str);

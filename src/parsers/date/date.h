@@ -20,11 +20,10 @@
 #include "adaptTmStruct.h"
 
 struct Date {
-	Date();
-
 	bool IsRange;
 	std::tm Begin;
 	std::tm End;
+	std::string Description;
 
 	void Init();
 
@@ -37,6 +36,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(bool, IsRange)
 	(std::tm, Begin)
 	(std::tm, End)
+	(std::string, Description)
 )
 
 bool operator<(const std::tm& date1, const std::tm& date2);
