@@ -22,14 +22,17 @@
 // local files
 #include "shared.h"
 #include "parserWrappers/s2_wrapper.h"
+#include "fileNames.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
+using namespace WikiMainPath;
+
 void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories)
 {
-	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
-	std::ifstream categories_file((inputFolder / "categories.txt").string());	
+	std::ifstream articles_file((inputFolder / ARTICLES_FILE).string());	
+	std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
 		
 	std::string line;
 	while(std::getline(articles_file, line))
@@ -156,7 +159,7 @@ int main(int argc, char* argv[])
 
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream catArtFile((outputFolder / "category_has_article.txt").string());	
+	std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
 	for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
 	{
 		for (auto art : categoryHasArticle[i]) 

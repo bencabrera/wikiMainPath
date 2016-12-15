@@ -20,6 +20,7 @@
 // local files
 #include "shared.h"
 #include "parserWrappers/s1_wrapper.h"
+#include "fileNames.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -27,6 +28,8 @@ namespace fs = boost::filesystem;
 
 int main(int argc, char* argv[])
 {
+	using namespace WikiMainPath;
+
 	// setup timings stuff
 	auto globalStartTime = std::chrono::steady_clock::now();
 	std::vector<std::pair<std::string, double>> timings;
@@ -123,15 +126,19 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Sorting categories vector.", diff });
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream articles_file((outputFolder / "articles_with_dates.txt").string());	
+	std::ofstream articles_file((outputFolder / ARTICLES_FILE).string());	
+	std::ofstream dates_file((outputFolder / ARTICLE_DATES_FILE).string());	
 	for(auto article : articlesWithDates)
-		articles_file << article.first << "\t" << Date::serialize(article.second) << std::endl;
+	{
+		articles_file << article.first << std::endl;
+		dates_file << Date::serialize(article.second) << std::endl;
+	}
 
-	std::ofstream categories_file((outputFolder / "categories.txt").string());	
+	std::ofstream categories_file((outputFolder / CATEGORIES_FILE).string());	
 	for(auto cat : categories)
 		categories_file << cat << std::endl;
 
-	std::ofstream redirects_file((outputFolder / "redirects.txt").string());	
+	std::ofstream redirects_file((outputFolder / REDIRECTS_FILE).string());	
 	for (auto redirect : redirects) 
 		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
 

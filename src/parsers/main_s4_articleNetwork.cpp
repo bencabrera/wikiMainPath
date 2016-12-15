@@ -22,24 +22,28 @@
 #include "date/date.h"
 #include "shared.h"
 #include "parserWrappers/s4_wrapper.h"
+#include "fileNames.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
+using namespace WikiMainPath;
+
 void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<Date>& dates, std::map<std::string, std::string>& redirects)
 {
-	std::ifstream articles_file((inputFolder / "articles_with_dates.txt").string());	
-	std::ifstream redirects_file((inputFolder / "redirects.txt").string());	
+	std::ifstream articles_file((inputFolder / ARTICLES_FILE).string());	
+	std::ifstream dates_file((inputFolder / ARTICLE_DATES_FILE).string());	
+	std::ifstream redirects_file((inputFolder / REDIRECTS_FILE).string());	
 		
 	std::string line;
 	while(std::getline(articles_file, line))
 	{
-		std::istringstream ss(line);
-		std::string title, dateStr;
-		std::getline(ss, title, '\t');
-		std::getline(ss, dateStr, '\t');
-		articles.push_back(title);
-		dates.push_back(Date::deserialize(dateStr));
+		articles.push_back(line);
+	}			
+
+	while(std::getline(dates_file, line))
+	{
+		dates.push_back(Date::deserialize(line));
 	}			
 
 	while(std::getline(redirects_file, line))
@@ -65,7 +69,7 @@ int main(int argc, char* argv[])
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
-		("output-graph", po::value<std::string>(), "The graph file which should contain the output graph.")
+		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		;
 	po::variables_map vm;
@@ -86,6 +90,7 @@ int main(int argc, char* argv[])
 
 	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
 	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
+	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
 
@@ -164,7 +169,7 @@ int main(int argc, char* argv[])
 
 	startTime = std::chrono::steady_clock::now();
 
-	std::ofstream graphFile(vm["output-graph"].as<std::string>());
+	std::ofstream graphFile((outputFolder / ARTICLE_NETWORK_FILE).string());	
 	for (auto arts : adjList) 
 	{
 		for (auto art : arts) 

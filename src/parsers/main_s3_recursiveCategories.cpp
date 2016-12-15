@@ -28,17 +28,20 @@
 #include "shared.h"
 #include "parserWrappers/s3_wrapper.h"
 #include "parserWrappers/s3_recursiveFillCategories.h"
+#include "fileNames.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
+
+using namespace WikiMainPath;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
 
 std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
 {
 
-	std::ifstream categories_file((inputFolder / "categories.txt").string());	
-	std::ifstream categories_has_article_file((inputFolder / "category_has_article.txt").string());	
+	std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
+	std::ifstream categories_has_article_file((inputFolder / CAT_HAS_ARTICLE_FILE).string());	
 		
 	std::string line;
 	while(std::getline(categories_file, line))
@@ -165,7 +168,6 @@ int main(int argc, char* argv[])
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
 	timings.push_back({ "Parsing .xml files.", diff });
 
-
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Running over graph and adding categories recursively" << std::endl;
 	startTime = std::chrono::steady_clock::now();
@@ -177,7 +179,7 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Running over graph and adding categories recursively", diff });
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream catArtFile((outputFolder / "category_has_article.txt").string());	
+	std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
 	for(std::size_t i = 0; i < category_has_article.size(); i++)
 	{
 		for (auto art : category_has_article[i]) 
