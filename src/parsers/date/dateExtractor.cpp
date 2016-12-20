@@ -60,12 +60,12 @@ bool DateExtractor::extractDateFromDateStr(std::string dateStr, Date& dateObj) c
 		"%Y"
 	};
 
-	for (auto format : parserFormats) {
-		std::istringstream ss(dateStr);
-		ss >> std::get_time(&dateObj.Begin, format.c_str());	
-		if(!ss.fail())
-			return true;
-	}
+	// for (auto format : parserFormats) {
+		// std::istringstream ss(dateStr);
+		// ss >> std::get_time(&dateObj.Begin, format.c_str());	
+		// if(!ss.fail())
+			// return true;
+	// }
 
 	return false;
 }

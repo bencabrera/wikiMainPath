@@ -74,9 +74,32 @@ bool operator<(const Date& date1, const Date& date2)
 	throw std::logic_error("Not implemented.");
 }
 
+bool operator==(const std::tm& date1, const std::tm& date2)
+{
+	if(date1.tm_sec != date2.tm_sec)
+		return false;
+	if(date1.tm_min != date2.tm_min)
+		return false;
+	if(date1.tm_mday != date2.tm_mday)
+		return false;
+	if(date1.tm_mon != date2.tm_mon)
+		return false;
+	if(date1.tm_year != date2.tm_year)
+		return false;
+
+	return true;
+}
+
 bool operator==(const Date& date1, const Date& date2)
 {
-	return !(date1 < date2) && !(date2 < date1);
+	if(date1.IsRange != date2.IsRange)
+		return false;
+	if(!(date1.Begin == date2.Begin))
+		return false;
+	if(!(date1.End == date2.End))
+		return false;
+
+	return true;
 }
 
 std::ostream& operator<<(std::ostream& ostr, const Date& date)

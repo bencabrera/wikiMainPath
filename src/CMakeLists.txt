@@ -33,6 +33,7 @@ set(MAIN
 	parsers/date/dateExtractor.cpp
 	parsers/date/date.h
 	parsers/date/date.cpp
+	parsers/date/dateStringGrammar.cpp
 	parsers/parserWrappers/s1_wrapper.cpp
 	parsers/parserWrappers/s2_wrapper.cpp
 	parsers/parserWrappers/s3_wrapper.cpp

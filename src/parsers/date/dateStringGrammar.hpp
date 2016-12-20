@@ -21,16 +21,25 @@
 
 #include "date.h"
 
-namespace WikiTalkNet {
+namespace WikiMainPath {
 
 	template<typename Iterator, typename Skipper>
-		struct DateStringGrammar : boost::spirit::qi::grammar<Iterator, std::size_t, Skipper> {
+		struct DateStringGrammar : boost::spirit::qi::grammar<Iterator, Date(), Skipper> {
 			DateStringGrammar();
 
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> year_month_day;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> age;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> template_year_month_day;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> type1_template;
+
+			boost::spirit::qi::symbols<char> type1_string;
 
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> start;
+
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> day_month_year;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> month_day_year;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> year_month_day;
+
+			boost::spirit::qi::symbols<char,int> short_month_str;
+			boost::spirit::qi::symbols<char,int> long_month_str;
 		};
 
 }
