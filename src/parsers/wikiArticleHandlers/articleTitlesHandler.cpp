@@ -2,6 +2,8 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+#include "../date/dateExtraction.h"
+
 
 ArticleTitlesHandler::ArticleTitlesHandler()
 :AbstractArticleHandler(),
@@ -29,7 +31,7 @@ void ArticleTitlesHandler::HandleArticle(const ArticleData& data)
 	{
 		// if it is no redirect, check if a date can be extracted
 		Date dateObj;
-		if(extractDate(data.Content, dateObj))
+		if(WikiMainPath::extractDateFromArticle(data.Content, dateObj))
 		{
 			// add article
 			articles.insert({ title, dateObj });

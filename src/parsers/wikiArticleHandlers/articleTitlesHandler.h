@@ -5,7 +5,6 @@
 #include <map>
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../date/dateExtractor.h"
 #include "../date/date.h"
 
 class ArticleTitlesHandler : public AbstractArticleHandler{
@@ -21,6 +20,5 @@ class ArticleTitlesHandler : public AbstractArticleHandler{
 		std::size_t count() const;
 
 	private:
-		DateExtractor extractDate;
 		std::size_t _count;
 };

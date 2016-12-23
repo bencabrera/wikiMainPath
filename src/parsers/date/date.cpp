@@ -17,12 +17,12 @@ std::string Date::serialize(Date date)
 {
 	std::ostringstream ss;
 	ss << (date.IsRange ? "r" : "");
-	ss << date.Begin.tm_year << "_" << date.Begin.tm_mon << "_" << date.Begin.tm_mday;
+	ss << (date.Begin.tm_year + 1900) << "_" << (date.Begin.tm_mon + 1) << "_" << date.Begin.tm_mday;
 	if(date.IsRange)
-		ss << ":" << date.End.tm_year << "_" << date.End.tm_mon << "_" << date.End.tm_mday;
+		ss << ":" << (date.End.tm_year + 1900) << "_" << (date.End.tm_mon + 1) << "_" << date.End.tm_mday;
 
 	if(date.Description != "")
-		ss << "_" << date.Description;
+		ss << ":" << date.Description;
 
 	return ss.str();
 }
@@ -41,8 +41,8 @@ Date Date::deserialize(const std::string str)
 
 	dateRule = ((lit("r") [at_c<0>(_val) = true] >> tmDateRule [at_c<1>(_val) = boost::spirit::qi::_1] >> tmDateRule [at_c<2>(_val) = boost::spirit::qi::_1])
 				| (eps [at_c<0>(_val) = false] >> tmDateRule [at_c<1>(_val) = boost::spirit::qi::_1]))
-				>> -('_' >> +(char_ [at_c<3>(_val) += boost::spirit::qi::_1]));
-	tmDateRule = int_ [at_c<0>(_val) = boost::spirit::qi::_1] >> '_' >> int_ [at_c<1>(_val) = boost::spirit::qi::_1] >> '_' >> int_ [at_c<2>(_val) = boost::spirit::qi::_1];
+				>> -(':' >> +(char_ [at_c<3>(_val) += boost::spirit::qi::_1]));
+	tmDateRule = int_ [at_c<0>(_val) = boost::spirit::qi::_1 - 1900] >> '_' >> int_ [at_c<1>(_val) = boost::spirit::qi::_1 - 1] >> '_' >> int_ [at_c<2>(_val) = boost::spirit::qi::_1];
 	
 	boost::spirit::qi::parse(str.cbegin(), str.cend(), dateRule, rtn);
 

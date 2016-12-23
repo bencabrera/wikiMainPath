@@ -29,8 +29,8 @@ set(MAIN
 	parsers/wikiArticleHandlers/categoryRecursiveHandler.cpp
 	parsers/wikiArticleHandlers/linkExtractionHandler.h
 	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
-	parsers/date/dateExtractor.h
-	parsers/date/dateExtractor.cpp
+	parsers/date/dateExtraction.h
+	parsers/date/dateExtraction.cpp
 	parsers/date/date.h
 	parsers/date/date.cpp
 	parsers/date/dateStringGrammar.cpp
@@ -52,8 +52,6 @@ set(PHP_EXTENSION_FILES
 	phpExtension/wikiMainPath.cpp
 	program/fullTextSearch.h
 	program/fullTextSearch.cpp
-	parsers/date/dateExtractor.h
-	parsers/date/dateExtractor.cpp
 	parsers/date/date.h
 	parsers/date/date.cpp
 	parsers/shared.h

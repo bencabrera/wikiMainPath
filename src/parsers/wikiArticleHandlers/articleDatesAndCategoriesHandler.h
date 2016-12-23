@@ -5,7 +5,6 @@
 #include <map>
 
 #include "../xercesHandlers/abstractArticleHandler.h"
-#include "../date/dateExtractor.h"
 #include "../date/date.h"
 
 class ArticleDatesAndCategoriesHandler : public AbstractArticleHandler{
@@ -19,7 +18,4 @@ class ArticleDatesAndCategoriesHandler : public AbstractArticleHandler{
 		std::map<std::string, std::string> redirects;
 
 		bool ExtractOnlyArticlesWithDates;
-
-	private:
-		DateExtractor extractDate;
 };

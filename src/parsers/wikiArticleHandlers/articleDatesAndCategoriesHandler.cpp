@@ -2,6 +2,8 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+#include "../date/dateExtraction.h"
+
 ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler()
 :ExtractOnlyArticlesWithDates(true)
 {}
@@ -25,8 +27,7 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const ArticleData& data)
 		else
 		{
 			Date dateObj;
-			dateObj.Init();
-			if(extractDate(data.Content, dateObj) || !ExtractOnlyArticlesWithDates)
+			if(WikiMainPath::extractDateFromArticle(data.Content, dateObj) || !ExtractOnlyArticlesWithDates)
 			{
 				articles.insert({ title, dateObj });
 			}

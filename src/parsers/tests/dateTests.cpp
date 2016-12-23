@@ -8,12 +8,40 @@
 #include <string>
 
 #include "../date/date.h"
-#include "../date/dateExtractor.h"
+#include "../date/dateExtraction.h"
 #include "../date/dateStringGrammar.hpp"
-
-
+#include "fileListDataset.hpp"
 
 BOOST_AUTO_TEST_SUITE(DateTests)
+
+BOOST_DATA_TEST_CASE(
+	blubbern,
+	WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "ARTICLE", ".wikisyntax")
+	^ boost::unit_test::data::make(1)
+	^ WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "DATE", ".txt"),
+	article_path, dummy, date_path
+)
+{
+	using namespace WikiMainPath;
+	using namespace WikiMainPath::Tests;
+
+	// --- parsing the annotations ---
+	std::ifstream dateFile(date_path.string());
+	std::string tmp;
+	dateFile >> tmp;
+	auto expected_date = Date::deserialize(tmp);
+
+	std::ifstream articleFile(article_path.string());
+	std::string articleSyntax((std::istream_iterator<char>(articleFile)), std::istream_iterator<char>());
+
+	Date parsed_date;
+	auto date_could_be_extracted = WikiMainPath::extractDateFromArticle(articleSyntax, parsed_date);
+
+	BOOST_REQUIRE(date_could_be_extracted);
+
+	BOOST_CHECK_EQUAL(expected_date, parsed_date);
+}
+
 
 BOOST_AUTO_TEST_CASE(TestIfDateSerializationWorks)
 {
