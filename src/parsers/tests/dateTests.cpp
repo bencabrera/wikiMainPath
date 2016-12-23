@@ -11,6 +11,8 @@
 #include "../date/dateExtractor.h"
 #include "../date/dateStringGrammar.hpp"
 
+
+
 BOOST_AUTO_TEST_SUITE(DateTests)
 
 BOOST_AUTO_TEST_CASE(TestIfDateSerializationWorks)
@@ -35,7 +37,14 @@ std::vector<std::string> date_examples = {
 	"{{Age|1989|7|23|2003|7|14}}",
 	"{{Age nts|1989|7|23}}",
 	"{{Age nts|1989|7|23|2003|7|14}}",
-	"1 September 1917"
+	"1 September 1917",
+	"{{Birth date|1993|2|4|mf=yes}}",
+	"{{Birth date|1993|2|4}}",
+	"{{start-date|7 December 1941}}",
+	"{{birth-date|7 December 1941}}",
+	"{{death-date|7 December 1941}}",
+	"{{end-date|7 December 1941}}",
+	"{{Death date|1993|2|4|df=yes}}"
 };
 
 std::vector<Date> expected_dates = {
@@ -43,16 +52,15 @@ std::vector<Date> expected_dates = {
 	{true, {	   0,	   0,		 0,		23,		6,	  89 }, {	   0,	   0,		 0,		14,		6,	  103 }},
 	{false, {	   0,	   0,		 0,		23,		6,	  89 }, {}},
 	{true, {	   0,	   0,		 0,		23,		6,	  89 }, {	   0,	   0,		 0,		14,		6,	  103 }},
-	{false, {	   0,	   0,		 0,		1,		8,	  17 }, {}}
+	{false, {	   0,	   0,		 0,		1,		8,	  17 }, {}},
+	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
+	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
+	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
+	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
+	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
+	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
+	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}}
 };
-
-BOOST_DATA_TEST_CASE(should_run,boost::unit_test::data::make(date_examples),date_str)
-{
-	std::string str = date_str;
-	auto it = str.begin();
-	boost::spirit::qi::phrase_parse(it, str.end(), WikiMainPath::DateStringGrammar<std::string::iterator, boost::spirit::qi::blank_type>(), boost::spirit::qi::blank);
-	BOOST_CHECK(it == str.end());
-}
 
 BOOST_DATA_TEST_CASE(should_run2,boost::unit_test::data::make(date_examples) ^ boost::unit_test::data::make(expected_dates),date_str, expected_date)
 {
@@ -61,6 +69,7 @@ BOOST_DATA_TEST_CASE(should_run2,boost::unit_test::data::make(date_examples) ^ b
 	Date d;
 	d.Init();
 	boost::spirit::qi::phrase_parse(it, str.end(), WikiMainPath::DateStringGrammar<std::string::iterator, boost::spirit::qi::blank_type>(), boost::spirit::qi::blank, d);
+	BOOST_CHECK(it == str.end());
 	BOOST_CHECK_EQUAL(expected_date, d);
 }
 
