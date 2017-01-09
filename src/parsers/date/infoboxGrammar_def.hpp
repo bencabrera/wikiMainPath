@@ -22,9 +22,9 @@ namespace WikiMainPath {
 
 
 
-			BOOST_SPIRIT_DEBUG_NODE(article);
-			BOOST_SPIRIT_DEBUG_NODE(infobox);
-			BOOST_SPIRIT_DEBUG_NODE(infobox_line_with_date);
+			// BOOST_SPIRIT_DEBUG_NODE(article);
+			// BOOST_SPIRIT_DEBUG_NODE(infobox);
+			// BOOST_SPIRIT_DEBUG_NODE(infobox_line_with_date);
 			// // BOOST_SPIRIT_DEBUG_NODE(start);
 
 			// start.name("CommentGrammar::Start");

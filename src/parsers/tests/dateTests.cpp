@@ -15,67 +15,46 @@
 
 BOOST_AUTO_TEST_SUITE(DateTests)
 
-// BOOST_DATA_TEST_CASE(
-	// blubbern,
-	// WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "ARTICLE", ".wikisyntax")
-	// ^ boost::unit_test::data::make(1)
-	// ^ WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "DATE", ".txt"),
-	// article_path, dummy, date_path
-// )
-// {
-	// using namespace WikiMainPath;
-	// using namespace WikiMainPath::Tests;
-
-	// // --- parsing the annotations ---
-	// std::ifstream dateFile(date_path.string());
-	// std::string tmp;
-	// dateFile >> tmp;
-	// auto expected_date = Date::deserialize(tmp);
-
-	// std::ifstream articleFile(article_path.string());
-	// std::string articleSyntax((std::istream_iterator<char>(articleFile)), std::istream_iterator<char>());
-
-	// Date parsed_date;
-	// auto date_could_be_extracted = WikiMainPath::extractDateFromArticle(articleSyntax, parsed_date);
-
-	// BOOST_REQUIRE(date_could_be_extracted);
-
-	// BOOST_CHECK_EQUAL(expected_date, parsed_date);
-// }
-
 BOOST_DATA_TEST_CASE(
-	blubbern,
+	extract_all_correct_dates_from_infobox,
 	WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "ARTICLE", ".wikisyntax")
 	^ boost::unit_test::data::make(1)
-	^ WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "DATE", ".txt"),
-	article_path, dummy, date_path
+	^ WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "DATE_LIST", ".txt"),
+	article_path, dummy, date_list_path
 )
 {
 	using namespace WikiMainPath;
 	using namespace WikiMainPath::Tests;
 
 	// --- parsing the annotations ---
-	std::ifstream dateFile(date_path.string());
-	std::string tmp;
-	dateFile >> tmp;
-	auto expected_date = Date::deserialize(tmp);
+	std::ifstream dateListFile(date_list_path.string());
+	std::map<std::string, Date> expected_dates;
+	while(!dateListFile.eof()) {
+		std::string line, dateLabel, dateStr;
+		std::getline(dateListFile, line);
+		std::stringstream ss_line(line);
+		std::getline(ss_line, dateLabel, '\t');
+		std::getline(ss_line, dateStr, '\n');
+		expected_dates.insert({ dateLabel, Date::deserialize(dateStr) });	
+	}
 
 	std::ifstream articleFile(article_path.string());
 	std::string articleSyntax((std::istream_iterator<char>(articleFile)), std::istream_iterator<char>());
 
-	std::vector<std::pair<std::string, Date>> d;
-	auto it = articleSyntax.begin();
-	boost::spirit::qi::phrase_parse(it, articleSyntax.end(), WikiMainPath::InfoboxGrammar<std::string::iterator, boost::spirit::qi::blank_type>(), boost::spirit::qi::blank, d);
-
-	for (auto line : d) {
-		std::cout << line.first << ": " << line.second << std::endl;
+	for (auto i : expected_dates) {
+		std::cout << i.first << " --- " << Date::serialize(i.second) << std::endl;
 	}
 
-	BOOST_CHECK(it == articleSyntax.end());
+	auto parsed_dates = extractAllDatesFromInfobox(articleSyntax);
+	for (auto exp_date : expected_dates) {
+		auto it = parsed_dates.find(exp_date.first);
+		BOOST_CHECK(it != parsed_dates.end()); 			// date does exists
+		BOOST_CHECK_EQUAL(it->second, exp_date.second); // date is equal
+	}
 }
 
 
-BOOST_AUTO_TEST_CASE(TestIfDateSerializationWorks)
+BOOST_AUTO_TEST_CASE(date_serialization_works)
 {
 	Date d1;
 	d1.IsRange = false;
