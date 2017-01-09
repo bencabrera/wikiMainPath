@@ -11,6 +11,8 @@
 
 namespace WikiMainPath {
 
+	std::vector<std::string> orderForDateSources = { "date", "birth&death", "birthdate", "born", "death" };
+
 	bool extractDateFromArticle(const std::string& articleSyntax, Date& dateObj) 
 	{
 		return extractDateFromInfobox(articleSyntax, dateObj);
