@@ -3,6 +3,8 @@
 #include <boost/test/data/test_case.hpp>
 #include <boost/test/data/monomorphic.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+
 #include <fstream>
 #include <streambuf>
 #include <string>
@@ -32,20 +34,31 @@ BOOST_DATA_TEST_CASE(
 	while(!dateListFile.eof()) {
 		std::string line, dateLabel, dateStr;
 		std::getline(dateListFile, line);
-		std::stringstream ss_line(line);
-		std::getline(ss_line, dateLabel, '\t');
-		std::getline(ss_line, dateStr, '\n');
-		expected_dates.insert({ dateLabel, Date::deserialize(dateStr) });	
+		boost::trim(line);
+		if(line != "")
+		{
+			std::cout << "LINE: [" << line << "]" << std::endl;
+			std::stringstream ss_line(line);
+			std::getline(ss_line, dateLabel, '\t');
+			std::getline(ss_line, dateStr, '\n');
+			expected_dates.insert({ dateLabel, Date::deserialize(dateStr) });	
+		}
 	}
 
 	std::ifstream articleFile(article_path.string());
 	std::string articleSyntax((std::istream_iterator<char>(articleFile)), std::istream_iterator<char>());
+	auto parsed_dates = extractAllDatesFromInfobox(articleSyntax);
 
+	std::cout << "------ Expected ------" << std::endl;
 	for (auto i : expected_dates) {
 		std::cout << i.first << " --- " << Date::serialize(i.second) << std::endl;
 	}
 
-	auto parsed_dates = extractAllDatesFromInfobox(articleSyntax);
+	std::cout << "------ Parsed ------" << std::endl;
+	for (auto i : parsed_dates) {
+		std::cout << i.first << " --- " << Date::serialize(i.second) << std::endl;
+	}
+
 	for (auto exp_date : expected_dates) {
 		auto it = parsed_dates.find(exp_date.first);
 		BOOST_CHECK(it != parsed_dates.end()); 			// date does exists
