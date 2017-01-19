@@ -32,6 +32,7 @@ namespace WikiMainPath {
 
 			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> infobox;
 
+			boost::spirit::qi::rule<Iterator, std::string()> infobox_label;
 			boost::spirit::qi::rule<Iterator, std::pair<std::string, Date>(), Skipper> infobox_line_with_date;
 
 			DateStringGrammar<Iterator, Skipper> date_string;

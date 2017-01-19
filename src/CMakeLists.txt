@@ -23,6 +23,8 @@ set(MAIN
 	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.h
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
+	parsers/wikiArticleHandlers/countArticleLengthsHandler.h
+	parsers/wikiArticleHandlers/countArticleLengthsHandler.cpp
 	parsers/wikiArticleHandlers/categoryHasArticleHandler.h
 	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
 	parsers/wikiArticleHandlers/categoryRecursiveHandler.h
@@ -82,6 +84,12 @@ target_link_libraries(testVectorMutex pthread)
 add_executable(testVectorMutex2 parsers/main_testVectorMutex2.cpp)
 target_link_libraries(testVectorMutex2 ${Boost_LIBRARIES})
 target_link_libraries(testVectorMutex2 pthread)
+
+add_executable(countArticleLengths parsers/main_countArticleLengths.cpp)
+target_link_libraries(countArticleLengths Main)
+target_link_libraries(countArticleLengths ${Boost_LIBRARIES})
+target_link_libraries(countArticleLengths xerces-c)
+target_link_libraries(countArticleLengths pthread)
 
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories Main)
