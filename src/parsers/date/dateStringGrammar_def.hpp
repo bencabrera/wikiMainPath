@@ -12,7 +12,7 @@ namespace WikiMainPath {
 			using namespace boost::phoenix;
 
 			// TODO: solve this with no_case
-			type1_string = "Age", "age", "Age nts", "age nts", "Age for infant", "age for infant", "Birth date", "birth date", "Death date", "Start date", "End date", "death date", "start date", "end date";
+			type1_string = "Age", "age", "Age nts", "age nts", "Age for infant", "age for infant", "Birth date", "birth date", "Death date", "Start date", "End date", "death date", "start date", "end date", "start date and age";
 			fuzzy_template_names = "Birth-date", "Death-date", "Start-date", "End-date", "birth-date", "death-date", "start-date", "end-date";
 
 			template_year_month_day = int_ [at_c<0>(_val) = boost::spirit::_1 - 1900] >> '|' >> int_ [at_c<1>(_val) = boost::spirit::_1 - 1] >> '|' >> int_ [at_c<2>(_val) = boost::spirit::_1];
@@ -26,7 +26,13 @@ namespace WikiMainPath {
 
 			type1_template = eps [at_c<0>(_val) = false] >> lit("{{") >> type1_string >> '|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}'))) >> lit("}}");
 
+			type2_parameter = lit("|") >> *(char_ - '=') >> '=' >> *(char_ - '|');
+			type2_template = eps [at_c<0>(_val) = false] >> lit("{{") >> type1_string >> 
+				*(&type2_parameter >> type2_parameter) >> 
+				'|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}'))) >> lit("}}");
+
 			start = (&type1_template >> type1_template [_val = boost::spirit::_1])
+					| (&type2_template >> type2_template [_val = boost::spirit::_1])
 					| (&day_month_year >> day_month_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
 					| (&month_day_year >> month_day_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
 					| (&year_month_day >> year_month_day [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
@@ -70,6 +76,8 @@ namespace WikiMainPath {
 			// indentation = eps [_val = 0] >> *(char_(':') [_val++]);
 			// start =  *eol >> indentation [at_c<3>(_val) = boost::spirit::qi::_1] >> text [at_c<0>(_val) = boost::spirit::_1] >> signature [at_c<1>(_val) = at_c<0>(boost::spirit::_1), at_c<2>(_val) = at_c<1>(boost::spirit::_1)];
 
+			// BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
+			// BOOST_SPIRIT_DEBUG_NODE(type2_template);
 			// BOOST_SPIRIT_DEBUG_NODE(age);
 			// BOOST_SPIRIT_DEBUG_NODE(type1_string);
 			// BOOST_SPIRIT_DEBUG_NODE(start);

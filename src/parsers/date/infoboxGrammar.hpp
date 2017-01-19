@@ -29,6 +29,7 @@ namespace WikiMainPath {
 			InfoboxGrammar();
 
 			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> article;
+			boost::spirit::qi::rule<Iterator, Skipper> start_infobox;
 
 			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> infobox;
 

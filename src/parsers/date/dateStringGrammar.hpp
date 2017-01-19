@@ -29,6 +29,8 @@ namespace WikiMainPath {
 
 			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> template_year_month_day;
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> type1_template;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> type2_template;
+			boost::spirit::qi::rule<Iterator, Skipper> type2_parameter;
 
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> fuzzy_template_dates;
 

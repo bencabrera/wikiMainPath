@@ -84,6 +84,52 @@ BOOST_AUTO_TEST_CASE(date_serialization_works)
 	BOOST_CHECK_EQUAL(str, str2);
 }
 
+BOOST_AUTO_TEST_CASE(infobox_start_should_work)
+{
+	std::string test_str = "{{Infobox civilian attack\n";
+	auto it = test_str.cbegin();
+
+	WikiMainPath::InfoboxGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> obj;
+
+	boost::spirit::qi::phrase_parse(it, test_str.cend(), obj.start_infobox, boost::spirit::qi::blank);
+	BOOST_CHECK(it == test_str.cend());
+}
+
+
+BOOST_AUTO_TEST_CASE(infobox_date_with_label_should_work)
+{
+	std::string test_str = "| date        = {{start date and age|2016|12|19}}";
+	auto it = test_str.cbegin();
+
+	WikiMainPath::InfoboxGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> obj;
+
+	boost::spirit::qi::phrase_parse(it, test_str.cend(), obj.infobox_line_with_date, boost::spirit::qi::blank);
+	BOOST_CHECK(it == test_str.cend());
+}
+
+BOOST_AUTO_TEST_CASE(infobox_should_parse)
+{
+	std::string test_str = "{{Infobox civilian attack \n\
+| title       = 2016 Berlin attack \n\
+| date        = {{start date and age|df=yes|paren=yes|2016|12|19}}\n\
+| time        = 20:02 [[Central European Time|CET]] ([[UTC+01]])\n\
+| type        = [[Vehicular assault]], [[truck hijacking]], [[stabbing]], [[shooting]], [[mass murder]]\n\
+| location    =  [[Breitscheidplatz]], [[Berlin]], Germany\n\
+| injuries    = 56\n\
+| fatalities  = {{#property:P1120}} (1 passenger and 11 pedestrians)\n\
+| perpetrator = \n\
+| motive      = \n\
+| assailant   = Anis Amri (deceased)\n\
+| weapons     = [[Scania PRT-range|Scania R 450]] [[semi-trailer truck]], small-caliber gun, knife}}\n\
+}}";
+
+	auto it = test_str.cbegin();
+
+	WikiMainPath::InfoboxGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> obj;
+
+	boost::spirit::qi::phrase_parse(it, test_str.cend(), obj.infobox, boost::spirit::qi::blank);
+	BOOST_CHECK(it == test_str.cend());
+}
 
 std::vector<std::string> date_examples = {
 	"{{Age|1989|7|23|2003|7|14}}",
@@ -96,7 +142,8 @@ std::vector<std::string> date_examples = {
 	"{{birth-date|7 December 1941}}",
 	"{{death-date|7 December 1941}}",
 	"{{end-date|7 December 1941}}",
-	"{{Death date|1993|2|4|df=yes}}"
+	"{{Death date|1993|2|4|df=yes}}",
+	"{{start date and age|df=yes|paren=yes|2016|12|19}}"
 };
 
 std::vector<Date> expected_dates = {
@@ -111,7 +158,8 @@ std::vector<Date> expected_dates = {
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
-	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}}
+	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
+	{false, {	   0,	   0,		 0,		19,		11,	  116 }, {}}
 };
 
 BOOST_DATA_TEST_CASE(should_run2,boost::unit_test::data::make(date_examples) ^ boost::unit_test::data::make(expected_dates),date_str, expected_date)
