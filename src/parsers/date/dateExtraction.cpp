@@ -12,20 +12,38 @@
 
 namespace WikiMainPath {
 
+	const std::vector<std::string> DATE_TYPE_ORDER = {
+		"BIRTH_DEATH",
+		"BIRTH",
+		"DEATH",
+		"GENERAL_DATE"
+	};
+
+	const std::map<std::string, std::string> INFOBOX_KEY_TO_DATE_TYPE = {
+		{ "date", "GENERAL_DATE" },
+		{ "born", "BIRTH" },
+		{ "birth", "BIRTH" },
+		{ "birthdate", "BIRTH" },
+		{ "birthday", "BIRTH" },
+		{ "death", "DEATH" },
+		{ "died", "DEATH" },
+		{ "deathdate", "DEATH" },
+		{ "deathday", "DEATH" }
+	};
 
 	// step 1: extracting all possible sources of dates
-	std::map<std::string, Date> extractAllDatesFromArticle(const std::string& articleSyntax) 
+	std::map<std::string, Date> extractAllDatesFromArticle(const std::string& article_syntax) 
 	{
-		return extractAllDatesFromInfobox(articleSyntax);
+		return extractAllDatesFromInfobox(article_syntax);
 	}
 
-	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& articleSyntax)
+	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax)
 	{
 		std::vector<std::pair<std::string, std::string>> key_values;
-		auto it = articleSyntax.cbegin();
+		auto it = article_syntax.cbegin();
 		
 		WikiMainPath::InfoboxKeyValueGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> grammar;
-		boost::spirit::qi::phrase_parse(it, articleSyntax.cend(), grammar, boost::spirit::qi::blank, key_values);
+		boost::spirit::qi::phrase_parse(it, article_syntax.cend(), grammar, boost::spirit::qi::blank, key_values);
 
 		for(auto& pair : key_values)
 		{
@@ -36,67 +54,38 @@ namespace WikiMainPath {
 		return key_values;
 	}
 
-	std::map<std::string, Date> extractAllDatesFromInfobox(const std::string& articleSyntax)
+	// could add an error category if the descriptions match
+	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date)
 	{
-		throw std::logic_error("Not implemented");
-		// std::vector<std::pair<std::string, Date>> d;
-		// auto it = articleSyntax.cbegin();
+		std::vector<Date> rtn;
+
+		WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_grammar;
+
+		auto key_values = extractAllKeyValuesFromInfobox(article_syntax);
+		for (const auto& pair : key_values) {
+			Date d;
+			auto it = pair.second.cbegin();
+			auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);
+			boost::spirit::qi::phrase_parse(it, pair.second.cend(), date_grammar, boost::spirit::qi::blank, d);
+
+			if(it != pair.second.cend())
+			{
+				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
+					key_but_no_date.push_back(pair);
+				continue;
+			} else {
+				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
+				{
+					// if(date_key_it->second == d.Description)
+					rtn.push_back(d);
+				} else {
+					date_but_no_key.push_back(pair);
+				}
+			}
+		}
 		
-		// WikiMainPath::InfoboxKeyValueGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> grammar;
-		// boost::spirit::qi::phrase_parse(it, articleSyntax.cend(), grammar, boost::spirit::qi::blank, d);
-
-		// std::cout << "AFTER PARSED" << std::endl;
-		// for (auto line : d) {
-			// std::cout << line.first << ": " << line.second << std::endl;
-		// }
-
-		// std::cout << "AFTER COUT" << std::endl;
-		// std::map<std::string, Date> rtn;
-		// for (auto extr_date : d) 
-			// rtn.insert(extr_date);
-			
-		// return rtn;
-
-
-		// std::size_t foundPos = articleSyntax.find("{{");
-		// while(foundPos != std::string::npos)
-		// {
-			// std::size_t secondFoundPos = articleSyntax.find("}}", foundPos);
-			// if(secondFoundPos == std::string::npos)
-				// break;
-
-			// std::string val = articleSyntax.substr(foundPos + 2, secondFoundPos - foundPos - 2);
-			// boost::trim(val);
-
-			// if(val.length() > 7 && boost::to_lower_copy(val.substr(0,7)) == "infobox")
-			// {
-				// std::regex infoboxDateStrRegex("[Dd]ate\\s*=\\s*([^\\n]*)");
-				// std::smatch dateStrMatch;
-				// if(!std::regex_search(val, dateStrMatch, infoboxDateStrRegex)) 
-				// {
-					// foundPos = articleSyntax.find("{{", secondFoundPos);
-					// continue;
-				// }
-
-				// std::string dateStr = dateStrMatch[1];
-				// dateStr = boost::regex_replace(dateStr, boost::regex("&\\w+;"), " ");
-
-				// auto it = dateStr.begin();	
-				// boost::spirit::qi::phrase_parse(it, dateStr.end(), DateStringGrammar<std::string::iterator, boost::spirit::qi::blank_type>(), boost::spirit::qi::blank, dateObj);
-
-				// if(it == dateStr.end())
-					// return true;
-				// // return extractDateFromDateStr(dateStr, dateObj);
-			// }
-
-			// foundPos = articleSyntax.find("{{", secondFoundPos);
-		// }
-
-		// return false;
+		return rtn;
 	}
-
-
-	std::vector<std::string> orderForDateSources = { "date", "birth&death", "birthdate", "born", "death" };
 
 	// step 2: combining single dates to ranges
 	void combineSingleDateToRanges(std::map<std::string, Date>& dates)
@@ -112,7 +101,7 @@ namespace WikiMainPath {
 
 
 	// step 4: combine all steps
-	bool extractDateFromArticle(const std::string& articleSyntax, Date& date)
+	bool extractDateFromArticle(const std::string& article_syntax, Date& date)
 	{
 		throw std::logic_error("Not implemented");
 	}
