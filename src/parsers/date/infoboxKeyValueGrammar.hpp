@@ -25,24 +25,17 @@
 namespace WikiMainPath {
 
 	template<typename Iterator, typename Skipper>
-		struct InfoboxGrammar : boost::spirit::qi::grammar<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> {
-			InfoboxGrammar();
+		struct InfoboxKeyValueGrammar : boost::spirit::qi::grammar<Iterator, std::vector<std::pair<std::string, std::string>>(), Skipper> {
+			InfoboxKeyValueGrammar();
 
-			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> article;
+			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, std::string>>(), Skipper> article;
+			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, std::string>>(), Skipper> infobox;
 			boost::spirit::qi::rule<Iterator, Skipper> start_infobox;
-
-			boost::spirit::qi::rule<Iterator, std::vector<std::pair<std::string, Date>>(), Skipper> infobox;
-
-			boost::spirit::qi::rule<Iterator, std::string()> infobox_label;
-			boost::spirit::qi::rule<Iterator, std::pair<std::string, Date>(), Skipper> infobox_line_with_date;
-
-			DateStringGrammar<Iterator, Skipper> date_string;
-
-			std::vector<std::pair<std::string, Date>> help_dat;
-
-
-			// boost::spirit::qi::symbols<char,int> short_month_str;
-			// boost::spirit::qi::symbols<char,int> long_month_str;
+			boost::spirit::qi::rule<Iterator, std::pair<std::string, std::string>(), Skipper> infobox_line;
+			boost::spirit::qi::rule<Iterator, std::string()> infobox_line_key;
+			boost::spirit::qi::rule<Iterator, std::string()> infobox_line_value;
+			boost::spirit::qi::rule<Iterator, std::string()> nested_meta_command;
+			boost::spirit::qi::rule<Iterator, std::string()> text_in_command;
 		};
 
 }

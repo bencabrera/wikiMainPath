@@ -8,7 +8,7 @@
 #include <iomanip>
 
 #include "dateStringGrammar.hpp"
-#include "infoboxGrammar.hpp"
+#include "infoboxKeyValueGrammar.hpp"
 
 namespace WikiMainPath {
 
@@ -19,21 +19,43 @@ namespace WikiMainPath {
 		return extractAllDatesFromInfobox(articleSyntax);
 	}
 
-	std::map<std::string, Date> extractAllDatesFromInfobox(const std::string& articleSyntax)
+	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& articleSyntax)
 	{
-		std::vector<std::pair<std::string, Date>> d;
+		std::vector<std::pair<std::string, std::string>> key_values;
 		auto it = articleSyntax.cbegin();
-		boost::spirit::qi::phrase_parse(it, articleSyntax.cend(), WikiMainPath::InfoboxGrammar<std::string::const_iterator, boost::spirit::qi::blank_type>(), boost::spirit::qi::blank, d);
+		
+		WikiMainPath::InfoboxKeyValueGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> grammar;
+		boost::spirit::qi::phrase_parse(it, articleSyntax.cend(), grammar, boost::spirit::qi::blank, key_values);
 
-		for (auto line : d) {
-			std::cout << line.first << ": " << line.second << std::endl;
+		for(auto& pair : key_values)
+		{
+			boost::trim(pair.first);
+			boost::trim(pair.second);
 		}
 
-		std::map<std::string, Date> rtn;
-		for (auto extr_date : d) 
-			rtn.insert(extr_date);
+		return key_values;
+	}
+
+	std::map<std::string, Date> extractAllDatesFromInfobox(const std::string& articleSyntax)
+	{
+		throw std::logic_error("Not implemented");
+		// std::vector<std::pair<std::string, Date>> d;
+		// auto it = articleSyntax.cbegin();
+		
+		// WikiMainPath::InfoboxKeyValueGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> grammar;
+		// boost::spirit::qi::phrase_parse(it, articleSyntax.cend(), grammar, boost::spirit::qi::blank, d);
+
+		// std::cout << "AFTER PARSED" << std::endl;
+		// for (auto line : d) {
+			// std::cout << line.first << ": " << line.second << std::endl;
+		// }
+
+		// std::cout << "AFTER COUT" << std::endl;
+		// std::map<std::string, Date> rtn;
+		// for (auto extr_date : d) 
+			// rtn.insert(extr_date);
 			
-		return rtn;
+		// return rtn;
 
 
 		// std::size_t foundPos = articleSyntax.find("{{");

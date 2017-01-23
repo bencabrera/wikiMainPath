@@ -37,6 +37,7 @@ set(MAIN
 	parsers/date/date.cpp
 	parsers/date/dateStringGrammar.cpp
 	parsers/date/infoboxGrammar.cpp
+	parsers/date/infoboxKeyValueGrammar.cpp
 	parsers/parserWrappers/s1_wrapper.cpp
 	parsers/parserWrappers/s2_wrapper.cpp
 	parsers/parserWrappers/s3_wrapper.cpp

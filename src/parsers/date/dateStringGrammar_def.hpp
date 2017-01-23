@@ -26,10 +26,10 @@ namespace WikiMainPath {
 
 			type1_template = eps [at_c<0>(_val) = false] >> lit("{{") >> type1_string >> '|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}'))) >> lit("}}");
 
-			type2_parameter = lit("|") >> *(char_ - '=') >> '=' >> *(char_ - '|');
+			type2_parameter = lit("|") >> *(char_ - '=' - eol) >> '=' >> *(char_ - '|' - eol);
 			type2_template = eps [at_c<0>(_val) = false] >> lit("{{") >> type1_string >> 
 				*(&type2_parameter >> type2_parameter) >> 
-				'|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}'))) >> lit("}}");
+				'|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}' - eol))) >> lit("}}");
 
 			start = (&type1_template >> type1_template [_val = boost::spirit::_1])
 					| (&type2_template >> type2_template [_val = boost::spirit::_1])
@@ -76,12 +76,12 @@ namespace WikiMainPath {
 			// indentation = eps [_val = 0] >> *(char_(':') [_val++]);
 			// start =  *eol >> indentation [at_c<3>(_val) = boost::spirit::qi::_1] >> text [at_c<0>(_val) = boost::spirit::_1] >> signature [at_c<1>(_val) = at_c<0>(boost::spirit::_1), at_c<2>(_val) = at_c<1>(boost::spirit::_1)];
 
-			// BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
-			// BOOST_SPIRIT_DEBUG_NODE(type2_template);
+			BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
+			BOOST_SPIRIT_DEBUG_NODE(type2_template);
 			// BOOST_SPIRIT_DEBUG_NODE(age);
 			// BOOST_SPIRIT_DEBUG_NODE(type1_string);
+			BOOST_SPIRIT_DEBUG_NODE(start);
 			// BOOST_SPIRIT_DEBUG_NODE(start);
-			// // BOOST_SPIRIT_DEBUG_NODE(start);
 
 			// start.name("CommentGrammar::Start");
 		}

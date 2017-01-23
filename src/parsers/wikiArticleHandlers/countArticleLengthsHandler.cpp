@@ -60,5 +60,8 @@ void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
-	article_counts.insert({ title, compute_properties(data.Content) });
+	std::string cleaned = preprocess(data.Content);
+
+	article_counts.insert({ title, compute_properties(cleaned) });
+	// article_counts.insert({ title, compute_properties(data.Content) });
 }

@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
 			// set up call back handlers
 			WikiDumpHandler handler(artHandler, true);
-			handler.ProgressReportInterval = 100;
+			// handler.ProgressReportInterval = 100;
 			handler.TitleFilter = [](const std::string& title) {
 			return !(
 				title.substr(0,5) == "User:" 
