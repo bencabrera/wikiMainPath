@@ -13,13 +13,13 @@ namespace WikiMainPath {
 			using namespace boost::spirit::qi;
 			using namespace boost::phoenix;
 
-			article = *(char_ - '{') >> ((&(lit("{{") >> no_case["infobox"]) > infobox [_val = boost::spirit::_1]) | ('{' >> article));
+			article = *(char_ - '{') >> ((&(lit("{{") >> no_case["infobox"]) > infobox [_val = boost::spirit::_1]) | ('{' >> article [_val = boost::spirit::_1]));
 
 			start_infobox = lexeme[lit("{{") >> no_case["infobox"] >> *(char_ - eol) >> eol];
 			infobox = start_infobox >> 
 						// ((&infobox_line >> infobox_line [push_back(_val, boost::spirit::_1)])
 						 // | *(!lit("}}") >> (char_ - eol))) % (eol >> !lit("}}"))
-						infobox_line % (eol >> !lit("}}"))
+						infobox_line [push_back(_val, boost::spirit::_1)] % (eol >> !lit("}}"))
 						>> *eol >> lit("}}");
 
 			infobox_line_key = +(char_ - '=' - eol) [_val += boost::spirit::_1];

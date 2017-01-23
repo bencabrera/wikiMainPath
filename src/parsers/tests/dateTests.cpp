@@ -120,6 +120,58 @@ BOOST_DATA_TEST_CASE(
 	}
 }
 
+BOOST_DATA_TEST_CASE(
+	extract_all_correct_key_values_from_article,
+	WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "ARTICLE", ".wikisyntax")
+	^ boost::unit_test::data::make(1)
+	^ WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/dateExtractionTestData", "INFOBOX_KEY_VALUES", ".txt"),
+	infobox_syntax_path, dummy, expected_key_values_path
+)
+{
+	using namespace WikiMainPath;
+	using namespace WikiMainPath::Tests;
+
+	// --- parsing the annotations ---
+	std::ifstream expected_key_values_file(expected_key_values_path.string());
+	std::vector<std::pair<std::string, std::string>> expected_key_values;
+	while(!expected_key_values_file.eof()) {
+		std::string line, key, value;
+		std::getline(expected_key_values_file, line);
+		boost::trim(line);
+		if(line != "")
+		{
+			std::stringstream ss_line(line);
+			std::getline(ss_line, key, '\t');
+			std::getline(ss_line, value, '\n');
+			boost::trim(key);
+			boost::trim(value);
+			expected_key_values.push_back({ key, value });	
+		}
+	}
+
+	std::ifstream infobox_syntax_file(infobox_syntax_path.string());
+	std::stringstream buffer;
+	buffer << infobox_syntax_file.rdbuf();
+	auto parsed_key_values = extractAllKeyValuesFromInfobox(buffer.str());
+
+	// std::cout << "------ Expected ------" << std::endl;
+	// for (auto i : expected_key_values) {
+		// std::cout << i.first << " --- " << i.second << std::endl;
+	// }
+
+	// std::cout << "------ Parsed ------" << std::endl;
+	// for (auto i : parsed_key_values) {
+		// std::cout << i.first << " --- " << i.second << std::endl;
+	// }
+
+	BOOST_REQUIRE_EQUAL(expected_key_values.size(), parsed_key_values.size());
+	for(std::size_t i = 0; i < parsed_key_values.size(); i++)
+	{
+		BOOST_CHECK_EQUAL(expected_key_values[i].first, parsed_key_values[i].first);
+		BOOST_CHECK_EQUAL(expected_key_values[i].second, parsed_key_values[i].second);
+	}
+}
+
 // BOOST_AUTO_TEST_CASE(date_serialization_works)
 // {
 	// Date d1;
