@@ -17,6 +17,9 @@ class ArticleTitlesHandler : public AbstractArticleHandler{
 		std::map<std::string, std::vector<std::string>> categoriesToArticles;
 		std::map<std::string, std::string> redirects;
 
+		std::vector<std::pair<std::string, std::string>> date_but_no_key; 
+		std::vector<std::pair<std::string, std::string>> key_but_no_date;
+
 		std::size_t count() const;
 
 	private:

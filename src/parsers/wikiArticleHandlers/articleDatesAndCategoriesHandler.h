@@ -17,5 +17,8 @@ class ArticleDatesAndCategoriesHandler : public AbstractArticleHandler{
 		std::vector<std::string> categories;
 		std::map<std::string, std::string> redirects;
 
+		std::vector<std::pair<std::string, std::string>> date_but_no_key; 
+		std::vector<std::pair<std::string, std::string>> key_but_no_date;
+
 		bool ExtractOnlyArticlesWithDates;
 };

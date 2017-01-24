@@ -31,7 +31,7 @@ void ArticleTitlesHandler::HandleArticle(const ArticleData& data)
 	{
 		// if it is no redirect, check if a date can be extracted
 		Date dateObj;
-		if(WikiMainPath::extractDateFromArticle(data.Content, dateObj))
+		if(WikiMainPath::extractDateFromArticle(data.Content, dateObj, date_but_no_key, key_but_no_date))
 		{
 			// add article
 			articles.insert({ title, dateObj });
