@@ -17,10 +17,13 @@ namespace WikiMainPath {
 
 			start_infobox = lexeme[lit("{{") >> no_case["infobox"] >> *(char_ - eol) >> eol];
 			infobox = start_infobox >> 
-						// ((&infobox_line >> infobox_line [push_back(_val, boost::spirit::_1)])
-						 // | *(!lit("}}") >> (char_ - eol))) % (eol >> !lit("}}"))
-						infobox_line [push_back(_val, boost::spirit::_1)] % (eol >> !lit("}}"))
+						(
+						 	(&infobox_line >> infobox_line [push_back(_val, boost::spirit::_1)])
+							| meaningless_line
+						) % (eol >> !lit("}}"))
 						>> *eol >> lit("}}");
+
+			meaningless_line = *(char_ - eol - '{' - '}') >> -((nested_meta_command | (!lit("}}") >> char_("{}"))) >> meaningless_line);
 
 			infobox_line_key = +(char_ - '=' - eol) [_val += boost::spirit::_1];
 			infobox_line_value = *(char_ - eol - '{' - '}') [_val += boost::spirit::_1] >> -(
@@ -44,6 +47,7 @@ namespace WikiMainPath {
 			// BOOST_SPIRIT_DEBUG_NODE(infobox_line_value);
 			// BOOST_SPIRIT_DEBUG_NODE(nested_meta_command);
 			// BOOST_SPIRIT_DEBUG_NODE(text_in_command);
+			// BOOST_SPIRIT_DEBUG_NODE(meaningless_line);
 			// BOOST_SPIRIT_DEBUG_NODE(start_infobox);
 		}
 

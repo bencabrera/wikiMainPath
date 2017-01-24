@@ -1,0 +1,7 @@
+Event_Name	French Revolution
+Image_Name	Jacques Bertaux - Prise du palais des Tuileries - 1793.jpg
+Image_Caption	The [[10 August (French Revolution)|August Insurrection]] in 1792 <br>precipitated the last days of the monarchy.
+Participants	French society
+Location	[[France]]
+Date	5 May 1789–9 November 1799<br />({{Age in months, weeks and days|month1=05|day1=5|year1=1789|month2=11|day2=9|year2=1799}})
+Result	* [[Proclamation of the abolition of the monarchy|Abolition]] of the [[List of French monarchs|French monarchy]]

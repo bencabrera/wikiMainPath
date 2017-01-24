@@ -1,0 +1,14 @@
+image	[[File:Harold dead bayeux tapestry.png|300px]]
+partof	the [[Norman conquest of England]]
+caption	''Harold Rex Interfectus Est'': "King [[Harold Godwinson|Harold]] was killed". Scene from the [[Bayeux Tapestry]] depicting the Battle of Hastings and the death of Harold.
+conflict	Battle of Hastings
+date	14&nbsp;October 1066
+place	[[Battle, East Sussex|Battle]] near [[Hastings]], [[East Sussex]], England
+result	Decisive Norman victory
+combatant1	[[Duchy of Normandy|Normans]]
+combatant2	[[Anglo-Saxons|English]]
+commander1	[[William the Conqueror|William of Normandy]]<br />[[Alan Rufus|Alan the Red]]<br />[[William FitzOsbern, 1st Earl of Hereford|William fitzOsbern]]<br />[[Eustace II, Count of Boulogne]]
+commander2	[[Harold Godwinson]]{{KIA}}<br />[[Gyrth Godwinson]]{{KIA}}<br />[[Leofwine Godwinson]]{{KIA}}
+strength1	Unknown, estimates range from 7,000 to 12,000
+strength2	Unknown, estimates range from 5,000 to 13,000
+campaignbox	{{Campaignbox Norman Conquest}}

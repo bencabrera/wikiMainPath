@@ -33,6 +33,7 @@ namespace WikiMainPath {
 			boost::spirit::qi::rule<Iterator, Skipper> start_infobox;
 			boost::spirit::qi::rule<Iterator, std::pair<std::string, std::string>(), Skipper> infobox_line;
 			boost::spirit::qi::rule<Iterator, std::string()> infobox_line_key;
+			boost::spirit::qi::rule<Iterator, Skipper> meaningless_line;
 			boost::spirit::qi::rule<Iterator, std::string()> infobox_line_value;
 			boost::spirit::qi::rule<Iterator, std::string()> nested_meta_command;
 			boost::spirit::qi::rule<Iterator, std::string()> text_in_command;
