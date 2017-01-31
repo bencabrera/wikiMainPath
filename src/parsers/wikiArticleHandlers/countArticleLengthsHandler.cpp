@@ -1,6 +1,7 @@
 #include "countArticleLengthsHandler.h"
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "../date/dateExtraction.h"
 
@@ -59,6 +60,7 @@ void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
 {
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
+	boost::replace_all(title, "\"", "\\\"");
 
 	std::string cleaned = preprocess(data.Content);
 

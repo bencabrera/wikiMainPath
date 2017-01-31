@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 	std::vector<std::future<std::map<std::string, CountArticleLengthHandler::ArticleProperties>>> futures;
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, [xmlPath, &pageCounts](){ 
+		futures.emplace_back(std::async(std::launch::async, [&outputFolder, xmlPath, &pageCounts](){ 
 			CountArticleLengthHandler artHandler; 
 
 			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
@@ -150,15 +150,29 @@ int main(int argc, char* argv[])
 			// run parser
 			parser->parse(xmlPath.c_str());
 			delete parser;
+	
+			auto xmlFileName = xmlPath.stem();
+			auto path = outputFolder / xmlFileName;
+			path.replace_extension(".txt");
+			std::ofstream lengths_file(path.string());	
+			std::cout << "Writing to " << path << std::endl;
+			for(auto length : artHandler.article_counts)
+			{
+				lengths_file << "\"" << length.first << "\",";
+				lengths_file << std::get<0>(length.second) << ",";
+				lengths_file << std::get<1>(length.second) << ",";
+				lengths_file << std::get<2>(length.second);
+				lengths_file << std::endl;
+			}
 
 			return artHandler.article_counts;
 		}));
 
-	std::map<std::string, CountArticleLengthHandler::ArticleProperties> extracted_lengths;
+	// std::map<std::string, CountArticleLengthHandler::ArticleProperties> extracted_lengths;
 	for (auto& future : futures)
 	{
 		auto lengths = future.get();
-		extracted_lengths.insert(lengths.begin(), lengths.end());
+
 	}
 
 	auto endTime = std::chrono::steady_clock::now();
@@ -167,15 +181,15 @@ int main(int argc, char* argv[])
 
 	startTime = std::chrono::steady_clock::now();
 	
-	std::ofstream lengths_file((outputFolder / "article_lengths.txt").string());	
-	for(auto length : extracted_lengths)
-	{
-		lengths_file << "\"" << length.first << "\",";
-		lengths_file << std::get<0>(length.second) << ",";
-		lengths_file << std::get<1>(length.second) << ",";
-		lengths_file << std::get<2>(length.second);
-		lengths_file << std::endl;
-	}
+	// std::ofstream lengths_file((outputFolder / "article_lengths.txt").string());	
+	// for(auto length : extracted_lengths)
+	// {
+		// lengths_file << "\"" << length.first << "\",";
+		// lengths_file << std::get<0>(length.second) << ",";
+		// lengths_file << std::get<1>(length.second) << ",";
+		// lengths_file << std::get<2>(length.second);
+		// lengths_file << std::endl;
+	// }
 	timings.push_back({ "Writing output files", diff });
 
 	xercesc::XMLPlatformUtils::Terminate();
