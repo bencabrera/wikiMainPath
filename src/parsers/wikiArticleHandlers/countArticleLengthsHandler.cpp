@@ -16,6 +16,10 @@
 #include <boost/spirit/include/phoenix_object.hpp>
 
 
+CountArticleLengthHandler::CountArticleLengthHandler(std::vector<std::map<std::string, std::vector<std::string>>>& exi)
+	:existing_results(exi)
+{}
+
 std::string CountArticleLengthHandler::preprocess(const std::string& input)
 {
 	using namespace boost::spirit::qi;
@@ -56,14 +60,35 @@ CountArticleLengthHandler::ArticleProperties CountArticleLengthHandler::compute_
 	return props;
 }
 
+void CountArticleLengthHandler::clean_and_encode_title(std::string& title)
+{
+	boost::trim(title);
+	boost::replace_all(title, "\"", "\\\"");
+}
+
 void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
 {
 	std::string title = data.MetaData.at("title");
-	boost::trim(title);
-	boost::replace_all(title, "\"", "\\\"");
+	clean_and_encode_title(title);
 
-	std::string cleaned = preprocess(data.Content);
+	std::cout << "EXISTING: " << existing_results.size() << std::endl;
+	auto it = existing_results[0].begin(); // map it to correct element 
+	for (auto& map : existing_results) {
+		auto tmp_it = map.find(title);
+		if(tmp_it != map.end())
+		{
+			it = tmp_it;
+			break;
+		}
+	}
 
-	article_counts.insert({ title, compute_properties(cleaned) });
-	// article_counts.insert({ title, compute_properties(data.Content) });
+	// if(it != existing_results[0].end())
+	// {
+		// std::string cleaned = preprocess(data.Content);
+
+		// // auto props = compute_properties(cleaned);
+		// // it->second.push_back(std::to_string(std::get<0>(props)));
+		// // it->second.push_back(std::to_string(std::get<1>(props)));
+		// // it->second.push_back(std::to_string(std::get<2>(props)));
+	// }
 }
