@@ -60,10 +60,36 @@ CountArticleLengthHandler::ArticleProperties CountArticleLengthHandler::compute_
 	return props;
 }
 
+// from: http://stackoverflow.com/a/17708801/1903364
+std::string CountArticleLengthHandler::url_encode(const std::string &value) 
+{
+	std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+
+    for (std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+		std::string::value_type c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << std::uppercase;
+        escaped << '%' << std::setw(2) << int((unsigned char) c);
+        escaped << std::nouppercase;
+    }
+
+    return escaped.str();
+}
+
 void CountArticleLengthHandler::clean_and_encode_title(std::string& title)
 {
 	boost::trim(title);
-	boost::replace_all(title, "\"", "\\\"");
+	boost::replace_all(title, " ", "_");
+	title = url_encode(title);
 }
 
 void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
@@ -71,24 +97,23 @@ void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
 	std::string title = data.MetaData.at("title");
 	clean_and_encode_title(title);
 
-	std::cout << "EXISTING: " << existing_results.size() << std::endl;
-	auto it = existing_results[0].begin(); // map it to correct element 
+	auto p = existing_results[0].end(); // map it to correct element 
 	for (auto& map : existing_results) {
 		auto tmp_it = map.find(title);
 		if(tmp_it != map.end())
 		{
-			it = tmp_it;
+			p = tmp_it;
 			break;
 		}
 	}
+	 
+	if(p != existing_results[0].end())
+	{
+		std::string cleaned = preprocess(data.Content);
 
-	// if(it != existing_results[0].end())
-	// {
-		// std::string cleaned = preprocess(data.Content);
-
-		// // auto props = compute_properties(cleaned);
-		// // it->second.push_back(std::to_string(std::get<0>(props)));
-		// // it->second.push_back(std::to_string(std::get<1>(props)));
-		// // it->second.push_back(std::to_string(std::get<2>(props)));
-	// }
+		auto props = compute_properties(cleaned);
+		p->second.push_back(std::to_string(std::get<0>(props)));
+		p->second.push_back(std::to_string(std::get<1>(props)));
+		p->second.push_back(std::to_string(std::get<2>(props)));
+	}
 }

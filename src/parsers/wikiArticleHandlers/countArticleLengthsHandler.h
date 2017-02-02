@@ -14,13 +14,13 @@ class CountArticleLengthHandler : public AbstractArticleHandler{
 
 		CountArticleLengthHandler(std::vector<std::map<std::string, std::vector<std::string>>>& exi);
 
-		void clean_and_encode_title(std::string& title);
-
 		void HandleArticle(const ArticleData&);
-
-		static std::string preprocess(const std::string& input);
-		static ArticleProperties compute_properties(const std::string& input);
 
 	private: 
 		std::vector<std::map<std::string, std::vector<std::string>>>& existing_results;
+
+		static void clean_and_encode_title(std::string& title);
+		static std::string url_encode(const std::string &value);
+		static std::string preprocess(const std::string& input);
+		static ArticleProperties compute_properties(const std::string& input);
 };

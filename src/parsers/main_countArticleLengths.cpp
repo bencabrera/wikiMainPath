@@ -54,10 +54,10 @@ std::vector<std::pair<std::string, std::vector<std::string>>> read_existing_resu
 	boost::spirit::qi::rule<std::string::const_iterator, std::vector<std::string>()> params;
 	boost::spirit::qi::rule<std::string::const_iterator, std::string()> param;
 
-	lines = line [push_back(_val, boost::spirit::_1)] % eol;
-	line = +(char_ - ';') [at_c<0>(_val) += boost::spirit::_1] >> lit(';') >> params [at_c<1>(_val) = boost::spirit::_1];
+	lines = line >> line [push_back(_val, boost::spirit::_1)] % eol;
+	line = *(char_ - ';') [at_c<0>(_val) += boost::spirit::_1] >> lit(';') >> params [at_c<1>(_val) = boost::spirit::_1];
 	params = param [push_back(_val, boost::spirit::_1)] % lit(';');
-	param = +(char_ - ';' - eol) [_val += boost::spirit::_1];
+	param = *(char_ - ';' - eol) [_val += boost::spirit::_1];
 
 	std::string str = buffer.str();	
 	auto it = str.cbegin();
@@ -95,25 +95,6 @@ int main(int argc, char* argv[])
 	// display help if --help was specified
 	if (vm.count("help")) {
 		std::cout << desc << std::endl;
-		return 0;
-	}
-
-	if(vm.count("test-input-file"))
-	{
-		std::ifstream file(vm["test-input-file"].as<std::string>());
-		std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-		std::string cleaned = CountArticleLengthHandler::preprocess(content);
-		std::cout << cleaned << std::endl;
-
-		std::cout << "--------------------------------------------------------" << std::endl;
-		std::cout << "--------------------------------------------------------" << std::endl;
-		std::cout << "--------------------------------------------------------" << std::endl;
-		std::cout << "--------------------------------------------------------" << std::endl;
-
-		auto prop = CountArticleLengthHandler::compute_properties(cleaned);
-		std::cout << "Size: " << std::get<0>(prop) << " Words: " << std::get<1>(prop) << " Sentences: " << std::get<2>(prop) << std::endl;
-
 		return 0;
 	}
 
@@ -164,7 +145,14 @@ int main(int argc, char* argv[])
 		existing_results.emplace_back(tmp.begin(), tmp.end());
 	}
 
-	std::cout << existing_results.size() << std::endl;
+	std::ofstream test_out("test.csv");
+	for (auto line : existing_results[1]) {
+		test_out << line.first;
+		for (auto col : line.second) {
+			test_out << ";" << col;	
+		}
+		test_out << std::endl;
+	}
 
 	// scan for xml files in the input-folder
 	std::vector<fs::path> xmlFileList;
@@ -188,45 +176,49 @@ int main(int argc, char* argv[])
 	futures.reserve(xmlFileList.size());
 	for (auto xmlPath : xmlFileList) 
 		futures.emplace_back(std::async(std::launch::async, [&existing_results, &outputFolder, xmlPath, &pageCounts](){ 
-			CountArticleLengthHandler artHandler(existing_results);
+					CountArticleLengthHandler artHandler(existing_results);
 
-			xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-			parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-			parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
+					xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
+					parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
+					parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
+					parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
 
-			// set up call back handlers
-			WikiDumpHandler handler(artHandler, true);
-			// handler.ProgressReportInterval = 100;
-			handler.TitleFilter = [](const std::string& title) {
-			return !(
-				title.substr(0,5) == "User:" 
-				|| title.substr(0,10) == "Wikipedia:" 
-				|| title.substr(0,5) == "Talk:" 
-				|| title.substr(0,5) == "File:" 
-				|| title.substr(0,14) == "Category talk:" 
-				|| title.substr(0,14) == "Template talk:"
-				|| title.substr(0,9) == "Template:"
-				|| title.substr(0,10) == "User talk:"
-				|| title.substr(0,10) == "File talk:"
-				|| title.substr(0,15) == "Wikipedia talk:"
-				);
-			};
-			handler.ProgressCallback = std::bind(printProgress, pageCounts, xmlPath, std::placeholders::_1);
+					// set up call back handlers
+					WikiDumpHandler handler(artHandler, true);
+					// handler.ProgressReportInterval = 100;
+					handler.TitleFilter = [](const std::string& title) {
+					return !(
+						title.substr(0,5) == "User:" 
+						|| title.substr(0,10) == "Wikipedia:" 
+						|| title.substr(0,5) == "Talk:" 
+						|| title.substr(0,5) == "File:" 
+						|| title.substr(0,14) == "Category talk:" 
+						|| title.substr(0,14) == "Template talk:"
+						|| title.substr(0,9) == "Template:"
+						|| title.substr(0,10) == "User talk:"
+						|| title.substr(0,10) == "File talk:"
+						|| title.substr(0,15) == "Wikipedia talk:"
+						);
+					};
+					handler.ProgressCallback = std::bind(printProgress, pageCounts, xmlPath, std::placeholders::_1);
 
-			parser->setContentHandler(&handler);
-			parser->setErrorHandler(&handler);
+					parser->setContentHandler(&handler);
+					parser->setErrorHandler(&handler);
 
-			// run parser
-			parser->parse(xmlPath.c_str());
-			delete parser;
-	
-			auto xmlFileName = xmlPath.stem();
-			auto path = outputFolder / xmlFileName;
-			path.replace_extension(".txt");
-			std::ofstream lengths_file(path.string());	
-			std::cout << "Writing to " << path << std::endl;
+					// run parser
+					parser->parse(xmlPath.c_str());
+					delete parser;
+
+					auto xmlFileName = xmlPath.stem();
+					auto path = outputFolder / xmlFileName;
+					path.replace_extension(".txt");
+					std::ofstream lengths_file(path.string());	
+					std::cout << "Writing to " << path << std::endl;
 		}));
+
+
+	for (auto& future : futures)		
+		future.get();		
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -248,7 +240,7 @@ int main(int argc, char* argv[])
 			out_file << std::endl;
 		}
 	}
-	
+
 	timings.push_back({ "Writing output files", diff });
 
 	xercesc::XMLPlatformUtils::Terminate();
@@ -256,7 +248,7 @@ int main(int argc, char* argv[])
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
 	timings.push_back({ "Total", diff });
-	
+
 	// short feedback to user
 	std::size_t totalArticleNumber = 0;
 	for (auto path : xmlFileList) {
@@ -267,7 +259,7 @@ int main(int argc, char* argv[])
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Status: " << std::endl;
 	std::cout << std::left << std::setw(40) << "Total number of articles: " << totalArticleNumber << std::endl;
-	
+
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
