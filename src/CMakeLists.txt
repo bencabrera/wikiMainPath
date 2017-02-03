@@ -13,12 +13,6 @@ find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options gr
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(PARSER_FILES
-	parsers/xercesHandlers/abstractArticleHandler.h
-	parsers/xercesHandlers/articleData.h
-	parsers/xercesHandlers/wikiDumpHandler.h
-	parsers/xercesHandlers/wikiDumpHandler.cpp
-	parsers/xercesHandlers/countPagesHandler.h
-	parsers/xercesHandlers/countPagesHandler.cpp
 	parsers/wikiArticleHandlers/articleTitlesHandler.h
 	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.h
@@ -38,12 +32,8 @@ set(PARSER_FILES
 	parsers/date/dateStringGrammar.cpp
 	parsers/date/infoboxGrammar.cpp
 	parsers/date/infoboxKeyValueGrammar.cpp
-	parsers/parserWrappers/s1_wrapper.cpp
-	parsers/parserWrappers/s2_wrapper.cpp
-	parsers/parserWrappers/s3_wrapper.cpp
-	parsers/parserWrappers/s3_recursiveFillCategories.cpp
-	parsers/parserWrappers/s3_cycle_detector_visitor.cpp
-	parsers/parserWrappers/s4_wrapper.cpp
+	parsers/s3_recursiveFillCategories.cpp
+	parsers/s3_cycle_detector_visitor.cpp
 	parsers/shared.h
 	parsers/shared.cpp
 )
@@ -90,11 +80,11 @@ target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(s4_articleNetwork xerces-c)
 target_link_libraries(s4_articleNetwork pthread)
 
-add_executable(countPages parsers/main_countPages.cpp)
-target_link_libraries(countPages ParserLib)
-target_link_libraries(countPages ${Boost_LIBRARIES})
-target_link_libraries(countPages xerces-c)
-target_link_libraries(countPages pthread)
+# add_executable(countPages parsers/main_countPages.cpp)
+# target_link_libraries(countPages ParserLib)
+# target_link_libraries(countPages ${Boost_LIBRARIES})
+# target_link_libraries(countPages xerces-c)
+# target_link_libraries(countPages pthread)
 
 add_executable(parserTests parsers/tests/main_tests.cpp)
 target_link_libraries(parserTests ParserLib)

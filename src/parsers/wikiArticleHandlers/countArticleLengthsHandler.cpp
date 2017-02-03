@@ -92,7 +92,7 @@ void CountArticleLengthHandler::clean_and_encode_title(std::string& title)
 	title = url_encode(title);
 }
 
-void CountArticleLengthHandler::HandleArticle(const ArticleData& data)
+void CountArticleLengthHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	std::string title = data.MetaData.at("title");
 	clean_and_encode_title(title);

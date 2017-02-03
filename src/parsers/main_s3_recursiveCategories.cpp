@@ -26,9 +26,12 @@
 
 // local files
 #include "shared.h"
-#include "parserWrappers/s3_wrapper.h"
-#include "parserWrappers/s3_recursiveFillCategories.h"
+#include "s3_recursiveFillCategories.h"
 #include "fileNames.h"
+
+#include "wikiArticleHandlers/categoryRecursiveHandler.h"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -39,7 +42,6 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, b
 
 std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
 {
-
 	std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
 	std::ifstream categories_has_article_file((inputFolder / CAT_HAS_ARTICLE_FILE).string());	
 		
@@ -144,8 +146,11 @@ int main(int argc, char* argv[])
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following .xml files: " << std::endl;
+
+	std::vector<std::string> paths;
 	for (auto el : xmlFileList) {
 		std::cout << el << std::endl;
+		paths.push_back(el.string());
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
@@ -155,14 +160,25 @@ int main(int argc, char* argv[])
 	startTime = std::chrono::steady_clock::now();
 
 	VectorMutex<1000> vecMutex;
-	std::vector<std::future<void>> futures;
 	Graph graph(categories.size());
-	futures.reserve(xmlFileList.size());
-	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, S3ParserWrapper(xmlPath, pageCounts, categories, graph, vecMutex)));
+	
+	// init xerces
+	xercesc::XMLPlatformUtils::Initialize();
 
-	for (auto& future : futures)
-		future.get();
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = [](const std::string& title) {
+		return title.substr(0,9) == "Category:";
+	};
+		
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+
+	WikiXmlDumpXerces::ParallelParser<CategoryRecursiveHandler> parser([&categories, &graph, &vecMutex](){ 
+		return CategoryRecursiveHandler(categories, graph, vecMutex); 
+	}, parser_properties);
+	parser.Run(paths.begin(), paths.end());
+
+	// terminate xerces
+	xercesc::XMLPlatformUtils::Terminate();
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

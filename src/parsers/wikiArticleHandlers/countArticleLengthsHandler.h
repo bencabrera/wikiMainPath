@@ -4,17 +4,17 @@
 #include <set>
 #include <map>
 
-#include "../xercesHandlers/abstractArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 #include "../date/date.h"
 
-class CountArticleLengthHandler : public AbstractArticleHandler{
+class CountArticleLengthHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
 		using ArticleProperties = std::tuple<std::size_t, std::size_t, std::size_t>;
 
 
 		CountArticleLengthHandler(std::vector<std::map<std::string, std::vector<std::string>>>& exi);
 
-		void HandleArticle(const ArticleData&);
+		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
 	private: 
 		std::vector<std::map<std::string, std::vector<std::string>>>& existing_results;

@@ -8,7 +8,7 @@ ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler()
 :ExtractOnlyArticlesWithDates(true)
 {}
 
-void ArticleDatesAndCategoriesHandler::HandleArticle(const ArticleData& data)
+void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);

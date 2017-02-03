@@ -33,7 +33,7 @@ bool LinkExtractionHandler::GetPosition(const std::string& title, std::size_t& v
 		return false;
 }
 
-void LinkExtractionHandler::HandleArticle(const ArticleData& data)
+void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);

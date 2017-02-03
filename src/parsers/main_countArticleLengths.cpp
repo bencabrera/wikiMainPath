@@ -32,9 +32,12 @@
 
 // local files
 #include "shared.h"
-#include "xercesHandlers/wikiDumpHandler.h"
 #include "wikiArticleHandlers/countArticleLengthsHandler.h"
 #include "fileNames.h"
+
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -157,29 +160,23 @@ int main(int argc, char* argv[])
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following files: " << std::endl;
+
+	std::vector<std::string> paths;
 	for (auto el : xmlFileList) {
 		std::cout << el << std::endl;
+		paths.push_back(el.string());
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
 
 	auto startTime = std::chrono::steady_clock::now();
 
-	std::vector<std::future<void>> futures;
-	futures.reserve(xmlFileList.size());
-	for (auto xmlPath : xmlFileList) 
-		futures.emplace_back(std::async(std::launch::async, [&existing_results, &outputFolder, xmlPath, &pageCounts](){ 
-					CountArticleLengthHandler artHandler(existing_results);
 
-					xercesc::SAX2XMLReader* parser = xercesc::XMLReaderFactory::createXMLReader();
-					parser->setFeature(xercesc::XMLUni::fgSAX2CoreValidation, true);
-					parser->setFeature(xercesc::XMLUni::fgSAX2CoreNameSpaces, true);   // optional
-					parser->setFeature(xercesc::XMLUni::fgXercesSchema , false);   // optional
+	// init xerces
+	xercesc::XMLPlatformUtils::Initialize();
 
-					// set up call back handlers
-					WikiDumpHandler handler(artHandler, true);
-					// handler.ProgressReportInterval = 100;
-					handler.TitleFilter = [](const std::string& title) {
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = [](const std::string& title) {
 					return !(
 						title.substr(0,5) == "User:" 
 						|| title.substr(0,10) == "Wikipedia:" 
@@ -193,19 +190,17 @@ int main(int argc, char* argv[])
 						|| title.substr(0,15) == "Wikipedia talk:"
 						);
 					};
-					handler.ProgressCallback = std::bind(printProgress, pageCounts, xmlPath, std::placeholders::_1);
+		
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
 
-					parser->setContentHandler(&handler);
-					parser->setErrorHandler(&handler);
+	WikiXmlDumpXerces::ParallelParser<CountArticleLengthHandler> parser([&existing_results](){ 
+		return CountArticleLengthHandler(existing_results); 
+	}, parser_properties);
+	parser.Run(paths.begin(), paths.end());
 
-					// run parser
-					parser->parse(xmlPath.c_str());
-					delete parser;
-		}));
+	// terminate xerces
+	xercesc::XMLPlatformUtils::Terminate();
 
-
-	for (auto& future : futures)		
-		future.get();		
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

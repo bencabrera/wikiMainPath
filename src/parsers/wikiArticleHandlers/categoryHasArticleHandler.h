@@ -6,10 +6,10 @@
 
 #include <boost/container/flat_set.hpp>
 
-#include "../xercesHandlers/abstractArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 #include "vectorMutex.hpp"
 
-class CategoryHasArticleHandler : public AbstractArticleHandler{
+class CategoryHasArticleHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
 		CategoryHasArticleHandler(
 			const std::vector<std::string>& arts, 
@@ -18,7 +18,7 @@ class CategoryHasArticleHandler : public AbstractArticleHandler{
 			VectorMutex<1000>& vecMut
 		);
 
-		void HandleArticle(const ArticleData&);
+		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
 		const std::vector<std::string>& articles;
 		const std::vector<std::string>& categories;

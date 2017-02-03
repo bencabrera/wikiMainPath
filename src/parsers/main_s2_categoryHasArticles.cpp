@@ -21,8 +21,12 @@
 
 // local files
 #include "shared.h"
-#include "parserWrappers/s2_wrapper.h"
 #include "fileNames.h"
+
+// wiki xml dump lib
+#include "wikiArticleHandlers/categoryHasArticleHandler.h"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -126,8 +130,11 @@ int main(int argc, char* argv[])
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following .xml files: " << std::endl;
+
+	std::vector<std::string> paths;
 	for (auto el : xmlFileList) {
 		std::cout << el << std::endl;
+		paths.push_back(el.string());
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
@@ -136,27 +143,40 @@ int main(int argc, char* argv[])
 	std::cout << "Parsing .xml files" << std::endl;
 	startTime = std::chrono::steady_clock::now();
 
-	std::vector<CategoryHasArticleHandler> handlers;
-	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle(categories.size());
 	VectorMutex<1000> vecMutex;
-	std::vector<std::future<void>> futures;
-	futures.reserve(xmlFileList.size());
-	for (auto xmlPath : xmlFileList) 
-	{
-		//ParserWrapper wrap(xmlPath,pageCounts,handlers.back());
-		//wrap();
-		futures.emplace_back(std::async(std::launch::async, S2ParserWrapper(xmlPath,pageCounts,articles,categories,categoryHasArticle,vecMutex)));
-	}
+	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle(categories.size());
 
-	for (auto& future : futures)
-		future.get();
+	// init xerces
+	xercesc::XMLPlatformUtils::Initialize();
+
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = [](const std::string& title) {
+		return !(
+				title.substr(0,5) == "User:" 
+				|| title.substr(0,10) == "Wikipedia:" 
+				|| title.substr(0,5) == "File:" 
+				|| title.substr(0,14) == "Category talk:" 
+				|| title.substr(0,14) == "Template talk:"
+				|| title.substr(0,9) == "Template:"
+				|| title.substr(0,10) == "User talk:"
+				|| title.substr(0,10) == "File talk:"
+				|| title.substr(0,15) == "Wikipedia talk:"
+				);
+	};
+		
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+
+	WikiXmlDumpXerces::ParallelParser<CategoryHasArticleHandler> parser([&articles, &categories, &categoryHasArticle, &vecMutex](){ 
+		return CategoryHasArticleHandler(articles, categories, categoryHasArticle, vecMutex); 
+	}, parser_properties);
+	parser.Run(paths.begin(), paths.end());
+
+	// terminate xerces
+	xercesc::XMLPlatformUtils::Terminate();
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
 	timings.push_back({ "Parsing .xml files.", diff });
-
-
-
 
 	startTime = std::chrono::steady_clock::now();
 	std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	

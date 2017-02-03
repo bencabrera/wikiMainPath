@@ -4,14 +4,14 @@
 #include <set>
 #include <map>
 
-#include "../xercesHandlers/abstractArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 #include "../date/date.h"
 
-class ArticleTitlesHandler : public AbstractArticleHandler{
+class ArticleTitlesHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
 		ArticleTitlesHandler();
 
-		void HandleArticle(const ArticleData&);
+		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
 		std::map<std::string, Date> articles;
 		std::map<std::string, std::vector<std::string>> categoriesToArticles;

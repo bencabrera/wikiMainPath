@@ -18,7 +18,7 @@ _vecMutex(vecMut)
 }
 
 
-void CategoryHasArticleHandler::HandleArticle(const ArticleData& data)
+void CategoryHasArticleHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);

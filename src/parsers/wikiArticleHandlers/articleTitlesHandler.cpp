@@ -6,8 +6,7 @@
 
 
 ArticleTitlesHandler::ArticleTitlesHandler()
-:AbstractArticleHandler(),
-_count(0)
+:_count(0)
 {}
 
 std::size_t ArticleTitlesHandler::count() const
@@ -15,7 +14,7 @@ std::size_t ArticleTitlesHandler::count() const
 	return _count;
 }
 
-void ArticleTitlesHandler::HandleArticle(const ArticleData& data)
+void ArticleTitlesHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	_count++;
 

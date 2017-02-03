@@ -15,7 +15,7 @@ _vecMutex(vecMut)
 {}
 
 
-void CategoryRecursiveHandler::HandleArticle(const ArticleData& data)
+void CategoryRecursiveHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
 	//std::cout << "hallo" << std::endl;
 	if(data.IsRedirect)

@@ -1,3 +1,6 @@
 [submodule "src/program/porter2_stemmer"]
 	path = libs/porter2_stemmer
 	url = git@github.com:Ace7k3/porter2_stemmer.git
+[submodule "libs/wiki_xml_dump_xerces"]
+	path = libs/wiki_xml_dump_xerces
+	url = git@github.com:Ace7k3/wiki_xml_dump_xerces.git

@@ -21,8 +21,14 @@
 // local files
 #include "date/date.h"
 #include "shared.h"
-#include "parserWrappers/s4_wrapper.h"
 #include "fileNames.h"
+
+
+#include "wikiArticleHandlers/linkExtractionHandler.h"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+
+
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -137,30 +143,73 @@ int main(int argc, char* argv[])
 	{
 		if(!fs::is_directory(dir_it->path()))
 			xmlFileList.push_back(dir_it->path());
-		std::cout << dir_it->path() << std::endl;
+	}
+
+	std::vector<std::string> paths;
+	for (auto el : xmlFileList) {
+		std::cout << el << std::endl;
+		paths.push_back(el.string());
 	}
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Parsing .xml files" << std::endl;
 	startTime = std::chrono::steady_clock::now();
-	std::vector<LinkExtractionHandler> handlers;
-	std::vector<std::future<void>> futures;
+
 	VectorMutex<1000> vecMutex;
 	std::vector<boost::container::flat_set<std::size_t>> adjList(articles.size());
-	for(std::size_t i = 0; i < xmlFileList.size(); i++)
-	{
-		auto xmlPath = xmlFileList[i];
-		//handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
-		S4ParserWrapper wrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex);
-		wrapper.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
+
+	// init xerces
+	xercesc::XMLPlatformUtils::Initialize();
+
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = [](const std::string& title) {
+		return !(
+				title.substr(0,5) == "User:" 
+				|| title.substr(0,10) == "Wikipedia:" 
+				|| title.substr(0,5) == "File:" 
+				|| title.substr(0,14) == "Category talk:" 
+				|| title.substr(0,9) == "Category:"
+				|| title.substr(0,14) == "Template talk:"
+				|| title.substr(0,9) == "Template:"
+				|| title.substr(0,10) == "User talk:"
+				|| title.substr(0,10) == "File talk:"
+				|| title.substr(0,15) == "Wikipedia talk:"
+				);
+	};
+		
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+
+	WikiXmlDumpXerces::ParallelParser<LinkExtractionHandler> parser([&articles, &redirects, &adjList, &vecMutex, &dates](){ 
+		auto handler = LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
+
+		handler.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
 		{
 			return dates[art1] < dates[art2];
 		};
-		futures.emplace_back(std::async(std::launch::async, wrapper));
-	}
 
-	for (auto& fut : futures) 
-		fut.get();	
+		return handler;
+	}, parser_properties);
+	parser.Run(paths.begin(), paths.end());
+
+	// terminate xerces
+	xercesc::XMLPlatformUtils::Terminate();
+
+	// std::vector<LinkExtractionHandler> handlers;
+	// std::vector<std::future<void>> futures;
+	// for(std::size_t i = 0; i < xmlFileList.size(); i++)
+	// {
+		// auto xmlPath = xmlFileList[i];
+		// //handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
+		// S4ParserWrapper wrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex);
+		// wrapper.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
+		// {
+			// return dates[art1] < dates[art2];
+		// };
+		// futures.emplace_back(std::async(std::launch::async, wrapper));
+	// }
+
+	// for (auto& fut : futures) 
+		// fut.get();	
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

@@ -8,10 +8,10 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#include "../xercesHandlers/abstractArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 #include "vectorMutex.hpp"
 
-class CategoryRecursiveHandler : public AbstractArticleHandler{
+class CategoryRecursiveHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
 		typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
 
@@ -21,7 +21,7 @@ class CategoryRecursiveHandler : public AbstractArticleHandler{
 			VectorMutex<1000>& vecMut
 		);
 
-		void HandleArticle(const ArticleData&);
+		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
 	private:
 		inline static bool getPosition(const std::vector<std::string>& vec, std::string str, std::size_t& pos)

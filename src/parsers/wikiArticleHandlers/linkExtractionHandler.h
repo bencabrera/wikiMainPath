@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../xercesHandlers/abstractArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 
 #include <boost/container/flat_set.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -9,7 +9,7 @@
 #include "../date/date.h"
 #include "../wikiArticleHandlers/vectorMutex.hpp"
 
-class LinkExtractionHandler : public AbstractArticleHandler
+class LinkExtractionHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler
 {
 	public:
 		LinkExtractionHandler(
@@ -19,7 +19,7 @@ class LinkExtractionHandler : public AbstractArticleHandler
 			VectorMutex<1000>& vecMut
 		);
 
-		void HandleArticle(const ArticleData&);
+		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
 		std::function<bool(std::size_t, std::size_t)> OrderCallback;
 
