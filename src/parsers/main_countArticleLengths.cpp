@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
 			existing_results_file_list.push_back(dir_it->path());
 	}
 
+
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following existing result files: " << std::endl;
 	std::vector<std::map<std::string, std::vector<std::string>>> existing_results;
@@ -144,15 +145,7 @@ int main(int argc, char* argv[])
 		auto tmp = read_existing_results_file(el);
 		existing_results.emplace_back(tmp.begin(), tmp.end());
 	}
-
-	std::ofstream test_out("test.csv");
-	for (auto line : existing_results[1]) {
-		test_out << line.first;
-		for (auto col : line.second) {
-			test_out << ";" << col;	
-		}
-		test_out << std::endl;
-	}
+	std::size_t oldColCount = (existing_results[0].begin()->second).size();
 
 	// scan for xml files in the input-folder
 	std::vector<fs::path> xmlFileList;
@@ -208,12 +201,6 @@ int main(int argc, char* argv[])
 					// run parser
 					parser->parse(xmlPath.c_str());
 					delete parser;
-
-					auto xmlFileName = xmlPath.stem();
-					auto path = outputFolder / xmlFileName;
-					path.replace_extension(".txt");
-					std::ofstream lengths_file(path.string());	
-					std::cout << "Writing to " << path << std::endl;
 		}));
 
 
@@ -233,6 +220,12 @@ int main(int argc, char* argv[])
 
 		out_file << "Article name; Number of users with edits; Number of users with major edits; Number of users on talk page; Number of users with major edits or talk page activity; Similarity; Clustering Coefficient; Gini Coefficient (all edits); Gini coefficient (major edits);Article age (in months);Length(Bytes);Length(Words);Length(Sentences);" << std::endl;
 		for (auto line : existing_results[i]) {
+			if(line.second.size() == oldColCount)
+			{
+				line.second.push_back("");
+				line.second.push_back("");
+				line.second.push_back("");
+			}
 			out_file << line.first;
 			for (auto col : line.second) {
 				out_file << ";" << col;	
