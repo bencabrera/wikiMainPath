@@ -1,3 +1,3 @@
 [submodule "src/program/porter2_stemmer"]
-	path = src/program/porter2_stemmer
+	path = src/backend/porter2_stemmer
 	url = git@github.com:smassung/porter2_stemmer.git
