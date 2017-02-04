@@ -38,6 +38,11 @@ set(PARSER_FILES
 	parsers/shared.cpp
 )
 
+set(BACKEND_FILES
+	backend/mpaHandlerFactory.cpp
+	backend/mpaRequestHandler.cpp
+)
+
 # set(PORTER_2_STEMMER_FILES
 	# program/porter2_stemmer/porter2_stemmer.h
 	# program/porter2_stemmer/porter2_stemmer.cpp
@@ -47,6 +52,7 @@ set(PARSER_FILES
 
 # libraries
 add_library(ParserLib STATIC ${PARSER_FILES})
+add_library(BackendLib STATIC ${BACKEND_FILES})
 # add_library(Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES})
 
 # parser executables
@@ -92,3 +98,13 @@ target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests xerces-c)
 
 # backend executables
+find_library(POCO_LIB NAMES libPocoFoundation.a libPocoNet.a)
+
+add_executable(backend backend/main_backend.cpp)
+target_link_libraries(backend BackendLib)
+# target_link_libraries(parserTests ParserLib)
+# target_link_libraries(parserTests ${Boost_LIBRARIES})
+# target_link_libraries(backend ${POCO_LIB})
+target_link_libraries(backend PocoNet)
+target_link_libraries(backend PocoFoundation)
+target_link_libraries(backend pthread)
