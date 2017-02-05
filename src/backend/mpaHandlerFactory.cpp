@@ -6,26 +6,30 @@
 #include "searchCategoryHandler.h"
 #include "notFoundHandler.h"
 
-MpaHandlerFactory::MpaHandlerFactory() 
-{
-}
+namespace WikiMainPath {
 
-Poco::Net::HTTPRequestHandler* MpaHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest &request)
-{
-	if(request.getURI() == "/search-category")
-		return new SearchCategoryHandler();
+	MpaHandlerFactory::MpaHandlerFactory(const ServerData& server_data) 
+		:_server_data(server_data)
+	{}
 
-	// if(request.getURI() == "/search-article")
+	Poco::Net::HTTPRequestHandler* MpaHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest &request)
+	{
+		if(request.getURI() == "/search-category")
+			return new SearchCategoryHandler(_server_data._categories_inverted_index);
+
+		// if(request.getURI() == "/search-article")
 		// return new SearchArticleHandler();
 
-	// if(request.getURI() == "/article-network-in-category")
+		// if(request.getURI() == "/article-network-in-category")
 		// return new ArticleNetworkHandler();
 
-	// if(request.getURI() == "/main-path-in-category")
+		// if(request.getURI() == "/main-path-in-category")
 		// return new MainPathHandler();
 
-	// if(request.getURI() == "/mpa-in-category")
+		// if(request.getURI() == "/mpa-in-category")
 		// return new MpaHandler();
 
-	return new NotFoundHandler();
-} 
+		return new NotFoundHandler();
+	} 
+
+}

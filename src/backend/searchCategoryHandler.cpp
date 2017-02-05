@@ -2,24 +2,32 @@
 
 #include <Poco/JSON/Object.h>
 
-void SearchCategoryHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
-{
-	using namespace Poco::JSON;
+namespace WikiMainPath {
 
-	response.setChunkedTransferEncoding(true);
-	response.setContentType("text/json");
+	SearchCategoryHandler::SearchCategoryHandler(const InvertedIndex& categories_inverted_index)
+		:_categories_inverted_index(categories_inverted_index)
+	{}
 
-	// response.setStatus("200");
-	
-	Object root;
-	Array matchingCategoriesArray;
+	void SearchCategoryHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+	{
+		using namespace Poco::JSON;
 
-	Object el;
-	el.set("title", "CategoryTitle");
-	el.set("id", "1");
+		response.setChunkedTransferEncoding(true);
+		response.setContentType("text/json");
 
-	matchingCategoriesArray.set(0,el);
-	root.set("matching-categories", matchingCategoriesArray);
+		// response.setStatus("200");
 
-	root.stringify(response.send(), 4); 
+		Object root;
+		Array matchingCategoriesArray;
+
+		Object el;
+		el.set("title", "CategoryTitle");
+		el.set("id", "1");
+
+		matchingCategoriesArray.set(0,el);
+		root.set("matching-categories", matchingCategoriesArray);
+
+		root.stringify(response.send(), 4); 
+	}
+
 }

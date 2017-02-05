@@ -4,8 +4,12 @@
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 
-class MpaRequestHandler: public Poco::Net::HTTPRequestHandler
-{
-	public:
-		void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
-};
+namespace WikiMainPath {
+
+	class MpaRequestHandler: public Poco::Net::HTTPRequestHandler
+	{
+		public:
+			void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+	};
+
+}
