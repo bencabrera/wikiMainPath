@@ -41,6 +41,8 @@ set(PARSER_FILES
 set(BACKEND_FILES
 	backend/mpaHandlerFactory.cpp
 	backend/mpaRequestHandler.cpp
+	backend/searchCategoryHandler.cpp
+	backend/notFoundHandler.cpp
 )
 
 # set(PORTER_2_STEMMER_FILES
@@ -105,6 +107,7 @@ target_link_libraries(backend BackendLib)
 # target_link_libraries(parserTests ParserLib)
 # target_link_libraries(parserTests ${Boost_LIBRARIES})
 # target_link_libraries(backend ${POCO_LIB})
+target_link_libraries(backend PocoJSON)
 target_link_libraries(backend PocoNet)
 target_link_libraries(backend PocoFoundation)
 target_link_libraries(backend pthread)
