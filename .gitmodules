@@ -4,3 +4,6 @@
 [submodule "libs/wiki_xml_dump_xerces"]
 	path = libs/wiki_xml_dump_xerces
 	url = git@github.com:Ace7k3/wiki_xml_dump_xerces.git
+[submodule "libs/main_path_analysis"]
+	path = libs/main_path_analysis
+	url = git@github.com:Ace7k3/main_path_analysis.git
