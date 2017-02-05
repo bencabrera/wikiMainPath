@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	pParams->setMaxQueued(100);
 	pParams->setMaxThreads(16);
 
-	std::cout << "Scanning path " << data_path << " for data files." << std::endl;
+	std::cout << "Scanning path '" << data_path << "' for data files." << std::endl;
 	auto factory = new MpaHandlerFactory(data_path);
 
 	Poco::Net::HTTPServer server(factory, socket, pParams);

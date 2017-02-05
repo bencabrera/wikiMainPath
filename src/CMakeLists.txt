@@ -102,7 +102,7 @@ target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests xerces-c)
 
 # backend executables
-find_library(POCO_LIB NAMES libPocoFoundation.a libPocoNet.a)
+find_library(POCO_LIB NAMES libPocoJSON.a libPocoFoundation.a libPocoNet.a)
 
 add_executable(backend backend/main_backend.cpp)
 target_link_libraries(backend BackendLib)

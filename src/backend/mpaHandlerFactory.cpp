@@ -1,6 +1,7 @@
 #include "mpaHandlerFactory.h"
 
 #include <iostream>
+#include <Poco/URI.h>
 
 #include "mpaRequestHandler.h"
 #include "searchCategoryHandler.h"
@@ -14,8 +15,10 @@ namespace WikiMainPath {
 
 	Poco::Net::HTTPRequestHandler* MpaHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest &request)
 	{
-		if(request.getURI() == "/search-category")
-			return new SearchCategoryHandler(_server_data._categories_inverted_index);
+		Poco::URI uri(request.getURI());
+
+		if(uri.getPath() == "/search-category")
+			return new SearchCategoryHandler(_server_data._categories, _server_data._categories_inverted_index);
 
 		// if(request.getURI() == "/search-article")
 		// return new SearchArticleHandler();
