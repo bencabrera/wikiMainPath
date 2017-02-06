@@ -4,7 +4,7 @@
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 
-#include "fullTextSearch.h"
+#include "../fullTextSearch.h"
 
 namespace WikiMainPath {
 

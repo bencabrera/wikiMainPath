@@ -3,9 +3,9 @@
 #include <iostream>
 #include <Poco/URI.h>
 
-#include "mpaRequestHandler.h"
-#include "searchCategoryHandler.h"
-#include "notFoundHandler.h"
+#include "httpRequestHandlers/mpaRequestHandler.h"
+#include "httpRequestHandlers/searchCategoryHandler.h"
+#include "httpRequestHandlers/notFoundHandler.h"
 
 namespace WikiMainPath {
 

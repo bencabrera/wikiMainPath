@@ -1,10 +1,12 @@
 #include "date.h"
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
 #include <regex>
 #include <string>
 #include <iomanip>
+
 
 void Date::Init()
 {
@@ -18,6 +20,7 @@ std::string Date::serialize(Date date)
 	std::ostringstream ss;
 	ss << (date.IsRange ? "r" : "");
 	ss << (date.Begin.tm_year + 1900) << "_" << (date.Begin.tm_mon + 1) << "_" << date.Begin.tm_mday;
+
 	if(date.IsRange)
 		ss << ":" << (date.End.tm_year + 1900) << "_" << (date.End.tm_mon + 1) << "_" << date.End.tm_mday;
 

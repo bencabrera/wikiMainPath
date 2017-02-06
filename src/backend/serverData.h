@@ -10,7 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../parsers/date/date.h"
+#include "../core/date.h"
 #include "fullTextSearch.h"
 
 

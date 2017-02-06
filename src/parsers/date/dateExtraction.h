@@ -4,8 +4,11 @@
 #include <string>
 #include <iomanip>
 #include <ctime>
+#include <vector>
+#include <map>
 
-#include "date.h"
+#include "../../core/date.h"
+#include "adaptDate.h"
 
 namespace WikiMainPath {
 

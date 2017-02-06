@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <ctime>
 
+// spirit
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -30,14 +31,6 @@ struct Date {
 	static std::string serialize(Date date);
 	static Date deserialize(std::string str);
 };
-
-BOOST_FUSION_ADAPT_STRUCT(
-	Date,
-	(bool, IsRange)
-	(std::tm, Begin)
-	(std::tm, End)
-	(std::string, Description)
-)
 
 bool operator<(const std::tm& date1, const std::tm& date2);
 bool operator==(const std::tm& date1, const std::tm& date2);

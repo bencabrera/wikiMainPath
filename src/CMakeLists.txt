@@ -27,8 +27,6 @@ set(PARSER_FILES
 	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
 	parsers/date/dateExtraction.h
 	parsers/date/dateExtraction.cpp
-	parsers/date/date.h
-	parsers/date/date.cpp
 	parsers/date/dateStringGrammar.cpp
 	parsers/date/infoboxGrammar.cpp
 	parsers/date/infoboxKeyValueGrammar.cpp
@@ -40,11 +38,15 @@ set(PARSER_FILES
 
 set(BACKEND_FILES
 	backend/mpaHandlerFactory.cpp
-	backend/mpaRequestHandler.cpp
-	backend/searchCategoryHandler.cpp
-	backend/notFoundHandler.cpp
 	backend/fullTextSearch.cpp
 	backend/serverData.cpp
+	backend/httpRequestHandlers/mpaRequestHandler.cpp
+	backend/httpRequestHandlers/searchCategoryHandler.cpp
+	backend/httpRequestHandlers/notFoundHandler.cpp
+)
+
+set(CORE_FILES
+	core/date.cpp
 )
 
 set(PORTER_2_STEMMER_FILES
@@ -55,6 +57,7 @@ set(PORTER_2_STEMMER_FILES
 )
 
 # libraries
+add_library(CoreLib STATIC ${CORE_FILES})
 add_library(ParserLib STATIC ${PARSER_FILES})
 add_library(BackendLib STATIC ${BACKEND_FILES})
 add_library(Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES})
@@ -67,6 +70,7 @@ target_link_libraries(countArticleLengths xerces-c)
 target_link_libraries(countArticleLengths pthread)
 
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
+target_link_libraries(s1_articlesAndCategories CoreLib)
 target_link_libraries(s1_articlesAndCategories ParserLib)
 target_link_libraries(s1_articlesAndCategories ${Boost_LIBRARIES})
 target_link_libraries(s1_articlesAndCategories xerces-c)
@@ -85,6 +89,7 @@ target_link_libraries(s3_recursiveCategories xerces-c)
 target_link_libraries(s3_recursiveCategories pthread)
 
 add_executable(s4_articleNetwork parsers/main_s4_articleNetwork.cpp)
+target_link_libraries(s4_articleNetwork CoreLib)
 target_link_libraries(s4_articleNetwork ParserLib)
 target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(s4_articleNetwork xerces-c)
@@ -97,6 +102,7 @@ target_link_libraries(s4_articleNetwork pthread)
 # target_link_libraries(countPages pthread)
 
 add_executable(parserTests parsers/tests/main_tests.cpp)
+target_link_libraries(parserTests CoreLib)
 target_link_libraries(parserTests ParserLib)
 target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests xerces-c)
@@ -105,6 +111,7 @@ target_link_libraries(parserTests xerces-c)
 find_library(POCO_LIB NAMES libPocoJSON.a libPocoFoundation.a libPocoNet.a)
 
 add_executable(backend backend/main_backend.cpp)
+target_link_libraries(backend CoreLib)
 target_link_libraries(backend BackendLib)
 target_link_libraries(backend ParserLib)
 target_link_libraries(backend ${Boost_LIBRARIES})
