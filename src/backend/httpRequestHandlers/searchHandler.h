@@ -8,16 +8,17 @@
 
 namespace WikiMainPath {
 
-	class SearchCategoryHandler: public Poco::Net::HTTPRequestHandler
+	class SearchHandler: public Poco::Net::HTTPRequestHandler
 	{
 		public:
-			SearchCategoryHandler(const std::vector<std::string>& categories, const InvertedIndex& categories_inverted_index);
+			SearchHandler(const std::string json_attribute_name, const std::vector<std::string>& vec, const InvertedIndex& inverted_index);
 
 			void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 
 		private:
-			const std::vector<std::string>& _categories;
-			const InvertedIndex& _categories_inverted_index;
+			const std::string _json_attribute_name;
+			const std::vector<std::string>& _vector;
+			const InvertedIndex& _inverted_index;
 	};
 
 }

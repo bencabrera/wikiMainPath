@@ -41,7 +41,7 @@ set(BACKEND_FILES
 	backend/fullTextSearch.cpp
 	backend/serverData.cpp
 	backend/httpRequestHandlers/mpaRequestHandler.cpp
-	backend/httpRequestHandlers/searchCategoryHandler.cpp
+	backend/httpRequestHandlers/searchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
 )
 

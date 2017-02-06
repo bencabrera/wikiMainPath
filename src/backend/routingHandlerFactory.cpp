@@ -4,7 +4,7 @@
 #include <Poco/URI.h>
 
 #include "httpRequestHandlers/mpaRequestHandler.h"
-#include "httpRequestHandlers/searchCategoryHandler.h"
+#include "httpRequestHandlers/searchHandler.h"
 #include "httpRequestHandlers/notFoundHandler.h"
 
 namespace WikiMainPath {
@@ -18,10 +18,10 @@ namespace WikiMainPath {
 		Poco::URI uri(request.getURI());
 
 		if(uri.getPath() == "/search-category")
-			return new SearchCategoryHandler(_server_data._categories, _server_data._categories_inverted_index);
+			return new SearchHandler("maching-categories", _server_data._categories, _server_data._categories_inverted_index);
 
-		// if(request.getURI() == "/search-article")
-		// return new SearchArticleHandler();
+		if(uri.getPath() == "/search-article")
+			return new SearchHandler("maching-articles", _server_data._articles, _server_data._articles_inverted_index);
 
 		// if(request.getURI() == "/article-network-in-category")
 		// return new ArticleNetworkHandler();

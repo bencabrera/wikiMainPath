@@ -1,4 +1,4 @@
-#include "searchCategoryHandler.h"
+#include "searchHandler.h"
 
 #include <Poco/JSON/Object.h>
 
@@ -7,12 +7,13 @@
 
 namespace WikiMainPath {
 
-	SearchCategoryHandler::SearchCategoryHandler(const std::vector<std::string>& categories, const InvertedIndex& categories_inverted_index)
-		:_categories(categories),
-		_categories_inverted_index(categories_inverted_index)
+	SearchHandler::SearchHandler(const std::string json_attribute_name, const std::vector<std::string>& vec, const InvertedIndex& inverted_index)
+		:_json_attribute_name(json_attribute_name),
+		_vector(vec),
+		_inverted_index(inverted_index)
 	{}
 
-	void SearchCategoryHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+	void SearchHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 	{
 		using namespace Poco::JSON;
 
@@ -36,20 +37,20 @@ namespace WikiMainPath {
 		}
 
 		std::string query_str = parameters[0].second;
-		auto results = query(_categories_inverted_index, query_str);
+		auto results = query(_inverted_index, query_str);
 
 		Object root;
 		Array matchingCategoriesArray;
 
 		for (auto res : results) {
 			Object el;
-			el.set("title", _categories[res]);
+			el.set("title", _vector[res]);
 			el.set("id", res);
 
 			matchingCategoriesArray.add(el);
 		}
 
-		root.set("matching-categories", matchingCategoriesArray);
+		root.set(_json_attribute_name, matchingCategoriesArray);
 
 		root.stringify(response.send(), 4); 
 	}
