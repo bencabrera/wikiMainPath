@@ -1,4 +1,4 @@
-#include "mpaHandlerFactory.h"
+#include "routingHandlerFactory.h"
 
 #include <iostream>
 #include <Poco/URI.h>
@@ -9,11 +9,11 @@
 
 namespace WikiMainPath {
 
-	MpaHandlerFactory::MpaHandlerFactory(const ServerData& server_data) 
+	RoutingHandlerFactory::RoutingHandlerFactory(const ServerData& server_data) 
 		:_server_data(server_data)
 	{}
 
-	Poco::Net::HTTPRequestHandler* MpaHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest &request)
+	Poco::Net::HTTPRequestHandler* RoutingHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest &request)
 	{
 		Poco::URI uri(request.getURI());
 

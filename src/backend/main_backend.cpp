@@ -1,4 +1,4 @@
-#include "mpaHandlerFactory.h"
+#include "routingHandlerFactory.h"
 
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Net/ServerSocket.h>
@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
 	pParams->setMaxThreads(16);
 
 	std::cout << "Scanning path '" << data_path << "' for data files." << std::endl;
-	auto factory = new MpaHandlerFactory(data_path);
+	ServerData data(data_path);
+	auto factory = new RoutingHandlerFactory(data);
 
 	Poco::Net::HTTPServer server(factory, socket, pParams);
 

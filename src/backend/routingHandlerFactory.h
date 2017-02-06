@@ -6,10 +6,10 @@
 
 namespace WikiMainPath {
 
-	class MpaHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory 
+	class RoutingHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory 
 	{ 
 		public: 
-			MpaHandlerFactory(const ServerData& server_data);
+			RoutingHandlerFactory(const ServerData& server_data);
 
 			Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &request);
 

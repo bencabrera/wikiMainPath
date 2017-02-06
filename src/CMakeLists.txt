@@ -37,7 +37,7 @@ set(PARSER_FILES
 )
 
 set(BACKEND_FILES
-	backend/mpaHandlerFactory.cpp
+	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
 	backend/serverData.cpp
 	backend/httpRequestHandlers/mpaRequestHandler.cpp

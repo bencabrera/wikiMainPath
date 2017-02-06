@@ -36,7 +36,6 @@ namespace WikiMainPath {
 		}
 
 		std::string query_str = parameters[0].second;
-		std::cout << "QUERY STR: " << query_str << std::endl;
 		auto results = query(_categories_inverted_index, query_str);
 
 		Object root;
