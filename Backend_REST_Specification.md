@@ -72,38 +72,17 @@ In this file we specify how each json input and output looks like for a every ro
 **JSON-Output:**
 ```json
 {
-	"article-network": {
-		"articles": [
-			{ 
-				"title": [string],
-				"id": [integer]
-			},
-			[...]
-		],
-		"links": [
-			[[integer],[integer]],	//source_vertex, target_vertex
-			[[integer],[integer]],
-			[[integer],[integer]],
-			[...]
-		]
-	}
-}
-```
-
-## /main-path-in-category
-**JSON-Input:**
-```json
-{
-	"category-id": [integer]
-}
-```
-**JSON-Output:**
-```json
-{
-	"main-path": [
-		[integer],	// article ids
-		[integer],
-		[integer],
+	"articles": [
+		{ 
+			"title": [string],
+			"id": [integer]
+		},
+		[...]
+	],
+	"links": [
+		[[integer],[integer]],	//source_vertex, target_vertex
+		[[integer],[integer]],
+		[[integer],[integer]],
 		[...]
 	]
 }
@@ -119,21 +98,19 @@ In this file we specify how each json input and output looks like for a every ro
 **JSON-Output:**
 ```json
 {
-	"article-network": {
-		"articles": [
-			{ 
-				"title": [string],
-				"id": [integer]
-			},
-			[...]
-		],
-		"links": [
-			[[integer],[integer]],	//source_vertex, target_vertex
-			[[integer],[integer]],
-			[[integer],[integer]],
-			[...]
-		]
-	},
+	"articles": [
+		{ 
+			"title": [string],
+			"id": [integer]
+		},
+		[...]
+	],
+	"links": [
+		[[integer],[integer]],	//source_vertex, target_vertex
+		[[integer],[integer]],
+		[[integer],[integer]],
+		[...]
+	],
 	"main-path": [
 		[integer],	// article ids
 		[integer],

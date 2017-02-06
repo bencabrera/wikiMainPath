@@ -3,7 +3,7 @@
 #include <iostream>
 #include <Poco/URI.h>
 
-#include "httpRequestHandlers/mpaRequestHandler.h"
+#include "httpRequestHandlers/mpaHandler.h"
 #include "httpRequestHandlers/searchHandler.h"
 #include "httpRequestHandlers/articleListHandler.h"
 #include "httpRequestHandlers/articleNetworkHandler.h"
@@ -30,11 +30,9 @@ namespace WikiMainPath {
 
 		if(uri.getPath() == "/article-network-in-category")
 			return new ArticleNetworkHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);
-		// if(uri.getPath() == "/main-path-in-category")
-			// return new MainPathHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);
 
-		// if(request.getURI() == "/mpa-in-category")
-		// return new MpaHandler();
+		if(uri.getPath() == "/mpa-in-category")
+			return new MpaHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);
 
 		return new NotFoundHandler();
 	} 

@@ -40,7 +40,7 @@ set(BACKEND_FILES
 	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
 	backend/serverData.cpp
-	backend/httpRequestHandlers/mpaRequestHandler.cpp
+	backend/httpRequestHandlers/mpaHandler.cpp
 	backend/httpRequestHandlers/searchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
 	backend/httpRequestHandlers/articleListHandler.cpp
