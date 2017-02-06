@@ -6,7 +6,6 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <vector>
 
-#include "../date/date.h"
 #include "../wikiArticleHandlers/vectorMutex.hpp"
 
 class LinkExtractionHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler

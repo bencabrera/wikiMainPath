@@ -9,6 +9,7 @@
 
 #include "dateStringGrammar.hpp"
 #include "infoboxKeyValueGrammar.hpp"
+#include "../../core/adaptDate.h"
 
 namespace WikiMainPath {
 

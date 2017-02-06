@@ -19,7 +19,8 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
 
-#include "date.h"
+#include "../../core/date.h"
+#include "../../core/adaptDate.h"
 
 namespace WikiMainPath {
 

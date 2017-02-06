@@ -5,7 +5,7 @@
 #include <map>
 
 #include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
-#include "../date/date.h"
+#include "../../core/date.h"
 
 class ArticleTitlesHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:

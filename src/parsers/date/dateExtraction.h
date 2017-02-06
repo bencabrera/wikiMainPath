@@ -8,7 +8,6 @@
 #include <map>
 
 #include "../../core/date.h"
-#include "adaptDate.h"
 
 namespace WikiMainPath {
 

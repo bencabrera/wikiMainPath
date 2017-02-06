@@ -9,7 +9,7 @@
 #include <streambuf>
 #include <string>
 
-#include "../date/date.h"
+#include "../../core/date.h"
 #include "../date/dateExtraction.h"
 #include "../date/dateStringGrammar.hpp"
 #include "fileListDataset.hpp"

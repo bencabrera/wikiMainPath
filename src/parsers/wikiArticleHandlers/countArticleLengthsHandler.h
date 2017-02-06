@@ -1,11 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <set>
 #include <map>
 
 #include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
-#include "../date/date.h"
 
 class CountArticleLengthHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:

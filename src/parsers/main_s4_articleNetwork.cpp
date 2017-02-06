@@ -19,7 +19,7 @@
 #include <boost/container/flat_set.hpp>
 
 // local files
-#include "date/date.h"
+#include "../core/date.h"
 #include "shared.h"
 #include "fileNames.h"
 
