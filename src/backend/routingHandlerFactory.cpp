@@ -5,6 +5,7 @@
 
 #include "httpRequestHandlers/mpaRequestHandler.h"
 #include "httpRequestHandlers/searchHandler.h"
+#include "httpRequestHandlers/articleListHandler.h"
 #include "httpRequestHandlers/notFoundHandler.h"
 
 namespace WikiMainPath {
@@ -23,10 +24,10 @@ namespace WikiMainPath {
 		if(uri.getPath() == "/search-article")
 			return new SearchHandler("maching-articles", _server_data._articles, _server_data._articles_inverted_index);
 
-		// if(request.getURI() == "/article-network-in-category")
-		// return new ArticleNetworkHandler();
+		if(uri.getPath() == "/article-list-in-category")
+			return new ArticleListHandler(_server_data._articles, _server_data._category_has_article);
 
-		// if(request.getURI() == "/main-path-in-category")
+			// if(request.getURI() == "/main-path-in-category")
 		// return new MainPathHandler();
 
 		// if(request.getURI() == "/mpa-in-category")

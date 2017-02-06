@@ -43,6 +43,7 @@ set(BACKEND_FILES
 	backend/httpRequestHandlers/mpaRequestHandler.cpp
 	backend/httpRequestHandlers/searchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
+	backend/httpRequestHandlers/articleListHandler.cpp
 )
 
 set(CORE_FILES
