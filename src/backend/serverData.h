@@ -27,7 +27,7 @@ namespace WikiMainPath {
 			const std::vector<std::string> _categories;	
 			const std::vector<Date> _dates;	
 			const std::vector<std::vector<std::size_t>> _category_has_article;
-			const Subgraph _article_network;
+			Subgraph _article_network;
 			const InvertedIndex _categories_inverted_index;
 			const InvertedIndex _articles_inverted_index;
 

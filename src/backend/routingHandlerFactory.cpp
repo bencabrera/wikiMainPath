@@ -6,11 +6,12 @@
 #include "httpRequestHandlers/mpaRequestHandler.h"
 #include "httpRequestHandlers/searchHandler.h"
 #include "httpRequestHandlers/articleListHandler.h"
+#include "httpRequestHandlers/articleNetworkHandler.h"
 #include "httpRequestHandlers/notFoundHandler.h"
 
 namespace WikiMainPath {
 
-	RoutingHandlerFactory::RoutingHandlerFactory(const ServerData& server_data) 
+	RoutingHandlerFactory::RoutingHandlerFactory(ServerData& server_data) 
 		:_server_data(server_data)
 	{}
 
@@ -27,8 +28,10 @@ namespace WikiMainPath {
 		if(uri.getPath() == "/article-list-in-category")
 			return new ArticleListHandler(_server_data._articles, _server_data._category_has_article);
 
-			// if(request.getURI() == "/main-path-in-category")
-		// return new MainPathHandler();
+		if(uri.getPath() == "/article-network-in-category")
+			return new ArticleNetworkHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);
+		// if(uri.getPath() == "/main-path-in-category")
+			// return new MainPathHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);
 
 		// if(request.getURI() == "/mpa-in-category")
 		// return new MpaHandler();
