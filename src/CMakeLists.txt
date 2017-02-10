@@ -1,17 +1,20 @@
 cmake_minimum_required(VERSION 3.1)
 project(WikiMainPath)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
-# Boost stuff
-# WARNING: Boost needs to be build using -fPIC option
-set(BOOST_ROOT /usr/local/include/boost/)
-set(BOOST_LIBRARYDIR /usr/local/lib/)
-set(Boost_USE_STATIC_LIBS ON)
+# --- Boost library setup ---
+# set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex)
 
-include_directories(${Boost_INCLUDE_DIRS})
+# --- Core library ---
+set(CORE_FILES
+	core/date.cpp
+)
 
+add_library(CoreLib SHARED ${CORE_FILES})
+
+# --- Parsers ---
 set(PARSER_FILES
 	parsers/wikiArticleHandlers/articleTitlesHandler.h
 	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
@@ -36,33 +39,7 @@ set(PARSER_FILES
 	parsers/shared.cpp
 )
 
-set(BACKEND_FILES
-	backend/routingHandlerFactory.cpp
-	backend/fullTextSearch.cpp
-	backend/serverData.cpp
-	backend/httpRequestHandlers/mpaHandler.cpp
-	backend/httpRequestHandlers/searchHandler.cpp
-	backend/httpRequestHandlers/notFoundHandler.cpp
-	backend/httpRequestHandlers/articleListHandler.cpp
-	backend/httpRequestHandlers/articleNetworkHandler.cpp
-)
-
-set(CORE_FILES
-	core/date.cpp
-)
-
-set(PORTER_2_STEMMER_FILES
-	../libs/porter2_stemmer/porter2_stemmer.h
-	../libs/porter2_stemmer/porter2_stemmer.cpp
-	../libs/porter2_stemmer/util/string_view.h
-	../libs/porter2_stemmer/util/hash.h
-)
-
-# libraries
-add_library(CoreLib STATIC ${CORE_FILES})
-add_library(ParserLib STATIC ${PARSER_FILES})
-add_library(BackendLib STATIC ${BACKEND_FILES})
-add_library(Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES})
+add_library(ParserLib SHARED ${PARSER_FILES})
 
 # parser executables
 add_executable(countArticleLengths parsers/main_countArticleLengths.cpp)
@@ -91,9 +68,9 @@ target_link_libraries(s3_recursiveCategories xerces-c)
 target_link_libraries(s3_recursiveCategories pthread)
 
 add_executable(s4_articleNetwork parsers/main_s4_articleNetwork.cpp)
+target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(s4_articleNetwork CoreLib)
 target_link_libraries(s4_articleNetwork ParserLib)
-target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
 target_link_libraries(s4_articleNetwork xerces-c)
 target_link_libraries(s4_articleNetwork pthread)
 
@@ -109,15 +86,35 @@ target_link_libraries(parserTests ParserLib)
 target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests xerces-c)
 
-# backend executables
-find_library(POCO_LIB NAMES libPocoJSON.a libPocoFoundation.a libPocoNet.a)
+# --- backend server ---
+set(BACKEND_FILES
+	backend/routingHandlerFactory.cpp
+	backend/fullTextSearch.cpp
+	backend/serverData.cpp
+	backend/httpRequestHandlers/mpaHandler.cpp
+	backend/httpRequestHandlers/searchHandler.cpp
+	backend/httpRequestHandlers/notFoundHandler.cpp
+	backend/httpRequestHandlers/articleListHandler.cpp
+	backend/httpRequestHandlers/articleNetworkHandler.cpp
+)
+
+set(PORTER_2_STEMMER_FILES
+	../libs/porter2_stemmer/porter2_stemmer.h
+	../libs/porter2_stemmer/porter2_stemmer.cpp
+	../libs/porter2_stemmer/util/string_view.h
+	../libs/porter2_stemmer/util/hash.h
+)
+
+add_library(BackendLib SHARED ${BACKEND_FILES})
+add_library(Porter2_Stemmer SHARED ${PORTER_2_STEMMER_FILES})
 
 add_executable(backend backend/main_backend.cpp)
 target_link_libraries(backend BackendLib)
 target_link_libraries(backend CoreLib)
 target_link_libraries(backend ${Boost_LIBRARIES})
 target_link_libraries(backend Porter2_Stemmer)
-target_link_libraries(backend PocoJSON)
 target_link_libraries(backend PocoNet)
 target_link_libraries(backend PocoFoundation)
+target_link_libraries(backend PocoUtil)
+target_link_libraries(backend PocoJSON)
 target_link_libraries(backend pthread)
