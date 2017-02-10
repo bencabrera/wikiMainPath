@@ -14,6 +14,10 @@ set(CORE_FILES
 
 add_library(CoreLib SHARED ${CORE_FILES})
 
+
+
+
+
 # --- Parsers ---
 set(PARSER_FILES
 	parsers/wikiArticleHandlers/articleTitlesHandler.h
@@ -80,11 +84,29 @@ target_link_libraries(s4_articleNetwork pthread)
 # target_link_libraries(countPages xerces-c)
 # target_link_libraries(countPages pthread)
 
+
+
+
+# --- Parser tests ---
+set(PARSER_TEST_FILES
+	# parsers/tests/articleListTests.cpp
+	# parsers/tests/articleNetworkTests.cpp
+	# parsers/tests/categoryTests.cpp
+	# parsers/tests/cycleDectionTests.cpp
+	parsers/tests/dateTests.cpp
+	# parsers/tests/fileListDataset.hpp
+)
+
+add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})
+
 add_executable(parserTests parsers/tests/main_tests.cpp)
+target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests CoreLib)
 target_link_libraries(parserTests ParserLib)
-target_link_libraries(parserTests ${Boost_LIBRARIES})
+target_link_libraries(parserTests ParserTestsLib)
 target_link_libraries(parserTests xerces-c)
+target_link_libraries(parserTests ${Boost_LIBRARIES})
+target_link_libraries(parserTests ParserLib)
 
 # --- backend server ---
 set(BACKEND_FILES

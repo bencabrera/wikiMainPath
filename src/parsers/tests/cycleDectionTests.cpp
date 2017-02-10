@@ -1,4 +1,3 @@
-#pragma once
 #include <boost/test/included/unit_test.hpp>
 
 #include "../parserWrappers/s3_cycle_detector_visitor.h"
