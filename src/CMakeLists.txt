@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(WikiMainPath)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 # --- Boost library setup ---
@@ -13,7 +14,6 @@ set(CORE_FILES
 )
 
 add_library(CoreLib SHARED ${CORE_FILES})
-
 
 
 
@@ -91,10 +91,10 @@ target_link_libraries(s4_articleNetwork pthread)
 set(PARSER_TEST_FILES
 	# parsers/tests/articleListTests.cpp
 	# parsers/tests/articleNetworkTests.cpp
-	# parsers/tests/categoryTests.cpp
+	parsers/tests/categoryTests.cpp
 	# parsers/tests/cycleDectionTests.cpp
 	parsers/tests/dateTests.cpp
-	# parsers/tests/fileListDataset.hpp
+	# parsers/tests/helpers/fileListDataset.hpp
 )
 
 add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})

@@ -1,4 +1,6 @@
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <streambuf>
@@ -10,14 +12,20 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include "../shared.h"
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/depth_first_search.hpp>
 
-#include "../parserWrappers/s1_wrapper.h"
-#include "../parserWrappers/s2_wrapper.h"
-#include "../parserWrappers/s3_wrapper.h"
-#include "../parserWrappers/s3_recursiveFillCategories.h"
+// wiki xml dump lib
+#include "../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
+#include "../wikiArticleHandlers/categoryRecursiveHandler.h"
+#include "../wikiArticleHandlers/categoryHasArticleHandler.h"
+#include "../../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
+#include "../../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+#include "../s3_recursiveFillCategories.h"
 
-BOOST_AUTO_TEST_SUITE(CategoryTests)
+
+BOOST_AUTO_TEST_SUITE(category_parsing_tests)
 
 bool getPosition(const std::vector<std::string>& vec, std::string str, std::size_t& pos)
 {
@@ -33,35 +41,50 @@ bool getPosition(const std::vector<std::string>& vec, std::string str, std::size
 
 
 
-BOOST_AUTO_TEST_CASE(CategoryShouldContainArticlesExample1)
+BOOST_AUTO_TEST_CASE(recursive_category_should_contain_articles_1)
 {
-	fs::path path("../../src/parsers/tests/data/recursive_category_20th_century_conflicts.xml");
+	std::string path("../../src/parsers/tests/data/recursive_category_20th_century_conflicts.xml");
 
 	// init xerces
 	xercesc::XMLPlatformUtils::Initialize();
 
-	std::map<std::string, std::size_t> pageCounts;
-	S1ParserWrapper s1_wrapper(path, pageCounts, false);
-	s1_wrapper.ProgressCallback = std::function<void(std::size_t)>();
-	auto artHandler = s1_wrapper();
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = [](const std::string& title) {
+		return !(
+				title.substr(0,5) == "User:" 
+				|| title.substr(0,10) == "Wikipedia:" 
+				|| title.substr(0,5) == "File:" 
+				|| title.substr(0,14) == "Category talk:" 
+				|| title.substr(0,14) == "Template talk:"
+				|| title.substr(0,9) == "Template:"
+				|| title.substr(0,10) == "User talk:"
+				|| title.substr(0,10) == "File talk:"
+				|| title.substr(0,15) == "Wikipedia talk:"
+				);
+	};
+
+	ArticleDatesAndCategoriesHandler art_handler;
+	WikiXmlDumpXerces::SingleCoreParser parser(art_handler, parser_properties);
+	parser.Run(path);
 
 	std::vector<std::string> articles;
 	std::vector<Date> dates;
-	for (auto el : artHandler.articles) {
+	std::vector<std::string> categories = art_handler.categories;
+	std::vector<boost::container::flat_set<std::size_t>> category_has_article(categories.size());
+	std::map<std::string, std::string> redirects = art_handler.redirects;
+
+	VectorMutex<1000> vec_mutex;
+
+	for (auto el : art_handler.articles) {
 		articles.push_back(el.first);	
 		dates.push_back(el.second);	
 	}
 
-	std::vector<std::string> categories = artHandler.categories;
 	std::sort(categories.begin(), categories.end());
-	std::map<std::string, std::string> redirects = artHandler.redirects;
-	VectorMutex<1000> vecMutex;
 
-	std::vector<boost::container::flat_set<std::size_t>> category_has_article(categories.size());
-
-	S2ParserWrapper s2_wrapper(path, pageCounts, articles, categories, category_has_article, vecMutex);
-	s2_wrapper.ProgressCallback = std::function<void(std::size_t)>();
-	s2_wrapper();
+	CategoryHasArticleHandler art_handler2(articles, categories, category_has_article, vec_mutex);
+	WikiXmlDumpXerces::SingleCoreParser parser2(art_handler2, parser_properties);
+	parser2.Run(path);
 
 	std::size_t cat_idx = 0;
 	bool foundCategory = getPosition(categories, "Friendly fire incidents of World War II", cat_idx);
@@ -85,10 +108,15 @@ BOOST_AUTO_TEST_CASE(CategoryShouldContainArticlesExample1)
 	}
 
 
-	S3ParserWrapper::Graph graph(categories.size());
-	S3ParserWrapper s3_wrapper(path, pageCounts, categories, graph, vecMutex);
-	s3_wrapper.ProgressCallback = std::function<void(std::size_t)>();
-	s3_wrapper();
+	parser_properties.TitleFilter = [](const std::string& title) {
+		return title.substr(0,9) == "Category:";
+	};
+
+	typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
+	Graph graph(categories.size());
+	CategoryRecursiveHandler art_handler3(categories, graph, vec_mutex);
+	WikiXmlDumpXerces::SingleCoreParser parser3(art_handler3 ,parser_properties);
+	parser3.Run(path);
 
 	recursiveFillCategories(graph, category_has_article);
 

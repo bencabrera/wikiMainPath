@@ -1,4 +1,6 @@
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/unit_test.hpp>
 
 #include "../parserWrappers/s3_cycle_detector_visitor.h"
 
