@@ -23,8 +23,6 @@ class LinkExtractionHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler
 		std::function<bool(std::size_t, std::size_t)> OrderCallback;
 
 	private:
-		bool GetPosition(const std::string& title, std::size_t& v) const;
-
 		std::vector<std::string> _articles;
    		const std::map<std::string, std::string>& _redirects;
 		std::vector<boost::container::flat_set<std::size_t>>& _adjList;

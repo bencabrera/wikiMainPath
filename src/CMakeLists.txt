@@ -36,7 +36,7 @@ set(PARSER_FILES
 	parsers/date/dateExtraction.cpp
 	parsers/date/infoboxDateExtraction.cpp
 	parsers/date/dateStringGrammar.cpp
-	parsers/date/infoboxGrammar.cpp
+	# parsers/date/infoboxGrammar.cpp
 	parsers/date/infoboxKeyValueGrammar.cpp
 	parsers/s3_recursiveFillCategories.cpp
 	parsers/s3_cycle_detector_visitor.cpp
@@ -90,15 +90,12 @@ target_link_libraries(s4_articleNetwork pthread)
 
 # --- Parser tests ---
 set(PARSER_TEST_FILES
-	# parsers/tests/articleListTests.cpp
-	# parsers/tests/articleNetworkTests.cpp
+	parsers/tests/articlesAndCategories/articleNetworkTests.cpp
 	# parsers/tests/articlesAndCategories/categoryTests.cpp
 	parsers/tests/articlesAndCategories/articleListTests.cpp
-	# parsers/tests/cycleDectionTests.cpp
-	# parsers/tests/date/dateTests.cpp
+	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
 	parsers/tests/date/keyValuesFromInfoboxTests.cpp
-	# parsers/tests/helpers/fileListDataset.hpp
 )
 
 add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})

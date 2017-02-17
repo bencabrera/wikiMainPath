@@ -1,5 +1,15 @@
 #include "linkExtractionHandler.h"
 
+// boost spirit 
+#include <boost/config/warning_disable.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_repeat.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
+
 LinkExtractionHandler::LinkExtractionHandler(
 	const std::vector<std::string>& arts, 
 	const std::map<std::string, std::string>& redirs,
@@ -21,59 +31,52 @@ _vecMutex(vecMut)
 	};
 }
 
-bool LinkExtractionHandler::GetPosition(const std::string& title, std::size_t& v) const
-{
-	auto it = std::lower_bound(_articles.begin(), _articles.end(), title);
-	if(it != _articles.end() && *it == title)
-	{
-		v = it-_articles.begin();
-		return true;
-	}	
-	else
-		return false;
-}
-
 void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
+	using namespace boost::spirit;
+
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
 	std::size_t source, target;
-	if(!GetPosition(title, source))
+	auto source_it = std::find(_articles.begin(), _articles.end(), title);
+	if(source_it != _articles.end())
+	{
+		source = source_it - _articles.begin();
+	}
+	else
 		return;
 
-	std::size_t foundPos = data.Content.find("[[");
-	while(foundPos != std::string::npos)
+	qi::rule<std::string::const_iterator, std::vector<std::string>()> links_rule;
+	qi::rule<std::string::const_iterator, std::string()> link_rule;
+
+	std::set<std::string> links;
+
+	links_rule = *(qi::char_ - qi::lit('[')) >> 
+		-(
+			(&qi::lit("[[") >> link_rule [boost::phoenix::insert(boost::phoenix::ref(links), _1)] >> links_rule) 
+			| (qi::lit('[') >> links_rule)
+		);
+	link_rule = qi::lit("[[") 
+					>> +(!qi::lit("]]") >> (qi::char_ - qi::lit('|'))) [qi::_val += qi::_1]
+					>> -(qi::lit('|') >> +(!qi::lit("]]") >> qi::char_)) 
+					>> qi::lit("]]");
+
+	auto it = data.Content.cbegin();
+	qi::parse(it, data.Content.cend(), links_rule);
+
+
+	for (auto link : links) 
 	{
-		std::size_t secondFoundPos = data.Content.find("]]", foundPos);
-		if(secondFoundPos == std::string::npos)
-			break;
+		boost::trim(link);
 
-		std::string linkTitle = data.Content.substr(foundPos + 2, secondFoundPos - foundPos - 2);
-
-		std::size_t pipePos = linkTitle.find("|");
-		if(pipePos != std::string::npos)
-			linkTitle = linkTitle.substr(0, pipePos);
-
-		boost::trim(linkTitle);
-
-		if(
-				linkTitle.substr(0,5) == "User:" 
-				|| linkTitle.substr(0,10) == "Wikipedia:" 
-				|| linkTitle.substr(0,5) == "File:" 
-				|| linkTitle.substr(0,9) == "Category:"
-				|| linkTitle.substr(0,9) == "Template:"
-				|| linkTitle.substr(0,14) == "Template talk:"
-				|| linkTitle.substr(0,14) == "Category talk:" 
-				|| linkTitle.substr(0,10) == "User talk:"
-				|| linkTitle.substr(0,10) == "File talk:"
-				|| linkTitle.substr(0,15) == "Wikipedia talk:"
-				|| !GetPosition(linkTitle, target)
-		  )
+		auto target_it = std::find(_articles.begin(), _articles.end(), link);
+		if(target_it != _articles.end())
 		{
-			foundPos = data.Content.find("[[", secondFoundPos);
-			continue;
+			target = target_it - _articles.begin();
 		}
+		else
+			continue;
 
 		if(OrderCallback(source, target))
 		{
@@ -87,7 +90,5 @@ void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 			_adjList[target].insert(source);
 			_vecMutex.unlock(target);
 		}
-
-		foundPos = data.Content.find("[[", secondFoundPos);
 	}
 }

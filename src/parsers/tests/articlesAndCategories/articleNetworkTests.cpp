@@ -12,45 +12,52 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include "../shared.h"
+// wiki xml dump lib
+#include "../../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
+#include "../../wikiArticleHandlers/linkExtractionHandler.h"
+#include "../../../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
+#include "../../../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+#include "../../../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
 
-#include "../parserWrappers/s1_wrapper.h"
-#include "../parserWrappers/s4_wrapper.h"
+BOOST_AUTO_TEST_SUITE(article_network_tests)
 
-BOOST_AUTO_TEST_SUITE(ArticleNetworkTests)
-
-
-BOOST_AUTO_TEST_CASE(ThereShouldBeLinkBetweenArticles1)
+BOOST_AUTO_TEST_CASE(there_should_be_links_between_the_articles)
 {
-	fs::path path("../../src/parsers/tests/data/1789_events_french_revolution.xml");
+	std::string path("../../src/parsers/tests/articlesAndCategories/data/1789_events_french_revolution.xml");
 
 	// init xerces
 	xercesc::XMLPlatformUtils::Initialize();
 
-	std::map<std::string, std::size_t> pageCounts;
-	S1ParserWrapper s1_wrapper(path, pageCounts, false);
-	s1_wrapper.ProgressCallback = std::function<void(std::size_t)>();
-	auto artHandler = s1_wrapper();
+	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
+	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles();
+
+	// init xerces
+	xercesc::XMLPlatformUtils::Initialize();
+
+	// step 1: run parsing for article list
+	ArticleDatesAndCategoriesHandler art_handler;
+	art_handler.ExtractOnlyArticlesWithDates = false;
+	WikiXmlDumpXerces::SingleCoreParser parser(art_handler, parser_properties);
+	parser.Run(path);
 
 	std::vector<std::string> articles;
-	std::vector<Date> dates;
-	for (auto el : artHandler.articles) {
-		articles.push_back(el.first);	
-		dates.push_back(el.second);	
+	for (auto key_value : art_handler.articles) {
+		articles.push_back(key_value.first);	
 	}
+	std::sort(articles.begin(), articles.end());
 
-	std::map<std::string, std::string> redirects = artHandler.redirects;
+	// step 2: run parsing for article network
 	VectorMutex<1000> vecMutex;
-
-	std::vector<boost::container::flat_set<std::size_t>> adjList(articles.size());
-	S4ParserWrapper s4_wrapper(path, pageCounts, articles, dates, redirects, adjList, vecMutex);
-	s4_wrapper.ProgressCallback = std::function<void(std::size_t)>();
-	s4_wrapper.OrderCallback = [](std::size_t source, std::size_t target)
+	std::vector<boost::container::flat_set<std::size_t>> adj_list(art_handler.articles.size());
+	LinkExtractionHandler art_handler_link(articles, art_handler.redirects, adj_list, vecMutex);
+	art_handler_link.OrderCallback = [](std::size_t source, std::size_t target)
 	{
 		return source < target;
 	};
-	s4_wrapper();
+	WikiXmlDumpXerces::SingleCoreParser parser2(art_handler_link, parser_properties);
+	parser2.Run(path);
 
+	// in this test the direction of the edge is determined by the lexicographic sort
 	std::vector<std::pair<std::string,std::string>> expected_links = {
 		{ "National Assembly (French Revolution)", "Storming of the Bastille" },
 		{ "National Constituent Assembly", "Women's March on Versailles" },
@@ -58,13 +65,20 @@ BOOST_AUTO_TEST_CASE(ThereShouldBeLinkBetweenArticles1)
 	};
 
 	for (auto link : expected_links) {
-		std::size_t from_idx = 0, to_idx = 0;
-		bool found_article1 = getPosition(articles, link.first, from_idx);
-		bool found_article2 = getPosition(articles, link.second, to_idx);
+		auto it_1 = std::find(articles.begin(), articles.end(), link.first);
+		auto it_2 = std::find(articles.begin(), articles.end(), link.second);
+
+		bool found_article1 = it_1 != articles.end();
+		bool found_article2 = it_2 != articles.end();
+
 		BOOST_CHECK(found_article1);
 		BOOST_CHECK(found_article2);
 
-		BOOST_CHECK(adjList[from_idx].find(to_idx) != adjList[from_idx].end());
+		if(found_article1 && found_article2)
+		{
+			BOOST_CHECK(adj_list[it_1 - articles.begin()].find(it_2 - articles.begin()) != adj_list[it_1 - articles.begin()].end());
+		}
+
 	}
 }
 

@@ -2,11 +2,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "../parserWrappers/s3_cycle_detector_visitor.h"
+#include "../../s3_cycle_detector_visitor.h"
 
-BOOST_AUTO_TEST_SUITE(CycleDetectionTests)
+BOOST_AUTO_TEST_SUITE(cycle_detection_tests)
 
-BOOST_AUTO_TEST_CASE(DfsVisitorShouldRun)
+BOOST_AUTO_TEST_CASE(cycle_should_be_found)
 {
 	CycleDetectorDfsVisitor::Graph graph(10);
 
