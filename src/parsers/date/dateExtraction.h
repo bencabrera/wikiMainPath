@@ -17,8 +17,6 @@ namespace WikiMainPath {
 
 	// step 1: extracting all possible sources of dates
 	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date);
-	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax);
-	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date);
 
 	// step 2: remove duplicates
 	void removeDuplicateDates(std::vector<Date>& dates);

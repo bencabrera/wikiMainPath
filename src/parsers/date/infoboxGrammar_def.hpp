@@ -28,11 +28,11 @@ namespace WikiMainPath {
 			infobox_label = *(char_ - '=') [_val += boost::spirit::_1] >> '=';
 			infobox_line_with_date = lit('|') >> infobox_label [std::cout << "hallo" << std::endl, at_c<0>(_val) = boost::spirit::_1] >> date_string [at_c<1>(_val) = boost::spirit::_1];
 
-			BOOST_SPIRIT_DEBUG_NODE(article);
-			BOOST_SPIRIT_DEBUG_NODE(infobox);
-			BOOST_SPIRIT_DEBUG_NODE(infobox_line_with_date);
-			BOOST_SPIRIT_DEBUG_NODE(infobox_label);
-			BOOST_SPIRIT_DEBUG_NODE(start_infobox);
+			// BOOST_SPIRIT_DEBUG_NODE(article);
+			// BOOST_SPIRIT_DEBUG_NODE(infobox);
+			// BOOST_SPIRIT_DEBUG_NODE(infobox_line_with_date);
+			// BOOST_SPIRIT_DEBUG_NODE(infobox_label);
+			// BOOST_SPIRIT_DEBUG_NODE(start_infobox);
 		}
 
 }

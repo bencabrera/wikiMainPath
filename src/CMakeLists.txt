@@ -34,6 +34,7 @@ set(PARSER_FILES
 	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
 	parsers/date/dateExtraction.h
 	parsers/date/dateExtraction.cpp
+	parsers/date/infoboxDateExtraction.cpp
 	parsers/date/dateStringGrammar.cpp
 	parsers/date/infoboxGrammar.cpp
 	parsers/date/infoboxKeyValueGrammar.cpp
@@ -91,9 +92,12 @@ target_link_libraries(s4_articleNetwork pthread)
 set(PARSER_TEST_FILES
 	# parsers/tests/articleListTests.cpp
 	# parsers/tests/articleNetworkTests.cpp
-	parsers/tests/categoryTests.cpp
+	# parsers/tests/articlesAndCategories/categoryTests.cpp
+	parsers/tests/articlesAndCategories/articleListTests.cpp
 	# parsers/tests/cycleDectionTests.cpp
-	parsers/tests/dateTests.cpp
+	# parsers/tests/date/dateTests.cpp
+	parsers/tests/date/dateModelTests.cpp
+	parsers/tests/date/keyValuesFromInfoboxTests.cpp
 	# parsers/tests/helpers/fileListDataset.hpp
 )
 
@@ -107,6 +111,7 @@ target_link_libraries(parserTests ParserTestsLib)
 target_link_libraries(parserTests xerces-c)
 target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests ParserLib)
+target_link_libraries(parserTests CoreLib)
 
 # --- backend server ---
 set(BACKEND_FILES

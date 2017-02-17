@@ -76,11 +76,11 @@ namespace WikiMainPath {
 			// indentation = eps [_val = 0] >> *(char_(':') [_val++]);
 			// start =  *eol >> indentation [at_c<3>(_val) = boost::spirit::qi::_1] >> text [at_c<0>(_val) = boost::spirit::_1] >> signature [at_c<1>(_val) = at_c<0>(boost::spirit::_1), at_c<2>(_val) = at_c<1>(boost::spirit::_1)];
 
-			BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
-			BOOST_SPIRIT_DEBUG_NODE(type2_template);
+			// BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
+			// BOOST_SPIRIT_DEBUG_NODE(type2_template);
 			// BOOST_SPIRIT_DEBUG_NODE(age);
 			// BOOST_SPIRIT_DEBUG_NODE(type1_string);
-			BOOST_SPIRIT_DEBUG_NODE(start);
+			// BOOST_SPIRIT_DEBUG_NODE(start);
 			// BOOST_SPIRIT_DEBUG_NODE(start);
 
 			// start.name("CommentGrammar::Start");
