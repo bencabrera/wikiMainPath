@@ -26,6 +26,7 @@
 #include "wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -105,20 +106,9 @@ int main(int argc, char* argv[])
 	xercesc::XMLPlatformUtils::Initialize();
 
 	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
-	parser_properties.TitleFilter = [](const std::string& title) {
-		return !(
-				title.substr(0,5) == "User:" 
-				|| title.substr(0,10) == "Wikipedia:" 
-				|| title.substr(0,5) == "File:" 
-				|| title.substr(0,14) == "Category talk:" 
-				|| title.substr(0,14) == "Template talk:"
-				|| title.substr(0,9) == "Template:"
-				|| title.substr(0,10) == "User talk:"
-				|| title.substr(0,10) == "File talk:"
-				|| title.substr(0,15) == "Wikipedia talk:"
-				);
-	};
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles_and_categories();
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1);
+	parser_properties.ProgressReportInterval = 100;
 
 	WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([](){ return ArticleDatesAndCategoriesHandler(); }, parser_properties);
 	parser.Run(paths.begin(), paths.end());
