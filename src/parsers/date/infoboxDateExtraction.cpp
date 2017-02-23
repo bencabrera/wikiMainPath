@@ -42,7 +42,7 @@ namespace WikiMainPath {
 	}
 
 	// could add an error category if the descriptions don't match
-	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date)
+	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
 	{
 		std::vector<Date> rtn;
 
@@ -62,17 +62,24 @@ namespace WikiMainPath {
 
 			if(it != pair.second.cend())
 			{
+				// key of infobox key value pair indicates date, but could not be parsed
 				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
-					key_but_no_date.push_back(pair);
+					errors.push_back({ KEY_BUT_NO_DATE_TEMPLATE, std::get<0>(pair), std::get<1>(pair) });
 				continue;
 			} else {
 				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
 				{
-					// if(date_key_it->second == d.Description)
+					if(date_key_it->second != d.Description)
+					{
+						// key indicated date, could be parsed, but the date types did not match
+						errors.push_back({ KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING, std::get<0>(pair), std::get<1>(pair) });
+					}
+
 					d.Description = date_key_it->second;
 					rtn.push_back(d);
 				} else {
-					date_but_no_key.push_back(pair);
+					// a date could be parsed, but key did not indicate a date
+					errors.push_back({ DATE_TEMPLATE_BUT_NO_DATE_KEY, std::get<0>(pair), std::get<1>(pair) });
 				}
 			}
 		}

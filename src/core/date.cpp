@@ -110,8 +110,11 @@ bool operator==(const Date& date1, const Date& date2)
 		return false;
 	if(!(date1.Begin == date2.Begin))
 		return false;
-	if(!(date1.End == date2.End))
-		return false;
+	if(date1.IsRange)
+	{
+		if(!(date1.End == date2.End))
+			return false;
+	}
 
 	return true;
 }

@@ -1,1 +1,1 @@
-date	1066_10_14:date
+1066_10_14:GENERAL_DATE

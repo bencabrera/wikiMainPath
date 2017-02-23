@@ -95,7 +95,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/articlesAndCategories/articleListTests.cpp
 	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
-	parsers/tests/date/keyValuesFromInfoboxTests.cpp
+	parsers/tests/date/datesFromInfoboxTests.cpp
 )
 
 add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})

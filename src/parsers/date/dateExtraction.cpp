@@ -27,9 +27,10 @@ namespace WikiMainPath {
 	};
 
 	// step 1: extracting all possible sources of dates
-	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date) 
+	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax) 
 	{
-		return extractAllDatesFromInfobox(article_syntax, date_but_no_key, key_but_no_date);
+		std::vector<InfoboxDateExtractionError> errors;
+		return extractAllDatesFromInfobox(article_syntax, errors);
 	}
 
 
@@ -89,9 +90,9 @@ namespace WikiMainPath {
 
 
 	// step 5: combine all steps
-	bool extractDateFromArticle(const std::string& article_syntax, Date& date, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date)
+	bool extractDateFromArticle(const std::string& article_syntax, Date& date)
 	{
-		auto dates = extractAllDatesFromArticle(article_syntax, date_but_no_key, key_but_no_date);
+		auto dates = extractAllDatesFromArticle(article_syntax);
 		removeDuplicateDates(dates);
 		combineSingleDateToRanges(dates);
 		return chooseSingleDate(dates, date);

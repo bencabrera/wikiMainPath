@@ -16,7 +16,7 @@ namespace WikiMainPath {
 	extern const std::vector<std::tuple<std::string, std::string, std::string>> DATE_COMBINATIONS;
 
 	// step 1: extracting all possible sources of dates
-	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date);
+	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax);
 
 	// step 2: remove duplicates
 	void removeDuplicateDates(std::vector<Date>& dates);
@@ -28,6 +28,6 @@ namespace WikiMainPath {
 	bool chooseSingleDate(const std::vector<Date>& dates, Date& date);
 
 	// step 5: combine all steps
-	bool extractDateFromArticle(const std::string& article_syntax, Date& date, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date);
+	bool extractDateFromArticle(const std::string& article_syntax, Date& date);
 
 }

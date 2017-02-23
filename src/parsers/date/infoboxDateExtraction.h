@@ -11,7 +11,15 @@
 
 namespace WikiMainPath {
 
+	enum InfoboxDateExtractionErrorType {
+		DATE_TEMPLATE_BUT_NO_DATE_KEY,
+		KEY_BUT_NO_DATE_TEMPLATE,
+		KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING
+	};
+
+	using InfoboxDateExtractionError = std::tuple<InfoboxDateExtractionErrorType, std::string, std::string>;
+
 	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax);
-	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<std::pair<std::string, std::string>>& date_but_no_key, std::vector<std::pair<std::string, std::string>>& key_but_no_date);
+	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors);
 
 }

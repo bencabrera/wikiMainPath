@@ -27,7 +27,7 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 		else
 		{
 			Date dateObj;
-			if(WikiMainPath::extractDateFromArticle(data.Content, dateObj, date_but_no_key, key_but_no_date) || !ExtractOnlyArticlesWithDates)
+			if(WikiMainPath::extractDateFromArticle(data.Content, dateObj) || !ExtractOnlyArticlesWithDates)
 			{
 				articles.insert({ title, dateObj });
 			}
