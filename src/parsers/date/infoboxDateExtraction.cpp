@@ -13,10 +13,12 @@ namespace WikiMainPath {
 		{ "born", "BIRTH" },
 		{ "birth", "BIRTH" },
 		{ "birthdate", "BIRTH" },
+		{ "birth_date", "BIRTH" },
 		{ "birthday", "BIRTH" },
 		{ "death", "DEATH" },
 		{ "died", "DEATH" },
 		{ "deathdate", "DEATH" },
+		{ "death_date", "DEATH" },
 		{ "deathday", "DEATH" }
 	};
 
@@ -50,6 +52,9 @@ namespace WikiMainPath {
 
 		auto key_values = extractAllKeyValuesFromInfobox(article_syntax);
 		for (const auto& pair : key_values) {
+			if(pair.second.empty())
+				continue;
+
 			Date d;
 			auto it = pair.second.cbegin();
 			auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);

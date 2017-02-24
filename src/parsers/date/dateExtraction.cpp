@@ -30,7 +30,13 @@ namespace WikiMainPath {
 	std::vector<Date> extractAllDatesFromArticle(const std::string& article_syntax) 
 	{
 		std::vector<InfoboxDateExtractionError> errors;
-		return extractAllDatesFromInfobox(article_syntax, errors);
+		auto rtn = extractAllDatesFromInfobox(article_syntax, errors);
+
+		// for (auto err : errors) {
+			// std::cout << std::get<0>(err) << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
+		// }
+
+		return rtn;
 	}
 
 
@@ -80,7 +86,7 @@ namespace WikiMainPath {
 		}
 
 		auto it = std::max_element(dates.begin(), dates.end(), [](const Date& d1, const Date& d2) {
-			return date_type_to_pos[d1.Description] < date_type_to_pos[d2.Description];					
+			return date_type_to_pos[d1.Description] > date_type_to_pos[d2.Description];
 		});
 
 		date = *it;

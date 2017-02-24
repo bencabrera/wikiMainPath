@@ -1,8 +1,6 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/unit_test.hpp>
-#include <boost/test/data/test_case.hpp>
-#include <boost/test/data/monomorphic.hpp>
 
 #include <boost/algorithm/string/trim.hpp>
 
@@ -13,11 +11,36 @@
 #include "../../../core/date.h"
 #include "../../date/dateExtraction.h"
 #include "../../date/dateStringGrammar.hpp"
-#include "../helpers/fileListDataset.hpp"
 #include "../../date/infoboxGrammar.hpp"
 #include "../../date/infoboxKeyValueGrammar.hpp"
 
 BOOST_AUTO_TEST_SUITE(date_extraction_tests)
+
+
+BOOST_AUTO_TEST_CASE(choosing_of_dates_should_use_hirachy)
+{
+	Date d1,d2,d3,d4;
+	d1.Description = "GENERAL_DATE";
+	d2.Description = "DEATH";
+	d3.Description = "BIRTH_DEATH";
+	d4.Description = "BIRTH";
+	std::vector<Date> vec = { d1, d2, d3, d4 };
+
+	Date result;	
+	WikiMainPath::chooseSingleDate(vec, result);
+
+	BOOST_CHECK_EQUAL("BIRTH_DEATH", result.Description);
+}
+
+// BOOST_AUTO_TEST_CASE(empty_date_str_should_not_be_accepted)
+// {
+	// std::string empty_str = "";
+	// auto it = empty_str.cbegin();
+	
+	// WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_grammar;
+	// Date d;
+	// boost::spirit::qi::phrase_parse(it, empty_str.cend(), date_grammar, boost::spirit::qi::blank, d);
+// }
 
 // BOOST_DATA_TEST_CASE(
 	// extract_all_correct_dates_from_infobox,
