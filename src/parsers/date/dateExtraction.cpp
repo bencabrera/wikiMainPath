@@ -32,9 +32,9 @@ namespace WikiMainPath {
 		std::vector<InfoboxDateExtractionError> errors;
 		auto rtn = extractAllDatesFromInfobox(article_syntax, errors);
 
-		// for (auto err : errors) {
-			// std::cout << std::get<0>(err) << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
-		// }
+		for (auto err : errors) {
+			std::cout << std::get<0>(err) << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
+		}
 
 		return rtn;
 	}
