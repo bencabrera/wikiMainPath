@@ -30,14 +30,23 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	return rtn;
 }
 
-void printProgress(const std::map<std::string, std::size_t>& pageCounts, const std::string& path_str, std::size_t count)
+void printProgress(const std::map<std::string, std::size_t>& pageCounts, const std::string& path_str, std::size_t count, std::string article_title)
 {
 	boost::filesystem::path path(path_str);
 	auto it = pageCounts.find(path.filename().c_str());
+	std::cout << path.filename();
+	if(!article_title.empty())
+	{
+		std::cout << " [" << article_title << "]";
+	}
+	std::cout << ": ";
+
 	if(it != pageCounts.end())
-		std::cout << path.filename() << ": " << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
+	{
+		std::cout << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
+	}
 	else
-		std::cout << path.filename() << ": " << std::right << count << std::endl;
+		std::cout << std::right << count << std::endl;
 	std::cout.flush();
 }
 

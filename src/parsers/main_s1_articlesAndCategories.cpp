@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
 	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles_and_categories();
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1);
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 	parser_properties.ProgressReportInterval = 100;
 
 	WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([](){ return ArticleDatesAndCategoriesHandler(); }, parser_properties);
