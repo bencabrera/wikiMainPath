@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/trim.hpp>
 
 #include "dateStringGrammar.hpp"
+#include "wikiDateTemplateGrammar.hpp"
 #include "infoboxKeyValueGrammar.hpp"
 #include "../../core/adaptDate.h"
 
@@ -43,12 +44,42 @@ namespace WikiMainPath {
 		return key_values;
 	}
 
+	bool extractDateFromString(const std::string& str, Date& date)
+	{
+
+		bool found = false;
+		try{
+			WikiMainPath::WikiDateTemplateGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> wiki_date_template_grammar;
+			auto it = str.cbegin();
+			boost::spirit::qi::phrase_parse(it, str.cend(), wiki_date_template_grammar, boost::spirit::qi::blank, date);
+			found = it == str.cend();
+		}
+		catch(boost::spirit::qi::expectation_failure<std::string::const_iterator> e)
+		{
+			found = false;
+		}
+
+		if(!found)
+		{
+			try{
+				WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
+				auto it = str.cbegin();
+				boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, date);
+				found = it == str.cend();
+			}
+			catch(boost::spirit::qi::expectation_failure<std::string::const_iterator> e)
+			{
+				found = false;
+			}
+		}
+
+		return found;
+	}
+
 	// could add an error category if the descriptions don't match
 	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
 	{
 		std::vector<Date> rtn;
-
-		WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_grammar;
 
 		auto key_values = extractAllKeyValuesFromInfobox(article_syntax);
 		for (const auto& pair : key_values) {
@@ -56,16 +87,9 @@ namespace WikiMainPath {
 				continue;
 
 			Date d;
-			auto it = pair.second.cbegin();
 			auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);
 
-			try{
-				boost::spirit::qi::phrase_parse(it, pair.second.cend(), date_grammar, boost::spirit::qi::blank, d);
-			}
-			catch(boost::spirit::qi::expectation_failure<std::string::const_iterator> e)
-			{}
-
-			if(it != pair.second.cend())
+			if(extractDateFromString(pair.second,d))
 			{
 				// key of infobox key value pair indicates date, but could not be parsed
 				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())

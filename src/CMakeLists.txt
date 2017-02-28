@@ -36,6 +36,7 @@ set(PARSER_FILES
 	parsers/date/dateExtraction.cpp
 	parsers/date/infoboxDateExtraction.cpp
 	parsers/date/dateStringGrammar.cpp
+	parsers/date/wikiDateTemplateGrammar.cpp
 	# parsers/date/infoboxGrammar.cpp
 	parsers/date/infoboxKeyValueGrammar.cpp
 	parsers/s3_recursiveFillCategories.cpp
@@ -98,6 +99,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/date/datesFromInfoboxTests.cpp
 	parsers/tests/date/dateExtractionTests.cpp
 	parsers/tests/date/dateStringGrammarTests.cpp
+	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
 )
 
 add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})
