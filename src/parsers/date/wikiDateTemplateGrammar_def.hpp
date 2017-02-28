@@ -49,40 +49,7 @@ namespace WikiMainPath {
 				>> -('|' >> template_year_month_day [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1]) 
 				>> -(template_non_int_parameter % lit('|'))
 				>> *(char_ - '}')
-				>> lit("}}");
-
-			// old_new_template = 
-				// eps [at_c<0>(_val) = false] 
-				// >> lit("{{") 
-				// >> no_case[old_new_labels]
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> '|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] 
-				// >> -('|' >> (
-								// template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] 
-								// | *(char_ - '}')
-							// )
-					// ) 
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> lit("}}");
-
-			// new_old_template = 
-				// eps [at_c<0>(_val) = false] 
-				// >> lit("{{") 
-				// >> no_case[new_old_labels]
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> '|' >> template_year_month_day [at_c<2>(_val) = boost::spirit::_1] 
-				// >> -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1] | *(char_ - '}'))) 
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> lit("}}");
-
-			// type2_template = 
-				// eps [at_c<0>(_val) = false] 
-				// >> lit("{{") >> type1_string 
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> '|' >> template_year_month_day [at_c<1>(_val) = boost::spirit::_1] >> 
-				// -('|' >> (template_year_month_day [at_c<0>(_val) = true, at_c<2>(_val) = boost::spirit::_1] | *(char_ - '}' - eol))) 
-				// >> *(&template_non_int_parameter >> template_non_int_parameter) 
-				// >> lit("}}");
+				>> "}}";
 
 			start = 
 					*(!lit("{{") >> char_)
