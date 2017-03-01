@@ -19,33 +19,22 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
 
-#include "../../core/date.h"
-#include "../../core/adaptDate.h"
+#include "../../../core/date.h"
+#include "../../../core/adaptDate.h"
+#include "dateStringGrammar.hpp"
 
 namespace WikiMainPath {
 
 	template<typename Iterator, typename Skipper>
-		struct DateStringGrammar : boost::spirit::qi::grammar<Iterator, Date(), Skipper> {
-			DateStringGrammar();
-
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> template_year_month_day;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> type1_template;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> type2_template;
-			boost::spirit::qi::rule<Iterator, Skipper> type2_parameter;
+		struct WikiFuzzyDateTemplateGrammar : boost::spirit::qi::grammar<Iterator, std::pair<bool,Date>(), Skipper> {
+			WikiFuzzyDateTemplateGrammar();
 
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> fuzzy_template_dates;
-
-			boost::spirit::qi::symbols<char> type1_string;
 			boost::spirit::qi::symbols<char> fuzzy_template_names;
 
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> start;
-
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> day_month_year;
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> month_day_year;
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> year_month_day;
-
-			boost::spirit::qi::symbols<char,int> short_month_str;
-			boost::spirit::qi::symbols<char,int> long_month_str;
+			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
+	
+			DateStringGrammar<Iterator, Skipper> date_string_grammar;
 		};
 
 }

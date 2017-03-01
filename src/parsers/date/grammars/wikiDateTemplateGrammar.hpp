@@ -19,13 +19,13 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp>
 
-#include "../../core/date.h"
-#include "../../core/adaptDate.h"
+#include "../../../core/date.h"
+#include "../../../core/adaptDate.h"
 
 namespace WikiMainPath {
 
 	template<typename Iterator, typename Skipper>
-		struct WikiDateTemplateGrammar : boost::spirit::qi::grammar<Iterator, Date(), Skipper> {
+		struct WikiDateTemplateGrammar : boost::spirit::qi::grammar<Iterator, std::pair<bool,Date>(), Skipper> {
 			WikiDateTemplateGrammar();
 
 			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> template_year_month_day;
@@ -37,7 +37,7 @@ namespace WikiMainPath {
 			boost::spirit::qi::symbols<char> old_new_labels;
 			boost::spirit::qi::symbols<char> new_old_labels;
 
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> start;
+			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
 		};
 
 }

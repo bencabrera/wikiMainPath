@@ -10,9 +10,6 @@
 
 #include "../../../core/date.h"
 #include "../../date/dateExtraction.h"
-#include "../../date/dateStringGrammar.hpp"
-#include "../../date/infoboxGrammar.hpp"
-#include "../../date/infoboxKeyValueGrammar.hpp"
 
 BOOST_AUTO_TEST_SUITE(date_extraction_tests)
 

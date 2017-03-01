@@ -8,6 +8,7 @@
 
 #include "../../../core/date.h"
 #include "../../date/infoboxDateExtraction.h"
+#include "../../date/grammars/wikiDateTemplateGrammar.hpp"
 
 BOOST_AUTO_TEST_SUITE(wiki_date_template_grammar_tests)
 
@@ -17,10 +18,6 @@ std::vector<std::string> date_template_examples = {
 	"{{Age nts|1989|7|23|2003|7|14}}",
 	"{{Birth date|1993|2|4|mf=yes}}",
 	"{{Birth date|1993|2|4}}",
-	"{{start-date|7 December 1941}}",
-	"{{birth-date|7 December 1941}}",
-	"{{death-date|7 December 1941}}",
-	"{{end-date|7 December 1941}}",
 	"{{Death date|1993|2|4|df=yes}}",
 	"{{start date and age|df=yes|paren=yes|2016|12|19}}",
 	"{{start date and age|2016|12|19}}",
@@ -37,10 +34,6 @@ std::vector<Date> expected_template_dates = {
 	{true, {	   0,	   0,		 0,		23,		6,	  89 }, {	   0,	   0,		 0,		14,		6,	  103 }},
 	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
 	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
-	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
-	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
-	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
-	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
 	{false, {	   0,	   0,		 0,		4,		1,	  93 }, {}},
 	{false, {	   0,	   0,		 0,		19,		11,	  116 }, {}},
 	{false, {	   0,	   0,		 0,		19,		11,	  116 }, {}},
@@ -56,10 +49,14 @@ BOOST_DATA_TEST_CASE(
 )
 {
 	std::string str = date_str;
-	Date d;
-	auto date_was_extracted = WikiMainPath::extractDateFromString(str, d);
-	BOOST_CHECK(date_was_extracted);
-	BOOST_CHECK_EQUAL(expected_date, d);
+
+	WikiMainPath::WikiDateTemplateGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> wiki_date_template_grammar;
+	std::pair<bool, Date> p;
+	auto it = str.cbegin();
+	boost::spirit::qi::phrase_parse(it, str.cend(), wiki_date_template_grammar, boost::spirit::qi::blank, p);
+	bool was_extracted = p.first;
+	BOOST_CHECK(was_extracted);
+	BOOST_CHECK_EQUAL(expected_date, p.second);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

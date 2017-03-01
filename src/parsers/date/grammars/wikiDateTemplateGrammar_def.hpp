@@ -52,14 +52,14 @@ namespace WikiMainPath {
 				>> "}}";
 
 			start = 
-					*(!lit("{{") >> char_)
-					>> (
-						(&old_new_template >> old_new_template [_val = boost::spirit::_1])
-						| (&new_old_template >> new_old_template [_val = boost::spirit::_1])
-					);
+				eps [at_c<0>(_val) = false]
+				>> *(!lit("{{") >> char_)
+				>> (
+					(&old_new_template >> old_new_template [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
+					| (&new_old_template >> new_old_template [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
+				);
 
 
-			// BOOST_SPIRIT_DEBUG_NODE(template_non_int_parameter);
 			// BOOST_SPIRIT_DEBUG_NODE(template_year_month_day);
 		}
 

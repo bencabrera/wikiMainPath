@@ -35,10 +35,12 @@ set(PARSER_FILES
 	parsers/date/dateExtraction.h
 	parsers/date/dateExtraction.cpp
 	parsers/date/infoboxDateExtraction.cpp
-	parsers/date/dateStringGrammar.cpp
-	parsers/date/wikiDateTemplateGrammar.cpp
-	# parsers/date/infoboxGrammar.cpp
-	parsers/date/infoboxKeyValueGrammar.cpp
+
+	parsers/date/grammars/dateStringGrammar.cpp
+	parsers/date/grammars/wikiDateTemplateGrammar.cpp
+	parsers/date/grammars/wikiFuzzyDateTemplateGrammar.cpp
+	parsers/date/grammars/infoboxKeyValueGrammar.cpp
+
 	parsers/s3_recursiveFillCategories.cpp
 	parsers/s3_cycle_detector_visitor.cpp
 	parsers/shared.h
@@ -100,6 +102,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/date/dateExtractionTests.cpp
 	parsers/tests/date/dateStringGrammarTests.cpp
 	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
+	parsers/tests/date/wikiFuzzyDateTemplateGrammarTests.cpp
 )
 
 add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})

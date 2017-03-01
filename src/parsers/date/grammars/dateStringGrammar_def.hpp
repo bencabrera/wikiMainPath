@@ -11,23 +11,9 @@ namespace WikiMainPath {
 			using namespace boost::spirit::qi;
 			using namespace boost::phoenix;
 
-			// TODO: solve this with no_case
-			fuzzy_template_names = "Birth-date", "Death-date", "Start-date", "End-date", "birth-date", "birth date", "death-date", "death date", "start-date", "end-date", "birth date and age", "death date and age", "Birth date and age", "Death date and age";
-
-			template_year_month_day = int_ [at_c<0>(_val) = boost::spirit::_1 - 1900] >> '|' >> int_ [at_c<1>(_val) = boost::spirit::_1 - 1] >> '|' >> int_ [at_c<2>(_val) = boost::spirit::_1];
-
-			fuzzy_template_dates = eps [at_c<0>(_val) = false] >> lit("{{") >> fuzzy_template_names >> '|' >> (
-									(
-										 &day_month_year >> day_month_year [at_c<1>(_val) = boost::spirit::_1])
-										| (&month_day_year >> month_day_year [at_c<1>(_val) = boost::spirit::_1])
-										| (&year_month_day >> year_month_day [at_c<1>(_val) = boost::spirit::_1])
-									) >> *(char_ - '}') >> lit("}}");
-
-
 			start =	(&day_month_year >> day_month_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
 					| (&month_day_year >> month_day_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
-					| (&year_month_day >> year_month_day [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])
-					| (&fuzzy_template_dates >> fuzzy_template_dates [_val = boost::spirit::_1]);
+					| (&year_month_day >> year_month_day [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1]);
 
 			short_month_str.add
 				("Jan", 0)
@@ -63,18 +49,7 @@ namespace WikiMainPath {
 			year_month_day = int_ [at_c<0>(_val) = boost::spirit::_1 - 1900, _pass = boost::spirit::_1 > 1900] >> (long_month_str | short_month_str) [at_c<1>(_val) = boost::spirit::_1] >> int_ [at_c<2>(_val) = boost::spirit::_1, _pass = boost::spirit::_1 < 32];
 			month_day_year = (long_month_str | short_month_str ) [at_c<1>(_val) = boost::spirit::_1] >>  int_ [at_c<2>(_val) = boost::spirit::_1] >> char_(',') >> int_ [at_c<0>(_val) = boost::spirit::_1 - 1900];
 
-			// text = no_skip[*(char_ - '[' - '(')]  >> -(!(signature >> comment_ending) >> (char_('[')  | char_('(') )  >> text );
-			// indentation = eps [_val = 0] >> *(char_(':') [_val++]);
-			// start =  *eol >> indentation [at_c<3>(_val) = boost::spirit::qi::_1] >> text [at_c<0>(_val) = boost::spirit::_1] >> signature [at_c<1>(_val) = at_c<0>(boost::spirit::_1), at_c<2>(_val) = at_c<1>(boost::spirit::_1)];
-
-			// BOOST_SPIRIT_DEBUG_NODE(type2_parameter);
-			// BOOST_SPIRIT_DEBUG_NODE(type2_template);
-			// BOOST_SPIRIT_DEBUG_NODE(age);
-			// BOOST_SPIRIT_DEBUG_NODE(type1_string);
 			// BOOST_SPIRIT_DEBUG_NODE(start);
-			// BOOST_SPIRIT_DEBUG_NODE(start);
-
-			// start.name("CommentGrammar::Start");
 		}
 
 }

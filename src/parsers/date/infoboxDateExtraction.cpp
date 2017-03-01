@@ -2,9 +2,9 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
-#include "dateStringGrammar.hpp"
-#include "wikiDateTemplateGrammar.hpp"
-#include "infoboxKeyValueGrammar.hpp"
+#include "grammars/dateStringGrammar.hpp"
+#include "grammars/wikiDateTemplateGrammar.hpp"
+#include "grammars/infoboxKeyValueGrammar.hpp"
 #include "../../core/adaptDate.h"
 
 namespace WikiMainPath {
@@ -50,9 +50,15 @@ namespace WikiMainPath {
 		bool found = false;
 		try{
 			WikiMainPath::WikiDateTemplateGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> wiki_date_template_grammar;
+			std::pair<bool, Date> p;
 			auto it = str.cbegin();
-			boost::spirit::qi::phrase_parse(it, str.cend(), wiki_date_template_grammar, boost::spirit::qi::blank, date);
-			found = it == str.cend();
+			boost::spirit::qi::phrase_parse(it, str.cend(), wiki_date_template_grammar, boost::spirit::qi::blank, p);
+			if(p.first)
+			{
+				date = p.second;
+				found = true;
+			}
+			// found = it == str.cend();
 		}
 		catch(boost::spirit::qi::expectation_failure<std::string::const_iterator> e)
 		{
