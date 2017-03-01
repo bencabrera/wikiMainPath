@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
-#include "../date/dateExtraction.h"
+#include "../date/articleDateExtraction.h"
 
 ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler()
 :ExtractOnlyArticlesWithDates(true)

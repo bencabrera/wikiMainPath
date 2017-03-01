@@ -9,9 +9,9 @@
 #include <string>
 
 #include "../../../core/date.h"
-#include "../../date/dateExtraction.h"
+#include "../../date/articleDateExtraction.h"
 
-BOOST_AUTO_TEST_SUITE(date_extraction_tests)
+BOOST_AUTO_TEST_SUITE(article_date_extraction_tests)
 
 
 BOOST_AUTO_TEST_CASE(choosing_of_dates_should_use_hirachy)

@@ -14,7 +14,7 @@
 #include "../helpers/fileListDataset.hpp"
 #include "../../date/infoboxDateExtraction.h"
 
-BOOST_AUTO_TEST_SUITE(dates_from_infobox_tests)
+BOOST_AUTO_TEST_SUITE(infobox_date_extraction_tests)
 
 BOOST_DATA_TEST_CASE(
 	extract_all_dates_from_infobox_correctly,

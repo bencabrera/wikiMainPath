@@ -20,22 +20,20 @@ add_library(CoreLib SHARED ${CORE_FILES})
 
 # --- Parsers ---
 set(PARSER_FILES
-	parsers/wikiArticleHandlers/articleTitlesHandler.h
+	# handlers
 	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
-	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.h
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
-	parsers/wikiArticleHandlers/countArticleLengthsHandler.h
 	parsers/wikiArticleHandlers/countArticleLengthsHandler.cpp
-	parsers/wikiArticleHandlers/categoryHasArticleHandler.h
 	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
-	parsers/wikiArticleHandlers/categoryRecursiveHandler.h
 	parsers/wikiArticleHandlers/categoryRecursiveHandler.cpp
-	parsers/wikiArticleHandlers/linkExtractionHandler.h
 	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
-	parsers/date/dateExtraction.h
-	parsers/date/dateExtraction.cpp
-	parsers/date/infoboxDateExtraction.cpp
 
+	# date extraction
+	parsers/date/articleDateExtraction.cpp
+	parsers/date/infoboxDateExtraction.cpp
+	parsers/date/stringDateExtraction.cpp
+
+	# date grammars
 	parsers/date/grammars/dateStringGrammar.cpp
 	parsers/date/grammars/wikiDateTemplateGrammar.cpp
 	parsers/date/grammars/wikiFuzzyDateTemplateGrammar.cpp
@@ -98,8 +96,8 @@ set(PARSER_TEST_FILES
 	parsers/tests/articlesAndCategories/articleListTests.cpp
 	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
-	parsers/tests/date/datesFromInfoboxTests.cpp
-	parsers/tests/date/dateExtractionTests.cpp
+	parsers/tests/date/infoboxDateExtractionTests.cpp
+	parsers/tests/date/articleDateExtractionTests.cpp
 	parsers/tests/date/dateStringGrammarTests.cpp
 	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
 	parsers/tests/date/wikiFuzzyDateTemplateGrammarTests.cpp

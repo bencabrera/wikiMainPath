@@ -21,6 +21,5 @@ namespace WikiMainPath {
 
 	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax);
 	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors);
-	bool extractDateFromString(const std::string& str, Date& date);
 
 }

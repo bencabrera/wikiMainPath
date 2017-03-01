@@ -1,4 +1,4 @@
-#include "dateExtraction.h"
+#include "articleDateExtraction.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/regex.hpp>

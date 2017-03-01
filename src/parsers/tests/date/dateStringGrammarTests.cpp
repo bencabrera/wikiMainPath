@@ -7,7 +7,7 @@
 #include <boost/algorithm/string/trim.hpp>
 
 #include "../../../core/date.h"
-#include "../../date/infoboxDateExtraction.h"
+#include "../../date/grammars/dateStringGrammar.hpp"
 
 BOOST_AUTO_TEST_SUITE(date_string_grammar_tests)
 
@@ -26,9 +26,14 @@ BOOST_DATA_TEST_CASE(
 )
 {
 	std::string str = date_str;
+
+	WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
+
 	Date d;
-	auto date_was_extracted = WikiMainPath::extractDateFromString(str, d);
-	BOOST_CHECK(date_was_extracted);
+	auto it = str.cbegin();
+	boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, d);
+	bool was_extracted = it == str.cend();
+	BOOST_CHECK(was_extracted);
 	BOOST_CHECK_EQUAL(expected_date, d);
 }
 
