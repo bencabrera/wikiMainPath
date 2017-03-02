@@ -3,9 +3,11 @@
 #include <boost/algorithm/string/trim.hpp>
 
 #include "../date/articleDateExtraction.h"
+#include "../date/infoboxDateExtraction.h"
 
-ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler()
-:ExtractOnlyArticlesWithDates(true)
+ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler(std::ostream* report_ostr)
+:ExtractOnlyArticlesWithDates(true),
+_report_ostr(report_ostr)
 {}
 
 void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
@@ -26,10 +28,17 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 		}
 		else
 		{
-			Date dateObj;
-			if(WikiMainPath::extractDateFromArticle(data.Content, dateObj) || !ExtractOnlyArticlesWithDates)
+			std::vector<WikiMainPath::InfoboxDateExtractionError> errors;
+			auto extracted_dates = WikiMainPath::extract_all_dates_from_article(data.Content, errors);
+			if(extracted_dates.size() > 0 || !ExtractOnlyArticlesWithDates)
 			{
-				articles.insert({ title, dateObj });
+				articles.insert({ title, extracted_dates });
+			}
+
+			// report errors / mismatches
+			if(_report_ostr != nullptr) {
+				for (auto err : errors) 
+					*_report_ostr << WikiMainPath::InfoboxDateExtractionErrorLabel[std::get<0>(err)] << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
 			}
 		}
 	}

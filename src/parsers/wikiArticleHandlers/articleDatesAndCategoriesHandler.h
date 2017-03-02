@@ -9,16 +9,16 @@
 
 class ArticleDatesAndCategoriesHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
-		ArticleDatesAndCategoriesHandler();
+		ArticleDatesAndCategoriesHandler(std::ostream* report_ostr = nullptr);
 
 		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
-		std::map<std::string, Date> articles;
+		std::map<std::string, std::vector<Date>> articles;
 		std::vector<std::string> categories;
 		std::map<std::string, std::string> redirects;
 
-		std::vector<std::pair<std::string, std::string>> date_but_no_key; 
-		std::vector<std::pair<std::string, std::string>> key_but_no_date;
-
 		bool ExtractOnlyArticlesWithDates;
+
+	private:
+		std::ostream* _report_ostr;
 };

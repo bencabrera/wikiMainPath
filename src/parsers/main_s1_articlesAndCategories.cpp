@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 	// terminate xerces
 	xercesc::XMLPlatformUtils::Terminate();
 
-	std::map<std::string,Date> articlesWithDates;
+	std::map<std::string,std::vector<Date>> articlesWithDates;
 	std::vector<std::string> categories;
 	std::map<std::string,std::string> redirects;
 
@@ -146,7 +146,10 @@ int main(int argc, char* argv[])
 	for(auto article : articlesWithDates)
 	{
 		articles_file << article.first << std::endl;
-		dates_file << Date::serialize(article.second) << std::endl;
+		for (auto date : article.second) {
+			dates_file << Date::serialize(date) << '\t';
+		}
+		dates_file << std::endl;
 	}
 
 	std::ofstream categories_file((outputFolder / CATEGORIES_FILE).string());	

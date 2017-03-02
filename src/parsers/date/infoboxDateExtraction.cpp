@@ -7,21 +7,65 @@
 
 namespace WikiMainPath {
 
-	const std::map<std::string, std::string> INFOBOX_KEY_TO_DATE_TYPE = {
-		{ "date", "GENERAL_DATE" },
-		{ "born", "BIRTH" },
-		{ "birth", "BIRTH" },
-		{ "birthdate", "BIRTH" },
-		{ "birth_date", "BIRTH" },
-		{ "birthday", "BIRTH" },
-		{ "death", "DEATH" },
-		{ "died", "DEATH" },
-		{ "deathdate", "DEATH" },
-		{ "death_date", "DEATH" },
-		{ "deathday", "DEATH" }
-	};
+	// const std::map<std::string, std::string> INFOBOX_KEY_TO_DATE_TYPE = {
+		// { "date", "GENERAL_DATE" },
+		// { "born", "BIRTH" },
+		// { "birth", "BIRTH" },
+		// { "birthdate", "BIRTH" },
+		// { "birth_date", "BIRTH" },
+		// { "birthday", "BIRTH" },
+		// { "death", "DEATH" },
+		// { "died", "DEATH" },
+		// { "deathdate", "DEATH" },
+		// { "death_date", "DEATH" },
+		// { "deathday", "DEATH" }
+	// };
+	//
+	// could add an error category if the descriptions don't match
+	// std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
+	// {
+		// std::vector<Date> rtn;
 
-	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax)
+		// auto key_values = extractAllKeyValuesFromInfobox(article_syntax);
+		// for (const auto& pair : key_values) {
+			// if(pair.second.empty())
+				// continue;
+
+			// Date d;
+			// auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);
+
+			// if(!extractDateFromString(pair.second,d))
+			// {
+				// // date could NOT be parsed
+				
+				// // key of infobox key value pair indicates date, but could not be parsed
+				// if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
+					// errors.push_back({ KEY_BUT_NO_DATE_TEMPLATE, std::get<0>(pair), std::get<1>(pair) });
+			// } 
+			// else 
+			// {
+				// // date could be parsed
+				// if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
+				// {
+					// if(date_key_it->second != d.Description)
+					// {
+						// // key indicated date, could be parsed, but the date types did not match
+						// errors.push_back({ KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING, std::get<0>(pair), std::get<1>(pair) });
+					// }
+
+					// d.Description = date_key_it->second;
+					// rtn.push_back(d);
+				// } else {
+					// // a date could be parsed, but key did not indicate a date
+					// errors.push_back({ DATE_TEMPLATE_BUT_NO_DATE_KEY, std::get<0>(pair), std::get<1>(pair) });
+				// }
+			// }
+		// }
+
+		// return rtn;
+	// }
+
+	std::vector<std::pair<std::string, std::string>> extract_all_key_values_from_infobox(const std::string& article_syntax)
 	{
 		std::vector<std::pair<std::string, std::string>> key_values;
 		auto it = article_syntax.cbegin();
@@ -43,43 +87,37 @@ namespace WikiMainPath {
 	}
 
 	// could add an error category if the descriptions don't match
-	std::vector<Date> extractAllDatesFromInfobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
+	std::vector<Date> extract_all_dates_from_infobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
 	{
 		std::vector<Date> rtn;
 
-		auto key_values = extractAllKeyValuesFromInfobox(article_syntax);
+		auto key_values = extract_all_key_values_from_infobox(article_syntax);
 		for (const auto& pair : key_values) {
 			if(pair.second.empty())
 				continue;
 
 			Date d;
-			auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);
+			auto date_key_it = InfoboxExpectedDateKeys.find(pair.first);
 
 			if(!extractDateFromString(pair.second,d))
 			{
-				// date could NOT be parsed
+				// date COULD NOT be parsed
 				
 				// key of infobox key value pair indicates date, but could not be parsed
-				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
-					errors.push_back({ KEY_BUT_NO_DATE_TEMPLATE, std::get<0>(pair), std::get<1>(pair) });
+				if(date_key_it != InfoboxExpectedDateKeys.end())
+					errors.push_back({ KEY_BUT_NO_DATE_EXTRACTED, std::get<0>(pair), std::get<1>(pair) });
 			} 
 			else 
 			{
-				// date could be parsed
-				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
+				// date COULD be parsed
+				if(date_key_it == InfoboxExpectedDateKeys.end())
 				{
-					if(date_key_it->second != d.Description)
-					{
-						// key indicated date, could be parsed, but the date types did not match
-						errors.push_back({ KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING, std::get<0>(pair), std::get<1>(pair) });
-					}
-
-					d.Description = date_key_it->second;
-					rtn.push_back(d);
-				} else {
 					// a date could be parsed, but key did not indicate a date
-					errors.push_back({ DATE_TEMPLATE_BUT_NO_DATE_KEY, std::get<0>(pair), std::get<1>(pair) });
+					errors.push_back({ DATE_EXTRACTED_BUT_NO_KEY, std::get<0>(pair), std::get<1>(pair) });
 				}
+
+				d.Description = pair.first;
+				rtn.push_back(d);
 			}
 		}
 

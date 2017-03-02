@@ -21,7 +21,7 @@ add_library(CoreLib SHARED ${CORE_FILES})
 # --- Parsers ---
 set(PARSER_FILES
 	# handlers
-	parsers/wikiArticleHandlers/articleTitlesHandler.cpp
+	# parsers/wikiArticleHandlers/articleTitlesHandler.cpp
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
 	parsers/wikiArticleHandlers/countArticleLengthsHandler.cpp
 	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
