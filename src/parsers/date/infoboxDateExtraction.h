@@ -17,6 +17,12 @@ namespace WikiMainPath {
 		KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING
 	};
 
+	const std::vector<std::string> InfoboxDateExtractionErrorLabel = {
+		"DATE_TEMPLATE_BUT_NO_DATE_KEY",
+		"KEY_BUT_NO_DATE_TEMPLATE",
+		"KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING"
+	};
+
 	using InfoboxDateExtractionError = std::tuple<InfoboxDateExtractionErrorType, std::string, std::string>;
 
 	std::vector<std::pair<std::string, std::string>> extractAllKeyValuesFromInfobox(const std::string& article_syntax);

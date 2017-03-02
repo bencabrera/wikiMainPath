@@ -31,7 +31,8 @@ namespace WikiMainPath {
 		auto rtn = extractAllDatesFromInfobox(article_syntax, errors);
 
 		for (auto err : errors) {
-			std::cout << std::get<0>(err) << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
+			if(std::get<0>(err) != KEY_AND_DATE_TEMPLATE_TYPES_NOT_MATCHING)
+				std::cout << InfoboxDateExtractionErrorLabel[std::get<0>(err)] << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
 		}
 
 		return rtn;

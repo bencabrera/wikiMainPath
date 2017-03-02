@@ -55,13 +55,17 @@ namespace WikiMainPath {
 			Date d;
 			auto date_key_it = INFOBOX_KEY_TO_DATE_TYPE.find(pair.first);
 
-			if(extractDateFromString(pair.second,d))
+			if(!extractDateFromString(pair.second,d))
 			{
+				// date could NOT be parsed
+				
 				// key of infobox key value pair indicates date, but could not be parsed
 				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
 					errors.push_back({ KEY_BUT_NO_DATE_TEMPLATE, std::get<0>(pair), std::get<1>(pair) });
-				continue;
-			} else {
+			} 
+			else 
+			{
+				// date could be parsed
 				if(date_key_it != INFOBOX_KEY_TO_DATE_TYPE.end())
 				{
 					if(date_key_it->second != d.Description)
