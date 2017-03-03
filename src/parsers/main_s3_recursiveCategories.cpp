@@ -23,7 +23,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
-
 // local files
 #include "shared.h"
 #include "s3_recursiveFillCategories.h"
@@ -33,6 +32,9 @@
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 
+// shared library
+#include "../../libs/shared/cpp/stepTimer.hpp"
+
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -40,43 +42,11 @@ using namespace WikiMainPath;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
 
-// std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
-// {
-	// std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
-	// std::ifstream categories_has_article_file((inputFolder / CAT_HAS_ARTICLE_FILE).string());	
-		
-	// std::string line;
-	// while(std::getline(categories_file, line))
-	// {
-		// boost::trim(line);
-		// categories.push_back(line);
-	// }
-
-	// std::vector<boost::container::flat_set<std::size_t>> rtn(categories.size());
-	// std::size_t iCategory = 0;
-	// while(std::getline(categories_has_article_file, line))
-	// {
-		// std::stringstream ss(line);
-		// std::string tmp;
-		// while(!ss.eof())
-		// {
-			// ss >> tmp;
-			// boost::trim(tmp);
-
-			// if(tmp != "")
-				// rtn[iCategory].insert(std::stoi(tmp));
-		// }
-
-		// iCategory++;
-	// }
-	// return rtn;
-// }
-
 int main(int argc, char* argv[])
 {
 	// setup timings stuff
-	auto globalStartTime = std::chrono::steady_clock::now();
-	std::vector<std::pair<std::string, double>> timings;
+	Shared::StepTimer timer;
+	timer.start_timing_step("global","Total");
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -131,20 +101,11 @@ int main(int argc, char* argv[])
 			xmlFileList.push_back(dir_it->path());
 	}
 
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Reading in already parsed files... " << std::endl;
-	auto startTime = std::chrono::steady_clock::now();
-	
+	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	const auto& categories = wiki_data_cache.category_titles();
 	auto category_has_article = wiki_data_cache.category_has_article_set(); // make copy of it
-	// auto category_has_article = readDataFromFile(inputArticleFolder, categories);	
-
-	auto endTime = std::chrono::steady_clock::now();
-	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Reading in already parsed files...", diff });
-
-
+	timer.stop_timing_step("reading");
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following .xml files: " << std::endl;
@@ -156,10 +117,7 @@ int main(int argc, char* argv[])
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
-
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Parsing .xml files" << std::endl;
-	startTime = std::chrono::steady_clock::now();
+	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
 
 	VectorMutex<1000> vecMutex;
 	Graph graph(categories.size());
@@ -182,47 +140,22 @@ int main(int argc, char* argv[])
 	// terminate xerces
 	xercesc::XMLPlatformUtils::Terminate();
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Parsing .xml files.", diff });
+	timer.stop_timing_step("parsing");
 
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Running over graph and adding categories recursively" << std::endl;
-	startTime = std::chrono::steady_clock::now();
-
+	timer.start_timing_step("recursive", "Running over graph and adding categories recursively", &std::cout);
 	recursiveFillCategories(graph, category_has_article);	
+	timer.stop_timing_step("recursive");
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Running over graph and adding categories recursively", diff });
-
-	startTime = std::chrono::steady_clock::now();
-
+	timer.start_timing_step("output", "Writing output files", &std::cout);
 	wiki_data_cache.write_category_has_article(category_has_article);
+	timer.stop_timing_step("output");
 
-	// std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
-	// for(std::size_t i = 0; i < category_has_article.size(); i++)
-	// {
-		// for (auto art : category_has_article[i]) 
-			// catArtFile << art << " ";	
-		// catArtFile << std::endl;
-	// }
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Writing output files", diff });
-
-	xercesc::XMLPlatformUtils::Terminate();
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
-	timings.push_back({ "Total", diff });
+	timer.stop_timing_step("global");
 
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
-	for(auto timing : timings)
-		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+	timer.print_timings(std::cout);
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

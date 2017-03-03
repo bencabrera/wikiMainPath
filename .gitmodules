@@ -7,3 +7,6 @@
 [submodule "libs/main_path_analysis"]
 	path = libs/main_path_analysis
 	url = git@github.com:Ace7k3/main_path_analysis.git
+[submodule "libs/shared"]
+	path = libs/shared
+	url = git@github.com:Ace7k3/shared.git

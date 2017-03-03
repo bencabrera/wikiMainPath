@@ -19,8 +19,6 @@
 
 // local files
 #include "shared.h"
-// #include "parserWrappers/s1_wrapper.h"
-// #include "fileNames.h"
 #include "../core/wikiDataCache.h"
 
 // wiki xml dump lib
@@ -28,6 +26,9 @@
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
+
+// shared library
+#include "../../libs/shared/cpp/stepTimer.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -38,8 +39,8 @@ int main(int argc, char* argv[])
 	using namespace WikiMainPath;
 
 	// setup timings stuff
-	auto globalStartTime = std::chrono::steady_clock::now();
-	std::vector<std::pair<std::string, double>> timings;
+	Shared::StepTimer timer;
+	timer.start_timing_step("global","Total");
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
 
-	auto startTime = std::chrono::steady_clock::now();
+	timer.start_timing_step("parsing", "Parsing .xml files and merging data structures.", &std::cout);
 
 	// init xerces
 	xercesc::XMLPlatformUtils::Initialize();
@@ -128,20 +129,15 @@ int main(int argc, char* argv[])
 		redirects.insert(hand.redirects.begin(), hand.redirects.end());
 	}
 
-	auto endTime = std::chrono::steady_clock::now();
-	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Parsing .xml files and merging data structures.", diff });
+	timer.stop_timing_step("parsing");
 
 
-	startTime = std::chrono::steady_clock::now();
-	
+	timer.start_timing_step("sorting", "Sorting categories vector", &std::cout);
 	std::sort(categories.begin(), categories.end());
+	timer.stop_timing_step("sorting");
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Sorting categories vector.", diff });
 
-	startTime = std::chrono::steady_clock::now();
+	timer.start_timing_step("output", "Writing output files", &std::cout);
 
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	wiki_data_cache.write_article_titles(articlesWithDates);
@@ -149,14 +145,9 @@ int main(int argc, char* argv[])
 	wiki_data_cache.write_article_dates(articlesWithDates);
 	wiki_data_cache.write_redirects(redirects);
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Writing output files", diff });
+	timer.stop_timing_step("output");
 
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
-	timings.push_back({ "Total", diff });
+	timer.stop_timing_step("global");
 	
 	// short feedback to user
 	std::size_t totalArticleNumber = 0;
@@ -175,8 +166,7 @@ int main(int argc, char* argv[])
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
-	for(auto timing : timings)
-		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+	timer.print_timings(std::cout);
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

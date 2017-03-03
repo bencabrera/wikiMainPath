@@ -23,11 +23,12 @@
 #include "shared.h"
 #include "../core/wikiDataCache.h"
 
-
 #include "wikiArticleHandlers/linkExtractionHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 
+// shared library
+#include "../../libs/shared/cpp/stepTimer.hpp"
 
 
 namespace po = boost::program_options;
@@ -38,8 +39,8 @@ using namespace WikiMainPath;
 int main(int argc, char* argv[])
 {
 	// setup timings stuff
-	auto globalStartTime = std::chrono::steady_clock::now();
-	std::vector<std::pair<std::string, double>> timings;
+	Shared::StepTimer timer;
+	timer.start_timing_step("global","Total");
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -89,18 +90,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Reading in already parsed files... " << std::endl;
-	auto startTime = std::chrono::steady_clock::now();
 
+	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	const auto& articles = wiki_data_cache.article_titles();
 	const auto& dates = wiki_data_cache.article_dates();
 	const auto& redirects = wiki_data_cache.redirects();
-
-	auto endTime = std::chrono::steady_clock::now();
-	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Reading in already parsed files...", diff });
+	timer.stop_timing_step("reading");
 
 	// initialize xerces
 	xercesc::XMLPlatformUtils::Initialize();
@@ -121,9 +117,7 @@ int main(int argc, char* argv[])
 		paths.push_back(el.string());
 	}
 
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Parsing .xml files" << std::endl;
-	startTime = std::chrono::steady_clock::now();
+	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
 
 	VectorMutex<1000> vecMutex;
 	std::vector<boost::container::flat_set<std::size_t>> adjList(articles.size());
@@ -164,47 +158,19 @@ int main(int argc, char* argv[])
 	// terminate xerces
 	xercesc::XMLPlatformUtils::Terminate();
 
-	// std::vector<LinkExtractionHandler> handlers;
-	// std::vector<std::future<void>> futures;
-	// for(std::size_t i = 0; i < xmlFileList.size(); i++)
-	// {
-		// auto xmlPath = xmlFileList[i];
-		// //handlers.emplace_back(LinkExtractionHandler(articles, dates, redirects, adjList, vecMutex)); 
-		// S4ParserWrapper wrapper(xmlPath, pageCounts, articles, dates, redirects, adjList, vecMutex);
-		// wrapper.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
-		// {
-			// return dates[art1] < dates[art2];
-		// };
-		// futures.emplace_back(std::async(std::launch::async, wrapper));
-	// }
-
-	// for (auto& fut : futures) 
-		// fut.get();	
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Parsing .xml files.", diff });
+	timer.stop_timing_step("parsing");
 	
 
-	startTime = std::chrono::steady_clock::now();
-
+	timer.start_timing_step("output", "Writing output files", &std::cout);
 	wiki_data_cache.write_article_network(adjList);
+	timer.stop_timing_step("output");
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Writing output files", diff });
-
-	xercesc::XMLPlatformUtils::Terminate();
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
-	timings.push_back({ "Total", diff });
+	timer.stop_timing_step("global");
 	
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
-	for(auto timing : timings)
-		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+	timer.print_timings(std::cout);
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 

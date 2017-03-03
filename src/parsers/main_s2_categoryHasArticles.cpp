@@ -28,6 +28,9 @@
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 
+// shared library
+#include "../../libs/shared/cpp/stepTimer.hpp"
+
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -36,8 +39,8 @@ using namespace WikiMainPath;
 int main(int argc, char* argv[])
 {
 	// setup timings stuff
-	auto globalStartTime = std::chrono::steady_clock::now();
-	std::vector<std::pair<std::string, double>> timings;
+	Shared::StepTimer timer;
+	timer.start_timing_step("global","Total");
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -92,19 +95,11 @@ int main(int argc, char* argv[])
 			xmlFileList.push_back(dir_it->path());
 	}
 
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Reading in already parsed files... " << std::endl;
-	auto startTime = std::chrono::steady_clock::now();
-	
+	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	const auto& articles = wiki_data_cache.article_titles();
 	const auto& categories = wiki_data_cache.category_titles();
-
-	auto endTime = std::chrono::steady_clock::now();
-	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Reading in already parsed files...", diff });
-
-
+	timer.stop_timing_step("reading");
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following .xml files: " << std::endl;
@@ -116,10 +111,7 @@ int main(int argc, char* argv[])
 	}
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
-
-	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Parsing .xml files" << std::endl;
-	startTime = std::chrono::steady_clock::now();
+	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
 
 	VectorMutex<1000> vecMutex;
 	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle(categories.size());
@@ -152,36 +144,19 @@ int main(int argc, char* argv[])
 	// terminate xerces
 	xercesc::XMLPlatformUtils::Terminate();
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Parsing .xml files.", diff });
+	timer.stop_timing_step("parsing");
 
-	startTime = std::chrono::steady_clock::now();
 
+	timer.start_timing_step("output", "Writing output files", &std::cout);
 	wiki_data_cache.write_category_has_article(categoryHasArticle);
-	// std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
-	// for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
-	// {
-		// for (auto art : categoryHasArticle[i]) 
-			// catArtFile << art << " ";	
-		// catArtFile << std::endl;
-	// }
+	timer.stop_timing_step("output");
 
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
-	timings.push_back({ "Writing output files", diff });
-
-	xercesc::XMLPlatformUtils::Terminate();
-
-	endTime = std::chrono::steady_clock::now();
-	diff = std::chrono::duration<double, std::milli>(endTime-globalStartTime).count();
-	timings.push_back({ "Total", diff });
+	timer.stop_timing_step("global");
 	
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;
-	for(auto timing : timings)
-		std::cout << std::left << std::setw(50) << timing.first + ": " << timingToReadable(timing.second) << std::endl;
+	timer.print_timings(std::cout);
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 
