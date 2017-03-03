@@ -11,6 +11,7 @@ find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options gr
 # --- Core library ---
 set(CORE_FILES
 	core/date.cpp
+	core/wikiDataCache.cpp
 )
 
 add_library(CoreLib SHARED ${CORE_FILES})
