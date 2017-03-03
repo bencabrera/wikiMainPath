@@ -33,24 +33,20 @@ class WikiDataCache {
 		const std::vector<std::vector<Date>>& article_dates();
 		const std::vector<std::vector<std::size_t>>& category_has_article();
 		const ArticleNetwork& article_network();
-
 		const std::vector<std::string>& event_titles();
 		const std::vector<std::vector<std::size_t>>& category_has_event();
 		const EventNetwork& event_network();
 
-
 		// file writer methods
-		void write_article_titles(const std::vector<std::string>& var);
-		void write_category_titles(const std::vector<std::string>& var);
-		void write_redirects(const std::map<std::string,std::string>& var);
-		void write_article_dates(const std::vector<Date>& var);
+		void write_article_titles(const std::map<std::string,std::vector<Date>>& articles_with_dates);
+		void write_category_titles(const std::vector<std::string>& categories);
+		void write_redirects(std::map<std::string,std::string> redirects);
+		void write_article_dates(const std::map<std::string,std::vector<Date>>& articles_with_dates);
 		void write_category_has_article(const std::vector<std::vector<std::size_t>>& var);
-		void write_article_network(const ArticleNetwork& var);
-
-		void write_event_titles(const std::vector<std::string>& var);
-		void write_category_has_event(const std::vector<std::vector<std::size_t>>& var);
-		void write_event_network(const ArticleNetwork& var);
-
+		void write_article_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
+		void write_event_titles(const std::vector<std::string>& event_titles);
+		void write_category_has_event(const std::vector<std::vector<std::size_t>>& cat_has_art);
+		void write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
 
 	private:
 		boost::filesystem::path _folder;

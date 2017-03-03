@@ -293,3 +293,92 @@ std::unique_ptr<ArticleNetwork> WikiDataCache::read_event_network(std::string ev
 
 	return graph;
 }
+
+
+
+// file writer methods
+void WikiDataCache::write_article_titles(const std::map<std::string,std::vector<Date>>& articles_with_dates)
+{
+	std::ofstream articles_file((_folder / ARTICLES_TITLES_FILE).string());	
+	for(auto article : articles_with_dates)
+		articles_file << article.first << std::endl;
+}
+
+void WikiDataCache::write_category_titles(const std::vector<std::string>& categories)
+{
+	std::ofstream file((_folder / CATEGORIES_TITLES_FILE).string());	
+	for(auto title : categories)
+		file << title << std::endl;
+}
+
+void WikiDataCache::write_redirects(std::map<std::string,std::string> redirects)
+{
+	std::ofstream redirects_file((_folder / REDIRECTS_FILE).string());	
+	for (auto redirect : redirects) 
+		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
+}
+
+void WikiDataCache::write_article_dates(const std::map<std::string,std::vector<Date>>& articles_with_dates)
+{
+	std::ofstream article_dates_file((_folder / ARTICLE_DATES_FILE).string());	
+	for(auto article : articles_with_dates)
+	{
+		for (auto date : article.second) {
+			article_dates_file << Date::serialize(date) << '\t';
+		}
+		article_dates_file << std::endl;
+	}
+}
+
+void WikiDataCache::write_category_has_article(const std::vector<std::vector<std::size_t>>& cat_has_art)
+{
+	std::ofstream catArtFile((_folder / CAT_HAS_ARTICLE_FILE).string());	
+	for(std::size_t i = 0; i < cat_has_art.size(); i++)
+	{
+		for (auto art : cat_has_art[i]) 
+			catArtFile << art << " ";	
+		catArtFile << std::endl;
+	}
+}
+
+void WikiDataCache::write_article_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list)
+{
+	std::ofstream graphFile((_folder / ARTICLE_NETWORK_FILE).string());	
+	for (auto arts : adj_list) 
+	{
+		for (auto art : arts) 
+			graphFile << art << " ";
+			
+		graphFile << std::endl;
+	}
+}
+
+void WikiDataCache::write_event_titles(const std::vector<std::string>& event_titles)
+{
+	std::ofstream articles_file((_folder / EVENT_TITLES_FILE).string());	
+	for(auto title : event_titles)
+		articles_file << title << std::endl;
+}
+
+void WikiDataCache::write_category_has_event(const std::vector<std::vector<std::size_t>>& cat_has_art)
+{
+	std::ofstream cat_has_event_file((_folder / CAT_HAS_EVENT_FILE).string());	
+	for(std::size_t i = 0; i < cat_has_art.size(); i++)
+	{
+		for (auto art : cat_has_art[i]) 
+			cat_has_event_file << art << " ";	
+		cat_has_event_file << std::endl;
+	}
+}
+
+void WikiDataCache::write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list)
+{
+	std::ofstream graphFile((_folder / EVENT_NETWORK_FILE).string());	
+	for (auto arts : adj_list) 
+	{
+		for (auto art : arts) 
+			graphFile << art << " ";
+			
+		graphFile << std::endl;
+	}
+}
