@@ -21,7 +21,7 @@
 
 // local files
 #include "shared.h"
-#include "fileNames.h"
+#include "../core/wikiDataCache.h"
 
 // wiki xml dump lib
 #include "wikiArticleHandlers/categoryHasArticleHandler.h"
@@ -32,28 +32,6 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 using namespace WikiMainPath;
-
-void readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<std::string>& categories)
-{
-	std::ifstream articles_file((inputFolder / ARTICLES_FILE).string());	
-	std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
-		
-	std::string line;
-	while(std::getline(articles_file, line))
-	{
-		std::istringstream ss(line);
-		std::string title, dateStr;
-		std::getline(ss, title, '\t');
-		std::getline(ss, dateStr, '\t');
-		articles.push_back(title);
-	}			
-
-	while(std::getline(categories_file, line))
-	{
-		boost::trim(line);
-		categories.push_back(line);
-	}
-}
 
 int main(int argc, char* argv[])
 {
@@ -118,9 +96,9 @@ int main(int argc, char* argv[])
 	std::cout << "Reading in already parsed files... " << std::endl;
 	auto startTime = std::chrono::steady_clock::now();
 	
-	std::vector<std::string> articles;
-	std::vector<std::string> categories;
-	readDataFromFile(inputArticleFolder, articles, categories);	
+	WikiDataCache wiki_data_cache(outputFolder.string());
+	const auto& articles = wiki_data_cache.article_titles();
+	const auto& categories = wiki_data_cache.category_titles();
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -164,7 +142,7 @@ int main(int argc, char* argv[])
 				);
 	};
 		
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
 	WikiXmlDumpXerces::ParallelParser<CategoryHasArticleHandler> parser([&articles, &categories, &categoryHasArticle, &vecMutex](){ 
 		return CategoryHasArticleHandler(articles, categories, categoryHasArticle, vecMutex); 
@@ -179,13 +157,15 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Parsing .xml files.", diff });
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
-	for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
-	{
-		for (auto art : categoryHasArticle[i]) 
-			catArtFile << art << " ";	
-		catArtFile << std::endl;
-	}
+
+	wiki_data_cache.write_category_has_article(categoryHasArticle);
+	// std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
+	// for(std::size_t i = 0; i < categoryHasArticle.size(); i++)
+	// {
+		// for (auto art : categoryHasArticle[i]) 
+			// catArtFile << art << " ";	
+		// catArtFile << std::endl;
+	// }
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

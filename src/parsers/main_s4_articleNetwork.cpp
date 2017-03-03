@@ -21,7 +21,7 @@
 // local files
 #include "../core/date.h"
 #include "shared.h"
-#include "fileNames.h"
+#include "../core/wikiDataCache.h"
 
 
 #include "wikiArticleHandlers/linkExtractionHandler.h"
@@ -34,35 +34,6 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 using namespace WikiMainPath;
-
-void readDataFromFile (const fs::path& inputFolder, std::vector<std::string>& articles, std::vector<Date>& dates, std::map<std::string, std::string>& redirects)
-{
-	std::ifstream articles_file((inputFolder / ARTICLES_FILE).string());	
-	std::ifstream dates_file((inputFolder / ARTICLE_DATES_FILE).string());	
-	std::ifstream redirects_file((inputFolder / REDIRECTS_FILE).string());	
-		
-	std::string line;
-	while(std::getline(articles_file, line))
-	{
-		articles.push_back(line);
-	}			
-
-	while(std::getline(dates_file, line))
-	{
-		dates.push_back(Date::deserialize(line));
-	}			
-
-	while(std::getline(redirects_file, line))
-	{
-		std::istringstream ss(line);
-		std::string sourceTitle, targetTitle;
-		std::getline(ss, sourceTitle, '\t');
-		std::getline(ss, targetTitle, '\t');
-		redirects.insert({ sourceTitle, targetTitle });
-	}
-}
-
-
 
 int main(int argc, char* argv[])
 {
@@ -122,11 +93,10 @@ int main(int argc, char* argv[])
 	std::cout << "Reading in already parsed files... " << std::endl;
 	auto startTime = std::chrono::steady_clock::now();
 
-	std::vector<std::string> articles;
-	std::vector<Date> dates;
-	std::map<std::string, std::string> redirects;
-
-	readDataFromFile(inputArticleFolder, articles, dates, redirects);
+	WikiDataCache wiki_data_cache(outputFolder.string());
+	const auto& articles = wiki_data_cache.article_titles();
+	const auto& dates = wiki_data_cache.article_dates();
+	const auto& redirects = wiki_data_cache.redirects();
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -177,7 +147,7 @@ int main(int argc, char* argv[])
 				);
 	};
 		
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
 	WikiXmlDumpXerces::ParallelParser<LinkExtractionHandler> parser([&articles, &redirects, &adjList, &vecMutex, &dates](){ 
 		auto handler = LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
@@ -218,14 +188,7 @@ int main(int argc, char* argv[])
 
 	startTime = std::chrono::steady_clock::now();
 
-	std::ofstream graphFile((outputFolder / ARTICLE_NETWORK_FILE).string());	
-	for (auto arts : adjList) 
-	{
-		for (auto art : arts) 
-			graphFile << art << " ";
-			
-		graphFile << std::endl;
-	}
+	wiki_data_cache.write_article_network(adjList);
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

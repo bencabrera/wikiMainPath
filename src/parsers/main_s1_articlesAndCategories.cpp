@@ -20,7 +20,8 @@
 // local files
 #include "shared.h"
 // #include "parserWrappers/s1_wrapper.h"
-#include "fileNames.h"
+// #include "fileNames.h"
+#include "../core/wikiDataCache.h"
 
 // wiki xml dump lib
 #include "wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
@@ -141,24 +142,12 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Sorting categories vector.", diff });
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream articles_file((outputFolder / ARTICLES_FILE).string());	
-	std::ofstream dates_file((outputFolder / ARTICLE_DATES_FILE).string());	
-	for(auto article : articlesWithDates)
-	{
-		articles_file << article.first << std::endl;
-		for (auto date : article.second) {
-			dates_file << Date::serialize(date) << '\t';
-		}
-		dates_file << std::endl;
-	}
 
-	std::ofstream categories_file((outputFolder / CATEGORIES_FILE).string());	
-	for(auto cat : categories)
-		categories_file << cat << std::endl;
-
-	std::ofstream redirects_file((outputFolder / REDIRECTS_FILE).string());	
-	for (auto redirect : redirects) 
-		redirects_file << redirect.first << "\t" << redirect.second << std::endl;	
+	WikiDataCache wiki_data_cache(outputFolder.string());
+	wiki_data_cache.write_article_titles(articlesWithDates);
+	wiki_data_cache.write_category_titles(categories);
+	wiki_data_cache.write_article_dates(articlesWithDates);
+	wiki_data_cache.write_redirects(redirects);
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();

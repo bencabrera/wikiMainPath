@@ -27,7 +27,7 @@
 // local files
 #include "shared.h"
 #include "s3_recursiveFillCategories.h"
-#include "fileNames.h"
+#include "../core/wikiDataCache.h"
 
 #include "wikiArticleHandlers/categoryRecursiveHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
@@ -40,37 +40,37 @@ using namespace WikiMainPath;
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> Graph;
 
-std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
-{
-	std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
-	std::ifstream categories_has_article_file((inputFolder / CAT_HAS_ARTICLE_FILE).string());	
+// std::vector<boost::container::flat_set<std::size_t>> readDataFromFile(const fs::path& inputFolder, std::vector<std::string>& categories)
+// {
+	// std::ifstream categories_file((inputFolder / CATEGORIES_FILE).string());	
+	// std::ifstream categories_has_article_file((inputFolder / CAT_HAS_ARTICLE_FILE).string());	
 		
-	std::string line;
-	while(std::getline(categories_file, line))
-	{
-		boost::trim(line);
-		categories.push_back(line);
-	}
+	// std::string line;
+	// while(std::getline(categories_file, line))
+	// {
+		// boost::trim(line);
+		// categories.push_back(line);
+	// }
 
-	std::vector<boost::container::flat_set<std::size_t>> rtn(categories.size());
-	std::size_t iCategory = 0;
-	while(std::getline(categories_has_article_file, line))
-	{
-		std::stringstream ss(line);
-		std::string tmp;
-		while(!ss.eof())
-		{
-			ss >> tmp;
-			boost::trim(tmp);
+	// std::vector<boost::container::flat_set<std::size_t>> rtn(categories.size());
+	// std::size_t iCategory = 0;
+	// while(std::getline(categories_has_article_file, line))
+	// {
+		// std::stringstream ss(line);
+		// std::string tmp;
+		// while(!ss.eof())
+		// {
+			// ss >> tmp;
+			// boost::trim(tmp);
 
-			if(tmp != "")
-				rtn[iCategory].insert(std::stoi(tmp));
-		}
+			// if(tmp != "")
+				// rtn[iCategory].insert(std::stoi(tmp));
+		// }
 
-		iCategory++;
-	}
-	return rtn;
-}
+		// iCategory++;
+	// }
+	// return rtn;
+// }
 
 int main(int argc, char* argv[])
 {
@@ -135,8 +135,10 @@ int main(int argc, char* argv[])
 	std::cout << "Reading in already parsed files... " << std::endl;
 	auto startTime = std::chrono::steady_clock::now();
 	
-	std::vector<std::string> categories;
-	auto category_has_article = readDataFromFile(inputArticleFolder, categories);	
+	WikiDataCache wiki_data_cache(outputFolder.string());
+	const auto& categories = wiki_data_cache.category_titles();
+	auto category_has_article = wiki_data_cache.category_has_article_set(); // make copy of it
+	// auto category_has_article = readDataFromFile(inputArticleFolder, categories);	
 
 	auto endTime = std::chrono::steady_clock::now();
 	auto diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
@@ -170,7 +172,7 @@ int main(int argc, char* argv[])
 		return title.substr(0,9) == "Category:";
 	};
 		
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
 	WikiXmlDumpXerces::ParallelParser<CategoryRecursiveHandler> parser([&categories, &graph, &vecMutex](){ 
 		return CategoryRecursiveHandler(categories, graph, vecMutex); 
@@ -195,13 +197,16 @@ int main(int argc, char* argv[])
 	timings.push_back({ "Running over graph and adding categories recursively", diff });
 
 	startTime = std::chrono::steady_clock::now();
-	std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
-	for(std::size_t i = 0; i < category_has_article.size(); i++)
-	{
-		for (auto art : category_has_article[i]) 
-			catArtFile << art << " ";	
-		catArtFile << std::endl;
-	}
+
+	wiki_data_cache.write_category_has_article(category_has_article);
+
+	// std::ofstream catArtFile((outputFolder / CAT_HAS_ARTICLE_FILE).string());	
+	// for(std::size_t i = 0; i < category_has_article.size(); i++)
+	// {
+		// for (auto art : category_has_article[i]) 
+			// catArtFile << art << " ";	
+		// catArtFile << std::endl;
+	// }
 
 	endTime = std::chrono::steady_clock::now();
 	diff = std::chrono::duration<double, std::milli>(endTime-startTime).count();
