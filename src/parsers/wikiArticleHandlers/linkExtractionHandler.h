@@ -20,8 +20,6 @@ class LinkExtractionHandler : public WikiXmlDumpXerces::AbstractWikiPageHandler
 
 		void HandleArticle(const WikiXmlDumpXerces::WikiPageData&);
 
-		std::function<bool(std::size_t, std::size_t)> OrderCallback;
-
 	private:
 		std::vector<std::string> _articles;
    		const std::map<std::string, std::string>& _redirects;

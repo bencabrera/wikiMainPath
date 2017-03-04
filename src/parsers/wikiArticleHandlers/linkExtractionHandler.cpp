@@ -23,12 +23,6 @@ _vecMutex(vecMut)
 {
 	if(_adjList.size() != _articles.size())
 		throw std::logic_error("Dimensions are not correct.");
-
-	// default behaviour uses position in articles vector to order
-	OrderCallback = [this](std::size_t source, std::size_t target)
-	{
-		return source < target;
-	};
 }
 
 void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
@@ -65,7 +59,6 @@ void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 	auto it = data.Content.cbegin();
 	qi::parse(it, data.Content.cend(), links_rule);
 
-
 	for (auto link : links) 
 	{
 		boost::trim(link);
@@ -78,17 +71,8 @@ void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 		else
 			continue;
 
-		if(OrderCallback(source, target))
-		{
-			_vecMutex.lock(source);
-			_adjList[source].insert(target);
-			_vecMutex.unlock(source);
-		}
-		else
-		{
-			_vecMutex.lock(target);
-			_adjList[target].insert(source);
-			_vecMutex.unlock(target);
-		}
+		_vecMutex.lock(source);
+		_adjList[source].insert(target);
+		_vecMutex.unlock(source);
 	}
 }

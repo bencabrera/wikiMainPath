@@ -130,14 +130,7 @@ int main(int argc, char* argv[])
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
 	WikiXmlDumpXerces::ParallelParser<LinkExtractionHandler> parser([&articles, &redirects, &adjList, &vecMutex, &dates](){ 
-		auto handler = LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
-
-		handler.OrderCallback = [&dates] (std::size_t art1, std::size_t art2)
-		{
-			return dates[art1] < dates[art2];
-		};
-
-		return handler;
+		return LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
 	}, parser_properties);
 	parser.Run(paths.begin(), paths.end());
 
