@@ -1,5 +1,6 @@
 #include "searchHandler.h"
 
+#include <boost/algorithm/string/trim.hpp>
 #include <Poco/JSON/Object.h>
 
 #include <Poco/Net/HTMLForm.h>
@@ -37,7 +38,11 @@ namespace WikiMainPath {
 		}
 
 		std::string query_str = parameters[0].second;
-		auto results = query(_inverted_index, query_str);
+		boost::trim(query_str);
+
+		DocumentSet results;
+		if(query_str != "")
+			 results = query(_inverted_index, query_str);
 
 		Object root;
 		Array matchingCategoriesArray;

@@ -39,25 +39,29 @@ namespace WikiMainPath {
 
 	DocumentSet query(const InvertedIndex& invertedIndex, std::string queryStr)
 	{
-		std::vector<std::string> queryWordVec;
-		boost::split(queryWordVec, queryStr, boost::is_any_of(" "));
+		std::vector<std::string> query_word_vec;
+		boost::split(query_word_vec, queryStr, boost::is_any_of(" "));
 
-		for (auto& i : queryWordVec) {
-			i = stem(i);	
-		}
+		std::vector<std::string> stemmed_query_word_vec;
+		for (auto& i : query_word_vec) 
+			stemmed_query_word_vec.push_back(stem(i));	
 
+		// iterate over vec until a word is recognized
 		std::size_t i = 0;
-		while(i < queryWordVec.size() && invertedIndex.find(queryWordVec[i]) == invertedIndex.end())
+		while(i < stemmed_query_word_vec.size() && invertedIndex.find(stemmed_query_word_vec[i]) == invertedIndex.end())
 			i++;
 
-		auto firstIt = invertedIndex.find(queryWordVec[i]);
+		if(i >= stemmed_query_word_vec.size())
+			return DocumentSet();
+
+		auto firstIt = invertedIndex.find(stemmed_query_word_vec[i]);
 		if(firstIt == invertedIndex.end())
 			return DocumentSet();
 
 		auto curDocuments = firstIt->second;
-		for(std::size_t a = i; a < queryWordVec.size(); a++)
+		for(std::size_t a = i; a < stemmed_query_word_vec.size(); a++)
 		{
-			auto it = invertedIndex.find(queryWordVec[a]);
+			auto it = invertedIndex.find(stemmed_query_word_vec[a]);
 			if(it != invertedIndex.end())
 			{
 				DocumentSet tmp;
