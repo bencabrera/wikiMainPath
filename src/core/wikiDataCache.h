@@ -37,6 +37,16 @@ namespace WikiMainPath {
 			const std::vector<std::size_t>& event_indices();
 			const EventNetwork& event_network();
 
+			const std::vector<std::string>& article_titles() const;
+			const std::vector<std::string>& category_titles() const;
+			const std::map<std::string, std::string>& redirects() const;
+			const std::vector<std::vector<Date>>& article_dates() const;
+			const std::vector<std::vector<std::size_t>>& category_has_article() const;
+			const std::vector<boost::container::flat_set<std::size_t>>& category_has_article_set() const;
+			const ArticleNetwork& article_network() const;
+			const std::vector<std::size_t>& event_indices() const;
+			const EventNetwork& event_network() const;
+
 			// file writer methods
 			void write_article_titles(const std::map<std::string,std::vector<Date>>& articles_with_dates);
 			void write_category_titles(const std::vector<std::string>& categories);

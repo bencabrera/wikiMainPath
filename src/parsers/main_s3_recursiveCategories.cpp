@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
-		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
 		;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -67,21 +66,20 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-xml-folder") || !vm.count("input-article-folder") || !vm.count("output-folder"))
+	if(!vm.count("input-xml-folder") || !vm.count("output-folder"))
 	{
 		std::cerr << "Please specify the parameters --input-xml-folder and --input-article-folder and --output-folder." << std::endl;
 		return 1;
 	}
 
 	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
-	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
 	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
 
-	if(!fs::is_directory(inputXmlFolder) && !fs::is_directory(inputArticleFolder))
+	if(!fs::is_directory(inputXmlFolder))
 	{
-		std::cerr << "Parameter --input-xml-folder or --input-article-folder is no folder." << std::endl;
+		std::cerr << "Parameter --input-xml-folder is no folder." << std::endl;
 		return 1;
 	}
 

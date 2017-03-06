@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
 	desc.add_options()
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
-		("input-article-folder", po::value<std::string>(), "The folder that should contain articlesWithDates.txt, categories.txt, redirects.txt files.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		;
@@ -60,14 +59,13 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-article-folder") || !vm.count("input-xml-folder") || !(vm.count("output-graph") ))
+	if(!vm.count("input-xml-folder"))
 	{
 		std::cerr << "Please specify the parameters --input-article-folder, --input-xml-folder and --output-graph-graphml or --output-graph-minimized." << std::endl;
 		return 1;
 	}
 
 	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
-	const fs::path inputArticleFolder(vm["input-article-folder"].as<std::string>());
 	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
@@ -77,19 +75,6 @@ int main(int argc, char* argv[])
 		std::cerr << "Parameter --input-xml-folder is no folder." << std::endl;
 		return 1;
 	}
-
-	if(!fs::is_directory(inputArticleFolder))
-	{
-		std::cerr << "Parameter --input-article-folder is no folder." << std::endl;
-		return 1;
-	}
-
-	if(!fs::exists(inputArticleFolder / "articles_with_dates.txt") || !fs::exists(inputArticleFolder / "categories.txt") || !fs::exists(inputArticleFolder / "redirects.txt"))
-	{
-		std::cerr << "The input article folder does not contain all necessary files." << std::endl;
-		return 1;
-	}
-
 
 	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());

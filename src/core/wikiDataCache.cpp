@@ -99,6 +99,82 @@ namespace WikiMainPath {
 
 
 
+	// const getter methods
+	const std::vector<std::string>& WikiDataCache::article_titles() const
+	{
+		if(_article_titles == nullptr)
+			throw std::logic_error("Accessed article_titles without reading it first");
+
+		return *_article_titles;
+	}
+
+	const std::vector<std::string>& WikiDataCache::category_titles() const
+	{
+		if(_category_titles == nullptr)
+			throw std::logic_error("Accessed category_titles without reading it first");
+
+		return *_category_titles;
+	}
+
+	const std::map<std::string,std::string>& WikiDataCache::redirects() const
+	{
+		if(_redirects == nullptr)
+			throw std::logic_error("Accessed redirects without reading it first");
+
+		return *_redirects;
+	}
+
+	const std::vector<std::vector<Date>>& WikiDataCache::article_dates() const
+	{
+		if(_article_dates == nullptr)
+			throw std::logic_error("Accessed article_dates without reading it first");
+
+		return *_article_dates;
+	}
+
+	const std::vector<std::vector<std::size_t>>& WikiDataCache::category_has_article() const
+	{
+		if(_category_has_article == nullptr)
+			throw std::logic_error("Accessed category_has_article without reading it first");
+
+		return *_category_has_article;
+	}
+
+	const std::vector<boost::container::flat_set<std::size_t>>& WikiDataCache::category_has_article_set() const
+	{
+		if(_category_has_article_set == nullptr)
+			throw std::logic_error("Accessed category_has_article_set without reading it first");
+
+		return *_category_has_article_set;
+	}
+
+	const ArticleNetwork& WikiDataCache::article_network() const
+	{
+		if(_article_network == nullptr)
+			throw std::logic_error("Accessed article_network without reading it first");
+
+		return *_article_network;
+	}
+
+	const std::vector<std::size_t>& WikiDataCache::event_indices() const
+	{
+		if(_event_indices == nullptr)
+			throw std::logic_error("Accessed event_indices without reading it first");
+
+		return *_event_indices;
+	}
+
+	const EventNetwork& WikiDataCache::event_network() const
+	{
+		if(_event_network == nullptr)
+			throw std::logic_error("Accessed event_network without reading it first");
+
+		return *_event_network;
+	}
+
+
+
+
 	// file reader methods
 	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_article_titles(std::string articles_file_path)
 	{

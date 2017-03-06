@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	event_indices.reserve(dates.size());
 	for (auto d : dates) {
 		event_indices.push_back(current_event_idx);
-		current_event_idx += dates.size();
+		current_event_idx += d.size();
 	}
 	timer.stop_timing_step("compute_event_indices");
 
@@ -95,6 +95,10 @@ int main(int argc, char* argv[])
 		}	
 	}
 	timer.stop_timing_step("compute_event_network");
+
+	timer.start_timing_step("write_event_network", "Write event network", &std::cout);
+	wiki_data_cache.write_event_network(event_adj_list);
+	timer.stop_timing_step("write_event_network");
 
 	timer.stop_timing_step("global");
 	
