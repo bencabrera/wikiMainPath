@@ -83,6 +83,11 @@ target_link_libraries(s4_articleNetwork ParserLib)
 target_link_libraries(s4_articleNetwork xerces-c)
 target_link_libraries(s4_articleNetwork pthread)
 
+add_executable(s5_eventComputations parsers/main_s5_eventComputations.cpp)
+target_link_libraries(s5_eventComputations CoreLib)
+target_link_libraries(s5_eventComputations ParserLib)
+target_link_libraries(s5_eventComputations ${Boost_LIBRARIES})
+
 # add_executable(countPages parsers/main_countPages.cpp)
 # target_link_libraries(countPages ParserLib)
 # target_link_libraries(countPages ${Boost_LIBRARIES})

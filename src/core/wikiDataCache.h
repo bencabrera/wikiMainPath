@@ -20,8 +20,7 @@ namespace WikiMainPath {
 			constexpr static char ARTICLE_DATES_FILE[] = "article_dates.txt";
 			constexpr static char CAT_HAS_ARTICLE_FILE[] = "category_has_article.txt";
 			constexpr static char ARTICLE_NETWORK_FILE[] = "article_network.txt";
-			constexpr static char EVENT_TITLES_FILE[] = "event_titles.txt";
-			constexpr static char CAT_HAS_EVENT_FILE[] = "category_has_event.txt";
+			constexpr static char EVENT_INDICES_FILE[] = "event_indices.txt";
 			constexpr static char EVENT_NETWORK_FILE[] = "event_network.txt";
 
 			// constructor
@@ -35,8 +34,7 @@ namespace WikiMainPath {
 			const std::vector<std::vector<std::size_t>>& category_has_article();
 			const std::vector<boost::container::flat_set<std::size_t>>& category_has_article_set();
 			const ArticleNetwork& article_network();
-			const std::vector<std::string>& event_titles();
-			const std::vector<std::vector<std::size_t>>& category_has_event();
+			const std::vector<std::size_t>& event_indices();
 			const EventNetwork& event_network();
 
 			// file writer methods
@@ -46,8 +44,7 @@ namespace WikiMainPath {
 			void write_article_dates(const std::map<std::string,std::vector<Date>>& articles_with_dates);
 			void write_category_has_article(const std::vector<boost::container::flat_set<std::size_t>>& var);
 			void write_article_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
-			void write_event_titles(const std::vector<std::string>& event_titles);
-			void write_category_has_event(const std::vector<std::vector<std::size_t>>& cat_has_art);
+			void write_event_indices(const std::vector<std::size_t>& event_indices);
 			void write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
 
 		private:
@@ -61,10 +58,8 @@ namespace WikiMainPath {
 			static std::unique_ptr<std::vector<std::vector<std::size_t>>> read_category_has_article(std::string category_has_article_file_path);
 			static std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> read_category_has_article_set(std::string category_has_article_file_path);
 			static std::unique_ptr<ArticleNetwork> read_article_network(std::string article_network_path);
-
-			static std::unique_ptr<std::vector<std::string>> read_event_titles(std::string articles_file_path);
-			static std::unique_ptr<std::vector<std::vector<std::size_t>>> read_category_has_event(std::string category_has_article_file_path);
-			static std::unique_ptr<ArticleNetwork> read_event_network(std::string article_network_path);
+			static std::unique_ptr<std::vector<std::size_t>> read_event_indices(std::string event_indices_file_path);
+			static std::unique_ptr<EventNetwork> read_event_network(std::string event_network_path);
 
 			std::unique_ptr<std::vector<std::string>> _article_titles;
 			std::unique_ptr<std::vector<std::string>> _category_titles;
@@ -74,8 +69,7 @@ namespace WikiMainPath {
 			std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> _category_has_article_set;
 			std::unique_ptr<ArticleNetwork> _article_network;
 
-			std::unique_ptr<std::vector<std::string>> _event_titles;
-			std::unique_ptr<std::vector<std::vector<std::size_t>>> _category_has_event;
+			std::unique_ptr<std::vector<std::size_t>> _event_indices;
 			std::unique_ptr<EventNetwork> _event_network;
 	};
 

@@ -12,8 +12,7 @@ namespace WikiMainPath {
 	constexpr char WikiDataCache::ARTICLE_DATES_FILE[];
 	constexpr char WikiDataCache::CAT_HAS_ARTICLE_FILE[];
 	constexpr char WikiDataCache::ARTICLE_NETWORK_FILE[];
-	constexpr char WikiDataCache::EVENT_TITLES_FILE[];
-	constexpr char WikiDataCache::CAT_HAS_EVENT_FILE[];
+	constexpr char WikiDataCache::EVENT_INDICES_FILE[];
 	constexpr char WikiDataCache::EVENT_NETWORK_FILE[];
 
 	WikiDataCache::WikiDataCache(std::string folder)
@@ -82,20 +81,12 @@ namespace WikiMainPath {
 		return *_article_network;
 	}
 
-	const std::vector<std::string>& WikiDataCache::event_titles()
+	const std::vector<std::size_t>& WikiDataCache::event_indices()
 	{
-		if(_event_titles == nullptr)
-			_event_titles = read_event_titles((_folder / EVENT_TITLES_FILE).string());	
+		if(_event_indices == nullptr)
+			_event_indices = read_event_indices((_folder / EVENT_INDICES_FILE).string());	
 
-		return *_event_titles;
-	}
-
-	const std::vector<std::vector<std::size_t>>& WikiDataCache::category_has_event()
-	{
-		if(_category_has_event == nullptr)
-			_category_has_event = read_category_has_event((_folder / CAT_HAS_EVENT_FILE).string());	
-
-		return *_category_has_event;
+		return *_event_indices;
 	}
 
 	const EventNetwork& WikiDataCache::event_network()
@@ -270,47 +261,22 @@ namespace WikiMainPath {
 		return graph;
 	}
 
-	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_event_titles(std::string event_titles_file_path)
+	std::unique_ptr<std::vector<std::size_t>> WikiDataCache::read_event_indices(std::string event_indices_file_path)
 	{
-		std::ifstream file(event_titles_file_path);	
+		std::ifstream file(event_indices_file_path);	
 		if(!file.is_open())
-			throw std::logic_error("Event titles file not found");
+			throw std::logic_error("Event indices file not found");
 
-		std::unique_ptr<std::vector<std::string>> rtn(new std::vector<std::string>());
+		std::unique_ptr<std::vector<std::size_t>> rtn(new std::vector<std::size_t>());
 
-		std::string line;
-		while(std::getline(file, line))
-			rtn->push_back(line);
-
-		return rtn;
-	}
-
-	std::unique_ptr<std::vector<std::vector<std::size_t>>> WikiDataCache::read_category_has_event(std::string category_has_event_file_path)
-	{
-		std::ifstream category_has_event_file(category_has_event_file_path);	
-		if(!category_has_event_file.is_open())
-			throw std::logic_error("Category_has_event file not found");
-
-		std::unique_ptr<std::vector<std::vector<std::size_t>>> category_has_event(new std::vector<std::vector<std::size_t>>());
-
-		std::string line;
-		while(std::getline(category_has_event_file, line))
+		std::size_t tmp;
+		while(!file.eof())
 		{
-			std::vector<std::size_t> linked_articles;	
-
-			std::istringstream ss(line);
-			while(!ss.eof())
-			{
-				std::string tmpStr;
-				ss >> tmpStr;
-				if(tmpStr != "")
-					linked_articles.push_back(std::stoi(tmpStr));
-			}
-
-			category_has_event->push_back(linked_articles);
+			file >> tmp;
+			rtn->push_back(tmp);
 		}
 
-		return category_has_event;
+		return rtn;
 	}
 
 	std::unique_ptr<ArticleNetwork> WikiDataCache::read_event_network(std::string event_network_path)
@@ -402,22 +368,11 @@ namespace WikiMainPath {
 		}
 	}
 
-	void WikiDataCache::write_event_titles(const std::vector<std::string>& event_titles)
+	void WikiDataCache::write_event_indices(const std::vector<std::size_t>& event_indices)
 	{
-		std::ofstream articles_file((_folder / EVENT_TITLES_FILE).string());	
-		for(auto title : event_titles)
-			articles_file << title << std::endl;
-	}
-
-	void WikiDataCache::write_category_has_event(const std::vector<std::vector<std::size_t>>& cat_has_art)
-	{
-		std::ofstream cat_has_event_file((_folder / CAT_HAS_EVENT_FILE).string());	
-		for(std::size_t i = 0; i < cat_has_art.size(); i++)
-		{
-			for (auto art : cat_has_art[i]) 
-				cat_has_event_file << art << " ";	
-			cat_has_event_file << std::endl;
-		}
+		std::ofstream file((_folder / EVENT_INDICES_FILE).string());	
+		for(auto idx : event_indices)
+			file << idx << std::endl;
 	}
 
 	void WikiDataCache::write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list)
