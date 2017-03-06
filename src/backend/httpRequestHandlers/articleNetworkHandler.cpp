@@ -8,7 +8,7 @@
 
 namespace WikiMainPath {
 
-	ArticleNetworkHandler::ArticleNetworkHandler(const std::vector<std::string>& articles, const std::vector<std::vector<std::size_t>>& category_has_article, Graph& article_network)
+	ArticleNetworkHandler::ArticleNetworkHandler(const std::vector<std::string>& articles, const std::vector<boost::container::flat_set<std::size_t>>& category_has_article, ArticleNetwork& article_network)
 		:_articles(articles),
 		_category_has_article(category_has_article),
 		_article_network(article_network)

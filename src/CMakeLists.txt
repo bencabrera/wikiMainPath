@@ -127,12 +127,12 @@ target_link_libraries(parserTests CoreLib)
 set(BACKEND_FILES
 	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
-	backend/serverData.cpp
-	backend/httpRequestHandlers/mpaHandler.cpp
+	# backend/serverData.cpp
+	# backend/httpRequestHandlers/mpaHandler.cpp
 	backend/httpRequestHandlers/searchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
 	backend/httpRequestHandlers/articleListHandler.cpp
-	backend/httpRequestHandlers/articleNetworkHandler.cpp
+	# backend/httpRequestHandlers/articleNetworkHandler.cpp
 )
 
 set(PORTER_2_STEMMER_FILES

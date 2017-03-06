@@ -4,11 +4,20 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/HTTPServer.h>
 
-int main(int argc, char* argv[])
+#include "../core/wikiDataCache.h"
+#include <boost/filesystem.hpp>
+
+int main(int, char* argv[])
 {
 	using namespace WikiMainPath;
 
-	std::string data_path = argv[1];
+	auto data_path = boost::filesystem::path(argv[1]);
+
+	if(!boost::filesystem::is_directory(data_path))
+	{
+		std::cerr << "Specified folder is non-existent." << std::endl;
+		return 1;
+	}
 
 	Poco::UInt16 port = 9999;
 
@@ -18,8 +27,10 @@ int main(int argc, char* argv[])
 	pParams->setMaxQueued(100);
 	pParams->setMaxThreads(16);
 
-	std::cout << "Scanning path '" << data_path << "' for data files." << std::endl;
-	ServerData data(data_path);
+	std::cout << "Scanning path " << data_path << " for data files." << std::endl;
+	WikiDataCache data(data_path.string());
+	data.article_titles();
+	data.category_titles();
 	auto factory = new RoutingHandlerFactory(data);
 
 	Poco::Net::HTTPServer server(factory, socket, pParams);
