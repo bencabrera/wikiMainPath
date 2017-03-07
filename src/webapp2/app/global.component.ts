@@ -3,8 +3,6 @@ import { SearchQueryService } from './searchQuery.service'
 
 import { Observable }     from 'rxjs/Observable';
 
-import { AppComponent } from './app.component';
-
 @Component({
 	selector: 'global',
 	templateUrl: '../templates/global.html'
@@ -24,8 +22,8 @@ export class GlobalComponent
 
 	public computeMainPath(title : string) : void
 	{
-		this.category = title;
-		this.articleList = this.searchQueryService.getArticlesInCategory(title);
-		this.showArticleList = true;
+		// this.category = title;
+		// this.articleList = this.searchQueryService.getArticlesInCategory(title);
+		// this.showArticleList = true;
 	}
 }

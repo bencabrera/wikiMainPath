@@ -17,7 +17,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class SearchQueryService {
 
-	const BACKEND_SERVER_URI : string = "http://localhost:9999";
+	public BACKEND_SERVER_URI : string = "http://localhost:9999";
 
 	constructor(private http: Http) {}
 
@@ -26,7 +26,7 @@ export class SearchQueryService {
 		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/search-category?query-str=" + queryString);
 		console.log(url);
 		return this.http.get(url)
-				.map((response: Response) => <{ title: string, id: number}[]>(response.json()) );	
+				.map((response: Response) => <{ title: string, id: number}[]>(response.json()["matching-categories"]) );	
 	}
 
 	// public getArticlesInCategory(category: string): Observable<string[]>
@@ -35,10 +35,10 @@ export class SearchQueryService {
 		// return this.http.get(url).map(this.extractData).catch(this.handleError);	
 	// }
 
-	public getMessages(): Observable<Message[]> {
-		return this.http.get("http://" + ServerConfig.HOST + ":" + ServerConfig.PORT +'/messages/' + this.configService.roomname)
-			.map((response: Response) => <Message[]>response.json());
-	}
+	// public getMessages(): Observable<Message[]> {
+		// return this.http.get("http://" + ServerConfig.HOST + ":" + ServerConfig.PORT +'/messages/' + this.configService.roomname)
+			// .map((response: Response) => <Message[]>response.json());
+	// }
 
 	// private extractData(res: Response) {
 		// let body = res.json();
