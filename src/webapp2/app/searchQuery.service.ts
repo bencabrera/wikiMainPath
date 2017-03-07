@@ -3,16 +3,8 @@ import { Http, Response } from '@angular/http';
 
 import { Observable }     from 'rxjs/Observable';
 
-// Statics
-import 'rxjs/add/observable/throw';
-
 // Operators
-// import 'rxjs/add/operator/catch';
-// import 'rxjs/add/operator/debounceTime';
-// import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
-// import 'rxjs/add/operator/switchMap';
-// import 'rxjs/add/operator/toPromise';
 
 @Injectable()
 export class SearchQueryService {
@@ -24,9 +16,9 @@ export class SearchQueryService {
 	public searchForCategory(queryString: string): Observable<{ title: string, id: number }[]>
 	{
 		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/search-category?query-str=" + queryString);
-		console.log(url);
-		return this.http.get(url)
-				.map((response: Response) => <{ title: string, id: number}[]>(response.json()["matching-categories"]) );	
+		return this.http.get(url).map(
+			(response: Response) => <{ title: string, id: number }[]>(response.json()["matching-categories"]) 
+		);	
 	}
 
 	// public getArticlesInCategory(category: string): Observable<string[]>

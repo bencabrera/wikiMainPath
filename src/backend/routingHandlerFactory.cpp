@@ -8,6 +8,7 @@
 #include "httpRequestHandlers/articleListHandler.h"
 // #include "httpRequestHandlers/articleNetworkHandler.h"
 #include "httpRequestHandlers/notFoundHandler.h"
+#include "httpRequestHandlers/eventNetworkHandler.h"
 
 #include "../core/wikiDataCache.h"
 
@@ -23,6 +24,8 @@ namespace WikiMainPath {
 	{
 		Poco::URI uri(request.getURI());
 
+		std::cout << "Received request --- URI: " << uri.getPath() << std::endl;
+
 		if(uri.getPath() == "/search-category")
 			return new SearchHandler("matching-categories", _data.category_titles(), _category_titles_inverted_index);
 
@@ -34,6 +37,9 @@ namespace WikiMainPath {
 
 		// if(uri.getPath() == "/article-network-in-category")
 			// return new EventNetworkHandler(_data.article_titles(), _data.dates(), _data.category_has_article(), _data.event_network());
+			
+		if(uri.getPath() == "/event-network-in-category")
+			return new EventNetworkHandler(_data);
 
 		// if(uri.getPath() == "/mpa-in-category")
 			// return new MpaHandler(_server_data._articles, _server_data._category_has_article, _server_data._article_network);

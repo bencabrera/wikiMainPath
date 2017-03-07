@@ -132,6 +132,7 @@ set(BACKEND_FILES
 	backend/httpRequestHandlers/searchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
 	backend/httpRequestHandlers/articleListHandler.cpp
+	backend/httpRequestHandlers/eventNetworkHandler.cpp
 	# backend/httpRequestHandlers/articleNetworkHandler.cpp
 )
 

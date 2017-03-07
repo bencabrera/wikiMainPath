@@ -31,6 +31,11 @@ int main(int, char* argv[])
 	WikiDataCache data(data_path.string());
 	data.article_titles();
 	data.category_titles();
+	data.category_has_article();
+	data.article_dates();
+	data.event_network();
+	data.event_indices();
+	data.article_network();
 	auto factory = new RoutingHandlerFactory(data);
 
 	Poco::Net::HTTPServer server(factory, socket, pParams);

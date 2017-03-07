@@ -59,7 +59,6 @@ namespace WikiMainPath {
 		root.set(_json_attribute_name, matchingCategoriesArray);
 
 		root.stringify(response.send(), 4); 
-
 	}
 
 }
