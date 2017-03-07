@@ -20,6 +20,7 @@ namespace WikiMainPath {
 
 		response.setChunkedTransferEncoding(true);
 		response.setContentType("text/json");
+		response.set("Access-Control-Allow-Origin", "*");
 
 		// get parameters
 		Poco::URI uri(request.getURI());
@@ -58,6 +59,7 @@ namespace WikiMainPath {
 		root.set(_json_attribute_name, matchingCategoriesArray);
 
 		root.stringify(response.send(), 4); 
+
 	}
 
 }
