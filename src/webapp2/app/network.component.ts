@@ -1,7 +1,8 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, ViewChild, OnChanges, SimpleChange, SimpleChanges, ElementRef, AfterViewInit } from '@angular/core';
 import { SearchQueryService } from './searchQuery.service'
 
 import { Observable }     from 'rxjs/Observable';
+
 
 @Component({
 	selector: 'network',
@@ -23,6 +24,9 @@ export class NetworkComponent implements AfterViewInit
 	@ViewChild('svg_element') 
 	private svg_element : ElementRef;
 
+	@Input('data') 
+   	public network_data: any;	
+
 	private d3_canvas;
 	private is_d3_initialized: boolean = false;
 
@@ -35,10 +39,20 @@ export class NetworkComponent implements AfterViewInit
 		this.redraw_d3();
 	}
 
+	ngOnChanges(changes: SimpleChanges) 
+	{
+		console.log("changed", changes);
+		if (changes['network_data'] && this.network_data) {
+			console.log("changed");
+			console.log(this.network_data);
+		}
+		this.redraw_d3();
+	}
+
 	redraw_d3() : void
 	{
 		console.log("redraw d3");
-		if(!this.is_d3_initialized)
+		if(!this.is_d3_initialized || !this.network_data || !this.network_data.events || this.network_data.events.length == 0)
 			return;
 
 		var mpaGraph = {
@@ -75,30 +89,30 @@ export class NetworkComponent implements AfterViewInit
 		var svgWidth = parseInt(svg.style("width").replace("px", ""));
 		var padding = 50;
 
-		var minTime = d3.min(mpaGraph.vertices, function(d) { return d[0] }); 
-		var maxTime = d3.max(mpaGraph.vertices, function(d) { return d[0] }); 
+		var minTime = d3.min(this.network_data.events, function(d) { return d.date }); 
+		var maxTime = d3.max(this.network_data.events, function(d) { return d.date }); 
 
-		var minDegree = d3.min(mpaGraph.vertices, function(d) { return d[1] }); 
-		var maxDegree = d3.max(mpaGraph.vertices, function(d) { return d[1] }); 
+		// var minDegree = d3.min(mpaGraph.vertices, function(d) { return d[1] }); 
+		// var maxDegree = d3.max(mpaGraph.vertices, function(d) { return d[1] }); 
 
-		var minWeight = d3.min(mpaGraph.edges, function(d) { return d[2] }); 
-		var maxWeight = d3.max(mpaGraph.edges, function(d) { return d[2] }); 
+		// var minWeight = d3.min(mpaGraph.edges, function(d) { return d[2] }); 
+		// var maxWeight = d3.max(mpaGraph.edges, function(d) { return d[2] }); 
 
 		var timeScale = d3.scaleTime()
 		.domain([minTime, maxTime])
 		.range([0, svgWidth - 2*padding]);
 
 		var yScale = d3.scaleLinear()
-		.domain([0, 100])
+		.domain([0, 1])
 		.range([0, svgHeight - 2*padding]);
 
-		var radiusScale = d3.scaleLinear()
-		.domain([minDegree, maxDegree])
-		.range([5, 15]);
+		// var radiusScale = d3.scaleLinear()
+		// .domain([minDegree, maxDegree])
+		// .range([5, 15]);
 
-		var weightScale = d3.scaleLinear()
-		.domain([minWeight, maxWeight])
-		.range([1, 5]);
+		// var weightScale = d3.scaleLinear()
+		// .domain([minWeight, maxWeight])
+		// .range([1, 5]);
 
 		var xAxis = d3.axisBottom()
 		.scale(timeScale);
@@ -106,35 +120,46 @@ export class NetworkComponent implements AfterViewInit
 		var MAIN_PATH_COLOR = "black";
 		var NON_MAIN_PATH_COLOR = "grey";
 
-		svg.selectAll("line")
-		.data(mpaGraph.edges)
-		.enter()
-		.append("line")
-		.attr("x1", function(d) { return timeScale(mpaGraph.vertices[d[0]][0]) + padding; })
-		.attr("y1", function(d) { return yScale(mpaGraph.vertices[d[0]][1]) + padding; })
-		.attr("x2", function(d) { return timeScale(mpaGraph.vertices[d[1]][0]) + padding; })
-		.attr("y2", function(d) { return yScale(mpaGraph.vertices[d[1]][1]) + padding; })
-		.attr("stroke", function(d, i) { return (mainPath.edges.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); })
-		.attr("stroke-width", function(d) { return weightScale(d[2]); });
+		// svg.selectAll("line")
+		// .data(mpaGraph.edges)
+		// .enter()
+		// .append("line")
+		// .attr("x1", function(d) { return timeScale(mpaGraph.vertices[d[0]][0]) + padding; })
+		// .attr("y1", function(d) { return yScale(mpaGraph.vertices[d[0]][1]) + padding; })
+		// .attr("x2", function(d) { return timeScale(mpaGraph.vertices[d[1]][0]) + padding; })
+		// .attr("y2", function(d) { return yScale(mpaGraph.vertices[d[1]][1]) + padding; })
+		// .attr("stroke", function(d, i) { return (mainPath.edges.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); });
+		
+		// .attr("stroke-width", function(d) { return weightScale(d[2]); });
 
 		svg.selectAll("circle")
-		.data(mpaGraph.vertices)
+		.data(this.network_data.events)
 		.enter()
 		.append("circle")
-		.attr("cx", function(d) { return timeScale(d[0]) + padding; })
-		.attr("cy", function(d) { return yScale(d[1]) + padding; })
-		.attr("r", function(d) { return radiusScale(d[1]); })
-		.attr("fill", function(d, i) { return (mainPath.vertices.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); });
+		.attr("cx", (d) => { return timeScale(d.date) + padding; })
+		.attr("cy", (d, i) => { return yScale(this.network_data.positions[i]) + padding; })
+		.attr("r", 2)
+		// .attr("r", (d) => { return radiusScale(d[1]); })
+		.attr("fill", MAIN_PATH_COLOR);
 
-		svg.selectAll("text")
-		.data(mpaGraph.vertices)
-		.enter()
-		.append("text")
-		.attr("x", function(d) { return timeScale(d[0]) + padding; })
-		.attr("y", function(d) { return yScale(d[1]) + padding - radiusScale(d[1]) - 5; })
-		.attr("text-anchor", "middle")
-		.attr("style", "font-size: 16px;")
-		.text(function(d) { return d[2] });
+		// svg.selectAll("circle")
+		// .data(this.networkData.events)
+		// .enter()
+		// .append("circle")
+		// .attr("cx", function(d) { return timeScale(d[0]) + padding; })
+		// .attr("cy", function(d) { return yScale(d[1]) + padding; })
+		// .attr("r", function(d) { return radiusScale(d[1]); })
+		// .attr("fill", function(d, i) { return (mainPath.vertices.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); });
+
+		// svg.selectAll("text")
+		// .data(mpaGraph.vertices)
+		// .enter()
+		// .append("text")
+		// .attr("x", function(d) { return timeScale(d[0]) + padding; })
+		// .attr("y", function(d) { return yScale(d[1]) + padding - radiusScale(d[1]) - 5; })
+		// .attr("text-anchor", "middle")
+		// .attr("style", "font-size: 16px;")
+		// .text(function(d) { return d[2] });
 
 		svg.append("g")
 		.call(xAxis)

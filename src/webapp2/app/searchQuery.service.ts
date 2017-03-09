@@ -21,6 +21,14 @@ export class SearchQueryService {
 		);	
 	}
 
+	public getEventNetwork(category_id: number): Observable<{ title: string, id: number }[]>
+	{
+		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id);
+		return this.http.get(url).map(
+			(response: Response) => response.json()
+		);	
+	}
+
 	// public getArticlesInCategory(category: string): Observable<string[]>
 	// {
 		// var url : string = encodeURI("listArticlesInCategory.php?category=" + category);

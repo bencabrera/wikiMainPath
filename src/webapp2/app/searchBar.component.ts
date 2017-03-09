@@ -12,7 +12,7 @@ export class SearchBarComponent
 	searchQuery: string;
 	searchResults: Observable<{ title: string, id: number }[]>;
 	resultsVisible: boolean;
-	@Output() categorySelected : EventEmitter<string> = new EventEmitter<string>();
+	@Output('selected') categorySelected : EventEmitter<number> = new EventEmitter<number>();
 
 	constructor(private searchQueryService: SearchQueryService)
 	{
@@ -30,9 +30,9 @@ export class SearchBarComponent
 		this.resultsVisible = false;
 	}
 
-	onSelectCategory(title : string) : void
+	onSelectCategory(category_id : number) : void
 	{
-		this.categorySelected.emit(title);
+		this.categorySelected.emit(category_id);
 	}
 
 }

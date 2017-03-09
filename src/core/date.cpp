@@ -66,7 +66,7 @@ Date Date::deserialize(const std::string str)
 std::string to_iso_string(const std::tm& date)
 {
 	std::stringstream ss;
-	ss << (date.tm_year + 1900) << "-" << (date.tm_mon + 1) << "-" << date.tm_mday;
+	ss << std::setfill('0') << std::setw(4) << (date.tm_year + 1900) << "-" << std::setfill('0') << std::setw(2) << (date.tm_mon + 1) << "-" << std::setfill('0') << std::setw(2) << date.tm_mday;
 	ss << "T";
 	ss << "12:00Z";
 

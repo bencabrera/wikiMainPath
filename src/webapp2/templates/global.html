@@ -1,4 +1,4 @@
-<search-bar (categorySelected)="computeMainPath($event)">Loading...</search-bar>
+<search-bar (selected)="categorySelected($event)">Loading...</search-bar>
 
 <div class="container-fluid">
 	<div class="row">
@@ -13,7 +13,7 @@
 			</div>
 		</div>
 		<div class="main-content">
-			<network></network>	
+			<network [data]="networkData"></network>	
 		</div>
 	</div>
 </div>
