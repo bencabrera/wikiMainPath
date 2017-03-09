@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+#include "../graphDrawing/randomGraphDrawing.h"
+
 namespace WikiMainPath {
 
 	EventNetworkHandler::EventNetworkHandler(const WikiDataCache& wiki_data_cache)
@@ -73,34 +75,10 @@ namespace WikiMainPath {
 			for(std::size_t idx = event_indices[article_id]; idx < event_indices[article_id+1]; idx++)
 				events_in_category.push_back(idx);
 		}
-		std::cout << "Size of events_in_category: " << events_in_category.size() << std::endl;
 
-		// EventNetwork subgraph = event_network.create_subgraph(events_in_category.begin(), events_in_category.end());
 		EventNetwork subgraph = event_network.create_subgraph();
-		for (auto i : events_in_category) {
+		for (auto i : events_in_category) 
 			boost::add_vertex(i, subgraph);	
-			std::cout << "ev_in_cat: " << i << std::endl;
-		}
-		// for (auto v : boost::make_iterator_range(boost::vertices(subgraph))) {
-			// auto global_event_id = subgraph.local_to_global(v);
-			// std::cout << "ltg: " << v << " " << global_event_id << std::endl;
-
-			// auto article_it = std::lower_bound(event_indices.begin(), event_indices.end(), global_event_id);	
-			// std::size_t article_id = article_it - event_indices.begin();
-			// if(event_indices[article_id] != global_event_id)
-				// article_id -= 1;
-			// std::size_t date_id = global_event_id - event_indices[article_id];
-			// std::cout << article_id << " " << date_id << " " << event_indices[article_id] << std::endl;
-			// std::cout << article_title << std::endl;
-		// }
-
-		// std::cout << "original edges in article network: " <<boost::num_edges(article_network) << std::endl;
-		// std::cout << "original nodes in article network: " <<boost::num_vertices(article_network) << std::endl;
-		// std::cout << "original edges: " << boost::num_edges(event_network) << std::endl;
-		// std::cout << "original nodes: " << boost::num_vertices(event_network) << std::endl;
-		// std::cout << "edges: " << boost::num_edges(subgraph) << std::endl;
-		// std::cout << "nodes: " << boost::num_vertices(subgraph) << std::endl;
-
 
 		// build list of articles in category
 		Array events_array;
@@ -134,9 +112,15 @@ namespace WikiMainPath {
 			links_array.add(link);
 		}
 
+		auto positions = random_graph_drawing(subgraph);
+		Array positions_array;
+		for (auto pos : positions) 
+			positions_array.add(pos);
+
 		Object root;
 		root.set("events", events_array);
 		root.set("links", links_array);
+		root.set("positions", positions_array);
 
 		root.stringify(response.send(), 4); 
 	}

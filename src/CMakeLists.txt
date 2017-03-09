@@ -134,6 +134,7 @@ set(BACKEND_FILES
 	backend/httpRequestHandlers/articleListHandler.cpp
 	backend/httpRequestHandlers/eventNetworkHandler.cpp
 	# backend/httpRequestHandlers/articleNetworkHandler.cpp
+	backend/graphDrawing/randomGraphDrawing.cpp
 )
 
 set(PORTER_2_STEMMER_FILES
