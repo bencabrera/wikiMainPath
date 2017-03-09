@@ -63,6 +63,16 @@ Date Date::deserialize(const std::string str)
 	return rtn;
 }
 
+std::string to_iso_string(const std::tm& date)
+{
+	std::stringstream ss;
+	ss << (date.tm_year + 1900) << "-" << (date.tm_mon + 1) << "-" << date.tm_mday;
+	ss << "T";
+	ss << "12:00Z";
+
+	return ss.str();
+}
+
 bool operator<(const std::tm& date1, const std::tm& date2)
 {
 	if(date1.tm_year != date2.tm_year)

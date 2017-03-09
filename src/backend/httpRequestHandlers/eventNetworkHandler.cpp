@@ -1,6 +1,7 @@
 #include "eventNetworkHandler.h"
 
 #include <boost/range/iterator_range.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
 #include <Poco/JSON/Object.h>
 #include <Poco/Net/HTMLForm.h>
@@ -64,12 +65,11 @@ namespace WikiMainPath {
 		const auto& category_has_article = _data.category_has_article();
 		const auto& event_indices = _data.event_indices();
 		auto event_network = _data.event_network();
-		const auto& article_network = _data.article_network();
+		// const auto& article_network = _data.article_network();
 
 		// TODO: make event indices one larger
 		std::vector<std::size_t> events_in_category;	
 		for (auto article_id : category_has_article[category_id]) {
-			std::cout << article_id << std::endl;
 			for(std::size_t idx = event_indices[article_id]; idx < event_indices[article_id+1]; idx++)
 				events_in_category.push_back(idx);
 		}
@@ -79,14 +79,27 @@ namespace WikiMainPath {
 		EventNetwork subgraph = event_network.create_subgraph();
 		for (auto i : events_in_category) {
 			boost::add_vertex(i, subgraph);	
+			std::cout << "ev_in_cat: " << i << std::endl;
 		}
+		// for (auto v : boost::make_iterator_range(boost::vertices(subgraph))) {
+			// auto global_event_id = subgraph.local_to_global(v);
+			// std::cout << "ltg: " << v << " " << global_event_id << std::endl;
 
-		std::cout << "original edges in article network: " <<boost::num_edges(article_network) << std::endl;
-		std::cout << "original nodes in article network: " <<boost::num_vertices(article_network) << std::endl;
-		std::cout << "original edges: " << boost::num_edges(event_network) << std::endl;
-		std::cout << "original nodes: " << boost::num_vertices(event_network) << std::endl;
-		std::cout << "edges: " << boost::num_edges(subgraph) << std::endl;
-		std::cout << "nodes: " << boost::num_vertices(subgraph) << std::endl;
+			// auto article_it = std::lower_bound(event_indices.begin(), event_indices.end(), global_event_id);	
+			// std::size_t article_id = article_it - event_indices.begin();
+			// if(event_indices[article_id] != global_event_id)
+				// article_id -= 1;
+			// std::size_t date_id = global_event_id - event_indices[article_id];
+			// std::cout << article_id << " " << date_id << " " << event_indices[article_id] << std::endl;
+			// std::cout << article_title << std::endl;
+		// }
+
+		// std::cout << "original edges in article network: " <<boost::num_edges(article_network) << std::endl;
+		// std::cout << "original nodes in article network: " <<boost::num_vertices(article_network) << std::endl;
+		// std::cout << "original edges: " << boost::num_edges(event_network) << std::endl;
+		// std::cout << "original nodes: " << boost::num_vertices(event_network) << std::endl;
+		// std::cout << "edges: " << boost::num_edges(subgraph) << std::endl;
+		// std::cout << "nodes: " << boost::num_vertices(subgraph) << std::endl;
 
 
 		// build list of articles in category
@@ -97,13 +110,16 @@ namespace WikiMainPath {
 
 			auto article_it = std::lower_bound(event_indices.begin(), event_indices.end(), global_event_id);	
 			std::size_t article_id = article_it - event_indices.begin();
+			if(event_indices[article_id] != global_event_id)
+				article_id -= 1;
 			std::size_t date_id = global_event_id - event_indices[article_id];
 
-			std::string article_title = article_dates[article_id][date_id].Description + article_titles[article_id];
+			std::string article_title = boost::to_upper_copy(article_dates[article_id][date_id].Description) + ": " + article_titles[article_id];
 
 			Object el;
 			el.set("title", article_title);
 			el.set("id", global_event_id);
+			el.set("date", to_iso_string(article_dates[article_id][date_id].Begin));
 
 			events_array.add(el);
 		}
@@ -113,7 +129,7 @@ namespace WikiMainPath {
 
 			Array link;
 			link.set(0, boost::source(e, subgraph));
-			link.set(0, boost::target(e, subgraph));
+			link.set(1, boost::target(e, subgraph));
 
 			links_array.add(link);
 		}
