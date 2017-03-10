@@ -1,4 +1,4 @@
-#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_STATIC_LINK
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/data/test_case.hpp>
@@ -13,11 +13,13 @@ BOOST_AUTO_TEST_SUITE(date_string_grammar_tests)
 
 std::vector<std::string> date_examples = {
 	"1 September 1917",
+	"29 november 1776"
 };
 
 std::vector<Date> expected_dates = {
 	// tm_sec	tm_min	tm_hour	tm_mday	tm_mon	tm_year	tm_wday	tm_yday	tm_isdst
 	{false, {	   0,	   0,		 0,		1,		8,	  17 }, {}},
+	{false, {	   0,	   0,		 0,		29,		10,	  -124 }, {}},
 };
 
 BOOST_DATA_TEST_CASE(

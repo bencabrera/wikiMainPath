@@ -7,6 +7,7 @@
 
 ArticleDatesAndCategoriesHandler::ArticleDatesAndCategoriesHandler(std::ostream* report_ostr)
 :ExtractOnlyArticlesWithDates(true),
+n_errors(0),
 _report_ostr(report_ostr)
 {}
 
@@ -34,6 +35,8 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 			{
 				articles.insert({ title, extracted_dates });
 			}
+
+			n_errors += errors.size();
 
 			// report errors / mismatches
 			if(_report_ostr != nullptr) {

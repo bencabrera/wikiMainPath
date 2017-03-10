@@ -19,6 +19,8 @@ class ArticleDatesAndCategoriesHandler : public WikiXmlDumpXerces::AbstractWikiP
 
 		bool ExtractOnlyArticlesWithDates;
 
+		std::size_t n_errors;
+
 	private:
 		std::ostream* _report_ostr;
 };

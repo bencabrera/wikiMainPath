@@ -121,12 +121,14 @@ int main(int argc, char* argv[])
 	std::map<std::string,std::vector<Date>> articlesWithDates;
 	std::vector<std::string> categories;
 	std::map<std::string,std::string> redirects;
+	std::size_t n_errors = 0;
 
 	for (auto& hand : parser.PageHandlers())
 	{
 		articlesWithDates.insert(hand.articles.begin(), hand.articles.end());
 		categories.insert(categories.end(), hand.categories.begin(), hand.categories.end());
 		redirects.insert(hand.redirects.begin(), hand.redirects.end());
+		n_errors += hand.n_errors;
 	}
 
 	timer.stop_timing_step("parsing");
@@ -158,8 +160,9 @@ int main(int argc, char* argv[])
 	}
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Status: " << std::endl;
-	std::cout << std::left << std::setw(40) << "Total number of articles: " << totalArticleNumber << std::endl;
+	std::cout << std::left << std::setw(40) << "Total number of pages: " << totalArticleNumber << std::endl;
 	std::cout << std::left << std::setw(40) << "Articles with extractable dates: " << articlesWithDates.size() << std::endl;
+	std::cout << std::left << std::setw(40) << "Number of date extraction errors: " << n_errors << std::endl;
 	std::cout << std::left << std::setw(40) << "Categories extracted: " << categories.size() << std::endl;
 	std::cout << std::left << std::setw(40) << "Redirects extracted: " << redirects.size() << std::endl;
 	

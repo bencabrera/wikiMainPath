@@ -14,20 +14,20 @@
 BOOST_AUTO_TEST_SUITE(article_date_extraction_tests)
 
 
-BOOST_AUTO_TEST_CASE(choosing_of_dates_should_use_hirachy)
-{
-	Date d1,d2,d3,d4;
-	d1.Description = "GENERAL_DATE";
-	d2.Description = "DEATH";
-	d3.Description = "BIRTH_DEATH";
-	d4.Description = "BIRTH";
-	std::vector<Date> vec = { d1, d2, d3, d4 };
+// BOOST_AUTO_TEST_CASE(choosing_of_dates_should_use_hirachy)
+// {
+	// Date d1,d2,d3,d4;
+	// d1.Description = "GENERAL_DATE";
+	// d2.Description = "DEATH";
+	// d3.Description = "BIRTH_DEATH";
+	// d4.Description = "BIRTH";
+	// std::vector<Date> vec = { d1, d2, d3, d4 };
 
-	Date result;	
-	WikiMainPath::chooseSingleDate(vec, result);
+	// Date result;	
+	// WikiMainPath::chooseSingleDate(vec, result);
 
-	BOOST_CHECK_EQUAL("BIRTH_DEATH", result.Description);
-}
+	// BOOST_CHECK_EQUAL("BIRTH_DEATH", result.Description);
+// }
 
 // BOOST_AUTO_TEST_CASE(empty_date_str_should_not_be_accepted)
 // {

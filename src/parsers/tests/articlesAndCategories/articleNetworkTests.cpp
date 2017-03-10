@@ -50,10 +50,6 @@ BOOST_AUTO_TEST_CASE(there_should_be_links_between_the_articles)
 	VectorMutex<1000> vecMutex;
 	std::vector<boost::container::flat_set<std::size_t>> adj_list(art_handler.articles.size());
 	LinkExtractionHandler art_handler_link(articles, art_handler.redirects, adj_list, vecMutex);
-	art_handler_link.OrderCallback = [](std::size_t source, std::size_t target)
-	{
-		return source < target;
-	};
 	WikiXmlDumpXerces::SingleCoreParser parser2(art_handler_link, parser_properties);
 	parser2.Run(path);
 
