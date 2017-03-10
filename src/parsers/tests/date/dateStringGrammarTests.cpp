@@ -31,12 +31,12 @@ BOOST_DATA_TEST_CASE(
 
 	WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
 
-	Date d;
+	std::pair<bool, Date> p;
 	auto it = str.cbegin();
-	boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, d);
-	bool was_extracted = it == str.cend();
+	boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, p);
+	bool was_extracted = p.first;
 	BOOST_CHECK(was_extracted);
-	BOOST_CHECK_EQUAL(expected_date, d);
+	BOOST_CHECK_EQUAL(expected_date, p.second);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -53,9 +53,14 @@ namespace WikiMainPath {
 		{
 			try{
 				WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
+				std::pair<bool, Date> p;
 				auto it = str.cbegin();
-				boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, date);
-				found = it == str.cend();
+				boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, p);
+				if(p.first)
+				{
+					date = p.second;
+					found = true;
+				}
 			}
 			catch(boost::spirit::qi::expectation_failure<std::string::const_iterator> e)
 			{

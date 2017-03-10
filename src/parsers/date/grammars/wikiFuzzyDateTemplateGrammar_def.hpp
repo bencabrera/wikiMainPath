@@ -16,7 +16,7 @@ namespace WikiMainPath {
 
 			fuzzy_template_dates = 
 				lit("{{") >> fuzzy_template_names >> '|' 
-				>> date_string_grammar [_val = boost::spirit::_1] 
+				>> date_string_grammar [_val = at_c<1>(boost::spirit::_1)] 
 				>> *(char_ - '}') 
 				>> lit("}}");
 
