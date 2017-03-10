@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 	parser_properties.ProgressReportInterval = 100;
 
-	WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([](){ return ArticleDatesAndCategoriesHandler(); }, parser_properties);
+	WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([](){ return ArticleDatesAndCategoriesHandler(&std::cout); }, parser_properties);
 	parser.Run(paths.begin(), paths.end());
 
 	// terminate xerces

@@ -1,6 +1,7 @@
 #include "infoboxDateExtraction.h"
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
 #include "grammars/infoboxKeyValueGrammar.hpp"
 #include "stringDateExtraction.h"
@@ -92,13 +93,17 @@ namespace WikiMainPath {
 		std::vector<Date> rtn;
 
 		auto key_values = extract_all_key_values_from_infobox(article_syntax);
-		for (const auto& pair : key_values) {
+		for (const auto& pair : key_values) 
+		{
+			auto key = pair.first;
+			boost::to_lower(key);
+
 			if(pair.second.empty())
 				continue;
 
-			Date d;
-			auto date_key_it = InfoboxExpectedDateKeys.find(pair.first);
+			auto date_key_it = InfoboxExpectedDateKeys.find(key);
 
+			Date d;
 			if(!extractDateFromString(pair.second,d))
 			{
 				// date COULD NOT be parsed
@@ -114,9 +119,11 @@ namespace WikiMainPath {
 				{
 					// a date could be parsed, but key did not indicate a date
 					errors.push_back({ DATE_EXTRACTED_BUT_NO_KEY, std::get<0>(pair), std::get<1>(pair) });
+					d.Description = pair.first;
 				}
+				else
+					d.Description = date_key_it->second;
 
-				d.Description = pair.first;
 				rtn.push_back(d);
 			}
 		}
