@@ -41,7 +41,8 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 			// report errors / mismatches
 			if(_report_ostr != nullptr) {
 				for (auto err : errors) 
-					*_report_ostr << WikiMainPath::InfoboxDateExtractionErrorLabel[std::get<0>(err)] << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
+					if(std::get<0>(err) == WikiMainPath::KEY_BUT_NO_DATE_EXTRACTED)
+						*_report_ostr << WikiMainPath::InfoboxDateExtractionErrorLabel[std::get<0>(err)] << " --- '" << std::get<1>(err) << "' --- '" << std::get<2>(err) << "'" << std::endl;
 			}
 		}
 	}

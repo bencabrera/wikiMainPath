@@ -11,11 +11,15 @@ namespace WikiMainPath {
 			using namespace boost::spirit::qi;
 			using namespace boost::phoenix;
 
-			// TODO: solve this with no_case
-			fuzzy_template_names = "Birth-date", "Death-date", "Start-date", "End-date", "birth-date", "birth date", "death-date", "death date", "start-date", "end-date", "birth date and age", "death date and age", "Birth date and age", "Death date and age";
+			fuzzy_template_names = "birth-date", "death-date", "start-date", "end-date", "birth date", "death date", "start-date", "end-date", "birth date and age", "death date and age", "birth date and age", "death date and age", "film date", "start date and years ago";
+
+
+			// for when the template contains something like |df=m 
+			template_non_int_parameter = *(char_ - '=' - eol - '|' - '}') >> '=' >> *(char_ - '|' - eol - '}');
 
 			fuzzy_template_dates = 
-				lit("{{") >> fuzzy_template_names >> '|' 
+				lit("{{") >> no_case[fuzzy_template_names] >> '|' 
+				>> *(&template_non_int_parameter >> template_non_int_parameter >> '|') 
 				>> date_string_grammar [_val = at_c<1>(boost::spirit::_1)] 
 				>> *(char_ - '}') 
 				>> lit("}}");

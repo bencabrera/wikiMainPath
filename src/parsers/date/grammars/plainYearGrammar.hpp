@@ -25,23 +25,14 @@
 namespace WikiMainPath {
 
 	template<typename Iterator, typename Skipper>
-		struct DateStringGrammar : boost::spirit::qi::grammar<Iterator, std::pair<bool,Date>(), Skipper> {
-			DateStringGrammar();
+		struct PlainYearGrammar : boost::spirit::qi::grammar<Iterator, std::pair<bool,Date>(), Skipper> {
+			PlainYearGrammar();
 
 			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
 
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_year_date;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> day_month_year_date;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_day_year_date;
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> year_month_day_date;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> number_year_date;
 
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> month_year;
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> day_month_year;
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> month_day_year;
-			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> year_month_day;
-
-			boost::spirit::qi::symbols<char,int> short_month_str;
-			boost::spirit::qi::symbols<char,int> long_month_str;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> number_year;
 		};
 
 }

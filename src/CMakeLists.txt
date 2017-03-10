@@ -36,6 +36,7 @@ set(PARSER_FILES
 
 	# date grammars
 	parsers/date/grammars/dateStringGrammar.cpp
+	parsers/date/grammars/plainYearGrammar.cpp
 	parsers/date/grammars/wikiDateTemplateGrammar.cpp
 	parsers/date/grammars/wikiFuzzyDateTemplateGrammar.cpp
 	parsers/date/grammars/infoboxKeyValueGrammar.cpp
@@ -107,6 +108,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/date/infoboxDateExtractionTests.cpp
 	parsers/tests/date/articleDateExtractionTests.cpp
 	parsers/tests/date/dateStringGrammarTests.cpp
+	parsers/tests/date/plainYearGrammarTests.cpp
 	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
 	parsers/tests/date/wikiFuzzyDateTemplateGrammarTests.cpp
 )

@@ -16,6 +16,7 @@ std::vector<std::string> date_template_examples = {
 	"{{birth-date|7 December 1941}}",
 	"{{death-date|7 December 1941}}",
 	"{{end-date|7 December 1941}}",
+	"{{birth-date|df=yes|10 November 1940}}"
 };
 
 std::vector<Date> expected_template_dates = {
@@ -24,6 +25,7 @@ std::vector<Date> expected_template_dates = {
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
 	{false, {	   0,	   0,		 0,		7,		11,	  41 }, {}},
+	{false, {	   0,	   0,		 0,		10,		10,	  40 }, {}},
 };
 
 BOOST_DATA_TEST_CASE(

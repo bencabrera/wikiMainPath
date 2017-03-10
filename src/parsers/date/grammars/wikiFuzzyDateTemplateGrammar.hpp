@@ -32,6 +32,8 @@ namespace WikiMainPath {
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> fuzzy_template_dates;
 			boost::spirit::qi::symbols<char> fuzzy_template_names;
 
+			boost::spirit::qi::rule<Iterator, Skipper> template_non_int_parameter;
+
 			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
 	
 			DateStringGrammar<Iterator, Skipper> date_string_grammar;
