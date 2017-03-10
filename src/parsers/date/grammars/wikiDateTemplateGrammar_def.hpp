@@ -14,7 +14,7 @@ namespace WikiMainPath {
 			// type1_string = "Age", "age", "Age nts", "age nts", "Age for infant", "age for infant", "Birth date", "birth date", "Death date", "Start date", "End date", "death date", "start date", "end date", "start date and age", "birth date and age", "death date and age", "Birth date and age", "Death date and age";
 
 			// templates of the format [older_date] | [newer_date]
-			old_new_labels = "age","age nts", "birth date", "birth-date", "birthdate", "death date", "start date", "end date", "start date and age", "birth date and age", "film date", "start date and years ago", "start date and age";
+			old_new_labels = "age","age nts", "birth date", "birth-date", "birth_date", "birthdate", "death date", "death_date", "start date", "end date", "start date and age", "birth date and age", "film date", "start date and years ago", "start date and age";
 
 			// templates of the format [newer_date] | [older_date]
 			new_old_labels = "death date and age", "death date", "death-date", "deathdate";
