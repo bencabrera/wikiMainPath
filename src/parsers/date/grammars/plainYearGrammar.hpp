@@ -33,6 +33,10 @@ namespace WikiMainPath {
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> number_year_date;
 
 			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> number_year;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> number_year_ad;
+			boost::spirit::qi::rule<Iterator, std::tm(), Skipper> number_year_bc;
+
+			boost::spirit::qi::symbols<char> circa_strs;
 		};
 
 }

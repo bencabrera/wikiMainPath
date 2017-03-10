@@ -49,7 +49,7 @@ namespace WikiMainPath {
 			Date d;
 			bool was_extracted = extractDateFromString(pair.second,d);
 
-			if(!was_extracted)
+			if(!was_extracted && date_key_it != InfoboxExpectedDateKeys.end())
 			{
 				// check if it is just a plain year
 				WikiMainPath::PlainYearGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> plain_year_grammar;

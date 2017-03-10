@@ -23,7 +23,11 @@ BOOST_AUTO_TEST_SUITE(plain_year_grammar_tests)
 	std::vector<std::string> date_examples = {
 		"1917",
 		"1776",
-		"21776"
+		"21776",
+		"AD 100",
+		"AD 150",
+		"100 BC",
+		"1 BC",
 	};
 
 std::vector<std::pair<bool,Date>> expected_dates = {
@@ -31,6 +35,10 @@ std::vector<std::pair<bool,Date>> expected_dates = {
 	{true, {false, {	   0,	   0,		 0,		1,		8,	  17 }, {}}},
 	{true, {false, {	   0,	   0,		 0,		29,		10,	  -124 }, {}}},
 	{false, Date()},
+	{true, {false, {	   0,	   0,		 0,		29,		10,	  -2000 }, {}}},
+	{true, {false, {	   0,	   0,		 0,		29,		10,	  -2050 }, {}}},
+	{true, {false, {	   0,	   0,		 0,		29,		10,	  -2000 }, {}}},
+	{true, {false, {	   0,	   0,		 0,		29,		10,	  -1901 }, {}}},
 };
 
 

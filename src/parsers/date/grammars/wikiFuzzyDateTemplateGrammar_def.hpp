@@ -11,7 +11,7 @@ namespace WikiMainPath {
 			using namespace boost::spirit::qi;
 			using namespace boost::phoenix;
 
-			fuzzy_template_names = "birth-date", "death-date", "start-date", "end-date", "birth date", "death date", "start-date", "end-date", "birth date and age", "death date and age", "birth date and age", "death date and age", "film date", "start date and years ago";
+			fuzzy_template_names = "birth-date", "death-date", "start-date", "end-date", "birth date", "death date", "start-date", "end-date", "birth date and age", "death date and age", "birth date and age", "death date and age", "film date", "start date and years ago", "start date and age", "start-date and age";
 
 
 			// for when the template contains something like |df=m 
