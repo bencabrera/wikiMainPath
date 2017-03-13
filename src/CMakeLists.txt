@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 # --- Boost library setup ---
 # set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex)
+find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex unit_test_framework)
 
 # --- Core library ---
 set(CORE_FILES
@@ -111,15 +111,15 @@ set(PARSER_TEST_FILES
 	parsers/tests/date/plainYearGrammarTests.cpp
 	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
 	parsers/tests/date/wikiFuzzyDateTemplateGrammarTests.cpp
+	parsers/tests/main_parserTests.cpp
 )
 
-add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})
+# add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})
 
-add_executable(parserTests parsers/tests/main_tests.cpp)
+add_executable(parserTests ${PARSER_TEST_FILES})
 target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests CoreLib)
 target_link_libraries(parserTests ParserLib)
-target_link_libraries(parserTests ParserTestsLib)
 target_link_libraries(parserTests xerces-c)
 target_link_libraries(parserTests ${Boost_LIBRARIES})
 target_link_libraries(parserTests ParserLib)

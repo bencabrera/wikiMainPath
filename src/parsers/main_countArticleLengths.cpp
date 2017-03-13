@@ -1,5 +1,3 @@
-#define BOOST_SPIRIT_DEBUG
-
 // stdlib
 #include <iostream>
 #include <iomanip>
@@ -33,7 +31,6 @@
 // local files
 #include "shared.h"
 #include "wikiArticleHandlers/countArticleLengthsHandler.h"
-#include "fileNames.h"
 
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
