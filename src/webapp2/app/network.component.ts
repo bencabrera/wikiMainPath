@@ -64,7 +64,7 @@ export class NetworkComponent implements AfterViewInit
 
 		var svgHeight = parseInt(svg.style("height").replace("px", ""));
 		var svgWidth = parseInt(svg.style("width").replace("px", ""));
-		var padding = 100;
+		var padding = 40;
 
 		var minTime = d3.min(this.network_data.events, (d) => { return d.date }); 
 		var maxTime = d3.max(this.network_data.events, (d) => { return d.date }); 
@@ -86,10 +86,7 @@ export class NetworkComponent implements AfterViewInit
 		console.log("this.network_data.links", this.network_data.links);
 
 
-		var label = svg.append("text")
-		.attr("class", "label")
-		.attr("text-anchor", "middle")
-		.attr("style", "visibility: hidden");
+		var LABEL_BOX_PADDING = 10;
 		// .attr("x", (d) => { return timeScale(d.date) + padding; })
 		// .attr("y", (d,i) => { return yScale(this.network_data.positions[i]) + padding - 5; })
 		// .attr("style", "font-size: 16px;")
@@ -119,28 +116,37 @@ export class NetworkComponent implements AfterViewInit
 			console.log("d",d);
 			label
 			.attr("x", timeScale(d.date) + padding)		
-			.attr("y", yScale(this.network_data.positions[i]) + padding - 5)
+			.attr("y", yScale(this.network_data.positions[i]) + padding - LABEL_BOX_PADDING - 15)
 			.text(d.title)
+			.attr("style", "visibility: visible");
+
+			var bbox = label.node().getBBox();
+			label_box
+			.attr("x", bbox.x-LABEL_BOX_PADDING)		
+			.attr("y", bbox.y-LABEL_BOX_PADDING)
+			.attr("width", bbox.width+2*LABEL_BOX_PADDING)		
+			.attr("height", bbox.height+2*LABEL_BOX_PADDING)
 			.attr("style", "visibility: visible");
 		})					
 		.on("mouseout", (d) => {		
 			label
 			.attr("style", "visibility: hidden");
+			label_box
+			.attr("style", "visibility: hidden");
 		});
 
-		// svg.selectAll("text")
-		// .data(this.network_data.events)
-		// .enter()
-		// .append("text")
-		// .attr("x", (d) => { return timeScale(d.date) + padding; })
-		// .attr("y", (d,i) => { return yScale(this.network_data.positions[i]) + padding - 5; })
-		// .attr("text-anchor", "middle")
-		// .attr("style", "font-size: 16px;")
-		// .text((d) => { return d.title });
 
 		svg.append("g")
 		.call(xAxis)
 		.attr("transform", "translate(" + padding + "," + (svgHeight-padding) + ")");
+
+		var label_box = svg.append("rect")
+		.attr("class", "label-box")
+		.attr("style", "visibility: hidden");
+		var label = svg.append("text")
+		.attr("class", "label")
+		.attr("text-anchor", "middle")
+		.attr("style", "visibility: hidden");
 	}
 
 }

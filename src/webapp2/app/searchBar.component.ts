@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { SearchQueryService } from './searchQuery.service'
 
 import { Observable }     from 'rxjs/Observable';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'search-bar',
@@ -14,7 +15,7 @@ export class SearchBarComponent
 	resultsVisible: boolean;
 	@Output('selected') categorySelected : EventEmitter<number> = new EventEmitter<number>();
 
-	constructor(private searchQueryService: SearchQueryService)
+	constructor(private router: Router, private searchQueryService: SearchQueryService)
 	{
 		this.searchQuery = "";
 	}
@@ -27,11 +28,13 @@ export class SearchBarComponent
 
 	onBlur() : void
 	{
-		// this.resultsVisible = false;
+		this.resultsVisible = false;
 	}
 
 	onSelectCategory(category_id : number) : void
 	{
+		this.router.navigate(['category', category_id]);
+		this.resultsVisible = false;
 		// this.categorySelected.emit(category_id);
 	}
 

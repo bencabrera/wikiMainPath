@@ -47,6 +47,42 @@ html, body {
 }
 
 .label {
-	font-size: 16px;
+	font-size: 20px;
+	font-weight: normal;
 	margin-bottom: 5px;
+	padding: 5px;
+	border-radius: 3px;
+}
+
+.label-box {
+	fill: lightgrey;
+	rx: 5;
+	ry: 5;
+}
+
+.startup-spinner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+.startup-spinner-box {
+	height: 200px;
+}
+.startup-spinner-box > img {
+	height: 150px;
+	width: 150px;
+	display: block;
+	margin: auto;
+}
+
+.startup-spinner-box > h1 {
+	display: block;
+	font-family: sans-serif;
+	text-align: center;
+	font-size: 22px;
+}
+
+*[hidden] {
+	display: none;
 }
