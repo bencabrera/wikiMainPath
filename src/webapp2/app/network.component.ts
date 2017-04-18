@@ -83,17 +83,28 @@ export class NetworkComponent implements AfterViewInit
 		var MAIN_PATH_COLOR = "black";
 		var NON_MAIN_PATH_COLOR = "grey";
 
+		console.log("this.network_data.links", this.network_data.links);
+
+
+		var label = svg.append("text")
+		.attr("class", "label")
+		.attr("text-anchor", "middle")
+		.attr("style", "visibility: hidden");
+		// .attr("x", (d) => { return timeScale(d.date) + padding; })
+		// .attr("y", (d,i) => { return yScale(this.network_data.positions[i]) + padding - 5; })
+		// .attr("style", "font-size: 16px;")
+		// .text((d) => { return d.title });
+
+
 		svg.selectAll("line")
 		.data(this.network_data.links)
 		.enter()
 		.append("line")
 		.attr("x1", (d) => { return timeScale(this.network_data.events[d[0]].date) + padding; })
-		.attr("y1", (d) => { return yScale(this.network_data.positions[this.network_data.events[d[0]]]) + padding; })
+		.attr("y1", (d) => { return yScale(this.network_data.positions[d[0]]) + padding; })
 		.attr("x2", (d) => { return timeScale(this.network_data.events[d[1]].date) + padding; })
-		.attr("y2", (d) => { return yScale(this.network_data.positions[this.network_data.events[d[1]]]) + padding; })
+		.attr("y2", (d) => { return yScale(this.network_data.positions[d[1]]) + padding; })
 		.attr("stroke", MAIN_PATH_COLOR);
-		
-		// .attr("stroke-width", (d) => { return weightScale(d[2]); });
 
 		svg.selectAll("circle")
 		.data(this.network_data.events)
@@ -101,19 +112,31 @@ export class NetworkComponent implements AfterViewInit
 		.append("circle")
 		.attr("cx", (d) => { return timeScale(d.date) + padding; })
 		.attr("cy", (d, i) => { return yScale(this.network_data.positions[i]) + padding; })
-		.attr("r", 3)
+		.attr("r", 5)
 		// .attr("r", (d) => { return radiusScale(d[1]); })
-		.attr("fill", MAIN_PATH_COLOR);
+		.attr("fill", MAIN_PATH_COLOR)
+		.on("mouseover", (d,i) => {		
+			console.log("d",d);
+			label
+			.attr("x", timeScale(d.date) + padding)		
+			.attr("y", yScale(this.network_data.positions[i]) + padding - 5)
+			.text(d.title)
+			.attr("style", "visibility: visible");
+		})					
+		.on("mouseout", (d) => {		
+			label
+			.attr("style", "visibility: hidden");
+		});
 
-		svg.selectAll("text")
-		.data(this.network_data.events)
-		.enter()
-		.append("text")
-		.attr("x", (d) => { return timeScale(d.date) + padding; })
-		.attr("y", (d,i) => { return yScale(this.network_data.positions[i]) + padding - 5; })
-		.attr("text-anchor", "middle")
-		.attr("style", "font-size: 16px;")
-		.text((d) => { return d.title });
+		// svg.selectAll("text")
+		// .data(this.network_data.events)
+		// .enter()
+		// .append("text")
+		// .attr("x", (d) => { return timeScale(d.date) + padding; })
+		// .attr("y", (d,i) => { return yScale(this.network_data.positions[i]) + padding - 5; })
+		// .attr("text-anchor", "middle")
+		// .attr("style", "font-size: 16px;")
+		// .text((d) => { return d.title });
 
 		svg.append("g")
 		.call(xAxis)
