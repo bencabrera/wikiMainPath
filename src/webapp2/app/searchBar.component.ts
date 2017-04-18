@@ -27,12 +27,12 @@ export class SearchBarComponent
 
 	onBlur() : void
 	{
-		this.resultsVisible = false;
+		// this.resultsVisible = false;
 	}
 
 	onSelectCategory(category_id : number) : void
 	{
-		this.categorySelected.emit(category_id);
+		// this.categorySelected.emit(category_id);
 	}
 
 }
