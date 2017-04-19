@@ -40,10 +40,11 @@ html, body {
 
 .main-content {
 	position: fixed;
+	left: 50px;
 	right: 50px;
 	top: 100px;
 	bottom: 10px;
-	width: 80%;
+	/* width: 80%; */
 }
 
 .label {

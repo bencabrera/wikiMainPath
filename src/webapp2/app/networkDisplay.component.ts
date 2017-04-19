@@ -1,3 +1,5 @@
+import { EventItem } from './dataTypes';
+
 import { Component, ViewChild, OnChanges, ElementRef, } from '@angular/core';
 import { SearchQueryService } from './searchQuery.service'
 
@@ -9,16 +11,6 @@ import { ActivatedRoute } from '@angular/router';
 	template: 
 		`<div class="container-fluid">
 			<div class="row">
-				<div class="info-sidebar">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title">Category information</h3>
-						</div>
-						<div class="panel-body">
-							Panel content
-						</div>
-					</div>
-				</div>
 				<div class="main-content">
 					<div class="startup-spinner" [hidden]="is_spinner_hidden">
 						<div class="startup-spinner-box">
