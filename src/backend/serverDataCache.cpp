@@ -5,6 +5,11 @@
 #include "graphDrawing/randomGraphDrawing.h"
 #include <iostream>
 
+#include "../../libs/main_path_analysis/src/mainPathAnalysis/checkGraphProperties.hpp"
+#include "../../libs/main_path_analysis/src/mainPathAnalysis/edgeWeightGeneration.hpp"
+#include "../../libs/main_path_analysis/src/mainPathAnalysis/mpaAlgorithms.hpp"
+#include "../../libs/main_path_analysis/src/mainPathAnalysis/preAndPostProcessing.hpp"
+
 ServerDataCache::ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_cache)
 	:_wiki_data_cache(wiki_data_cache),
 	_article_titles(wiki_data_cache.article_titles()),
@@ -79,6 +84,26 @@ const std::vector<double>& ServerDataCache::get_network_positions(std::size_t ca
 	return _network_positions_cache.at(category_id);
 }
 
+const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size_t category_id)
+{
+	if(_global_main_path_cache.count(category_id) == 0)
+	{
+		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
+		compute_global_main_path(category_id);	
+		_global_main_path_priority_list.push_front(category_id);
+
+		auto which_to_delete = _global_main_path_priority_list.back();
+		if(_global_main_path_priority_list.size() > MAX_CACHE_SIZE)
+		{
+			Poco::Mutex::ScopedLock lock(_mutices[which_to_delete % N_MUTEX]);	
+			_global_main_path_cache.erase(which_to_delete);
+			_global_main_path_priority_list.pop_back();
+		}
+	}
+
+	return _global_main_path_cache.at(category_id);
+}
+
 
 // ---- private ----
 
@@ -127,4 +152,35 @@ void ServerDataCache::compute_network_positions(std::size_t category_id)
 	const auto& event_network = get_event_network(category_id);
 	auto positions = random_graph_drawing(event_network);
 	_network_positions_cache.insert({ category_id, std::move(positions) });
+}
+
+void ServerDataCache::compute_global_main_path(std::size_t category_id)
+{
+	const auto& network = get_event_network(category_id);
+
+	ArticleGraph g;
+	boost::copy_graph(network, g);
+	MainPathAnalysis::set_increasing_edge_index(g);
+
+	// add s and t vertex
+	ArticleGraph::vertex_descriptor s, t;
+	MainPathAnalysis::add_source_and_sink_vertex<ArticleGraph>(g, s, t);
+
+	// compute spc weights
+	auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
+
+	// compute global main path
+	std::vector<ArticleGraph::edge_descriptor> main_path;
+	MainPathAnalysis::global(std::back_inserter(main_path), g, weights, s, t);
+
+	// remove s and t from main path and from copy of graph
+	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);
+	MainPathAnalysis::remove_source_and_sink_vertex(g, s, t);
+
+	// build json object of main path
+	EdgeList main_path_edges;
+	for (auto e : main_path) 
+		main_path_edges.push_back({ boost::source(e,g), boost::target(e,g) });
+
+	_global_main_path_cache.insert({ category_id, std::move(main_path_edges) });
 }

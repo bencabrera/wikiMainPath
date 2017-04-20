@@ -42,8 +42,13 @@ export class NetworkComponent implements AfterViewInit
 	private label: any;
 
 	// constants
-	readonly MAIN_PATH_COLOR : string = "black";
-	readonly NON_MAIN_PATH_COLOR : string = "grey";
+	readonly MAX_ZOOM_RATIO : number = 100;
+	readonly NORMAL_LINK_WIDTH : number = 1;
+	readonly NORMAL_LINK_COLOR : string = "grey";
+	readonly NORMAL_VERTEX_COLOR : string = "black";
+	readonly MAIN_PATH_LINK_COLOR : string = "blue";
+	readonly MAIN_PATH_LINK_WIDTH : number = 5;
+	readonly MAIN_PATH_VERTEX_COLOR : string = "black";
 	readonly PADDING : number = 40;
 	readonly LABEL_BOX_PADDING : number = 10;
 
@@ -58,12 +63,6 @@ export class NetworkComponent implements AfterViewInit
 
 	ngOnChanges(changes: SimpleChanges) 
 	{
-		console.log("changed", changes);
-		if (changes['network_data'] && this.network_data) {
-			console.log("changed");
-			console.log(this.network_data);
-		}
-
 		this.reset_full_drawing();
 	}
 
@@ -138,8 +137,31 @@ export class NetworkComponent implements AfterViewInit
 		.attr("text-anchor", "middle")
 		.attr("style", "visibility: hidden");
 
-		var zoom = d3.zoom().scaleExtent([1, 20]).on('zoom', () => { return this.zoom(); });
+		var zoom = d3.zoom().scaleExtent([1, this.MAX_ZOOM_RATIO]).on('zoom', () => { return this.zoom(); });
 		svg.call(zoom);
+	}
+
+
+	check_anywhere_in_array(arr: any[], el: any) : boolean
+	{
+		for(var i = 0; i < arr.length; i++)
+		{
+			if(el == arr[i][0] || el == arr[i][1])
+				return true;
+		}
+
+		return false;
+	}
+
+	check_in_array(arr: any[], el: any) : boolean
+	{
+		for(var i = 0; i < arr.length; i++)
+		{
+			if(el[0] == arr[i][0] && el[1] == arr[i][1])
+				return true;
+		}
+
+		return false;
 	}
 
 	redraw_d3() : void
@@ -156,14 +178,40 @@ export class NetworkComponent implements AfterViewInit
 		this.axis_object.call(this.time_axis);
 
 		this.d3_canvas.selectAll("line")
+		// .data(this.network_data.links, function(d,i) { console.log(d); return "link_" + d[0] + "_" +d[1]; })
 		.data(this.network_data.links)
 		.enter()
 		.append("line")
+		.attr("class", "link")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
 		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
 		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
 		.attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; })
-		.attr("stroke", this.MAIN_PATH_COLOR);
+		// .attr("stroke", this.NORMAL_LINK_COLOR);
+		.attr("stroke", (d) => { 
+			if(this.check_in_array(this.network_data.main_path,d))  
+			   return this.MAIN_PATH_LINK_COLOR;
+			 else
+			   return this.NORMAL_LINK_COLOR;
+		})
+		.attr("stroke-width", (d) => { 
+			if(this.check_in_array(this.network_data.main_path,d))  
+			   return this.MAIN_PATH_LINK_WIDTH;
+			 else
+			   return this.NORMAL_LINK_WIDTH;
+		});
+
+		// this.d3_canvas.selectAll("line")
+		// // .data(this.network_data.main_path)
+		// .data(this.network_data.main_path, function(d,i) { console.log(d); return "mp_" + d[0] + "_" +d[1]; })
+		// .enter()
+		// .append("line")
+		// .attr("class", "mp")
+		// .attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
+		// .attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
+		// .attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
+		// .attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; })
+		// .attr("stroke", this.MAIN_PATH_LINK_COLOR);
 
 		this.d3_canvas.selectAll("circle")
 		.data(this.network_data.events, (d:EventItem) => { return d.id; })
@@ -173,7 +221,13 @@ export class NetworkComponent implements AfterViewInit
 		.attr("cy", (d, i) => { return this.y_scale(this.network_data.positions[i]) + this.PADDING; })
 		.attr("r", 5)
 		// .attr("r", (d) => { return radiusScale(d[1]); })
-		.attr("fill", this.MAIN_PATH_COLOR)
+		.attr("fill", (d,i) => { 
+			if(this.check_anywhere_in_array(this.network_data.main_path,i))  
+			   return this.MAIN_PATH_VERTEX_COLOR;
+			 else
+			   return this.NORMAL_VERTEX_COLOR;
+		})
+		// .attr("fill", this.NORMAL_VERTEX_COLOR)
 		.on("mouseover", (d,i) => {		
 			this.label.attr("x", this.time_scale(d.date) + this.PADDING)		
 			.attr("y", this.y_scale(this.network_data.positions[i]) + this.PADDING - this.LABEL_BOX_PADDING - 15)
@@ -199,17 +253,21 @@ export class NetworkComponent implements AfterViewInit
 		console.log("Called 'zoom'");
 		var transform = d3.event.transform;
 
-		// console.log(this.time_scale);
 		var new_time_scale = transform.rescaleX(this.original_time_scale);
 		this.time_scale = new_time_scale;
 		this.time_axis.scale(this.time_scale);
-		console.log(this.time_axis);
 		// // this.axis_objectg.call(this.time_axis);
 
 		// // // draw the circles in their new positions
 		// // circles.attr('cx', function(d) { return transform.applyX(xScale(d)); });
 		// //
-		this.d3_canvas.selectAll("line")
+		this.d3_canvas.selectAll("line.link")
+		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
+		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
+		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
+		.attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; });
+
+		this.d3_canvas.selectAll("line.mp")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
 		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
 		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })

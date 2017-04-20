@@ -93,10 +93,21 @@ namespace WikiMainPath {
 		for (auto pos : positions) 
 			positions_array.add(pos);
 
+		const auto& main_path = _server_data_cache.get_global_main_path(category_id);
+		Array mpa_array;
+		for (auto edge : main_path) {
+			Array link;
+			link.set(0, edge.first);
+			link.set(1, edge.second);
+
+			mpa_array.add(link);
+		}
+
 		Object root;
 		root.set("events", events_array);
 		root.set("links", links_array);
 		root.set("positions", positions_array);
+		root.set("main_path", mpa_array);
 
 		root.stringify(response.send(), 4); 
 	}

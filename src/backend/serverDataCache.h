@@ -17,6 +17,7 @@ class ServerDataCache {
 		};
 
 		using EventList = std::vector<Event>;
+		using EdgeList = std::vector<std::pair<std::size_t,std::size_t>>;
 
 		static constexpr std::size_t MAX_CACHE_SIZE = 10;
 		static constexpr std::size_t N_MUTEX = 100;
@@ -26,6 +27,7 @@ class ServerDataCache {
 		const EventNetwork& get_event_network(std::size_t category_id);
 		const EventList& get_event_list(std::size_t category_id);
 		const std::vector<double>& get_network_positions(std::size_t category_id);
+		const EdgeList& get_global_main_path(std::size_t category_id);
 
 	private:
 
@@ -40,6 +42,12 @@ class ServerDataCache {
 		void compute_network_positions(std::size_t category_id);
 		std::map<std::size_t, std::vector<double>> _network_positions_cache;
 		std::list<std::size_t> _network_positions_priority_list;
+
+		void compute_global_main_path(std::size_t category_id);
+		std::map<std::size_t, EdgeList> _global_main_path_cache;
+		std::list<std::size_t> _global_main_path_priority_list;
+
+
 
 		const WikiMainPath::WikiDataCache& _wiki_data_cache;
 
