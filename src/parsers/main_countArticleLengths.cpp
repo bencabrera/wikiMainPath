@@ -34,6 +34,7 @@
 
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
 
 
 namespace po = boost::program_options;
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
-		("help", "Produce help message.")
+		("help,h", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("test-input-file", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
@@ -173,22 +174,10 @@ int main(int argc, char* argv[])
 	xercesc::XMLPlatformUtils::Initialize();
 
 	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
-	parser_properties.TitleFilter = [](const std::string& title) {
-					return !(
-						title.substr(0,5) == "User:" 
-						|| title.substr(0,10) == "Wikipedia:" 
-						|| title.substr(0,5) == "Talk:" 
-						|| title.substr(0,5) == "File:" 
-						|| title.substr(0,14) == "Category talk:" 
-						|| title.substr(0,14) == "Template talk:"
-						|| title.substr(0,9) == "Template:"
-						|| title.substr(0,10) == "User talk:"
-						|| title.substr(0,10) == "File talk:"
-						|| title.substr(0,15) == "Wikipedia talk:"
-						);
-					};
+	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles();
 		
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, "bla", std::placeholders::_1);
+	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
+	parser_properties.ProgressReportInterval = 100;
 
 	WikiXmlDumpXerces::ParallelParser<CountArticleLengthHandler> parser([&existing_results](){ 
 		return CountArticleLengthHandler(existing_results); 

@@ -78,6 +78,8 @@ int main(int argc, char* argv[])
 	for (auto v1 : boost::make_iterator_range(boost::vertices(article_network))) 
 	{
 		auto& dates1 = dates[v1];
+
+		// for every connection in article network connect all the events stemming from dates with each other
 		for (auto e : boost::make_iterator_range(boost::out_edges(v1,article_network))) {
 			auto v2 = boost::target(e, article_network);	
 			auto& dates2 = dates[v2];
@@ -93,6 +95,14 @@ int main(int argc, char* argv[])
 						event_adj_list[start_idx_2+i_date_2].insert(start_idx_1+i_date_1);	
 				}	
 		}	
+
+		// connect all inner article events
+		auto start_idx_v = event_indices[v1];
+		for(std::size_t i_date = 0; i_date < dates1.size(); i_date++) 
+			for(std::size_t i_date_to = 0; i_date_to < dates1.size(); i_date_to++) 
+				if(i_date != i_date_to && dates1[i_date] < dates1[i_date_to])
+					event_adj_list[start_idx_v+i_date].insert(start_idx_v+i_date_to);	
+			
 	}
 	timer.stop_timing_step("compute_event_network");
 

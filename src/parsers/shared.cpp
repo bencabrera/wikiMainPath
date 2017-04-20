@@ -1,5 +1,7 @@
 #include "shared.h"
 
+#include "../../libs/shared/cpp/cliProgressBar.hpp"
+
 std::string timingToReadable(std::size_t milliseconds)
 {
 	std::stringstream ss;
@@ -36,14 +38,15 @@ void printProgress(const std::map<std::string, std::size_t>& pageCounts, const s
 	auto it = pageCounts.find(path.filename().c_str());
 	std::cout << path.filename();
 	if(!article_title.empty())
-	{
 		std::cout << " [" << article_title << "]";
-	}
 	std::cout << ": ";
 
 	if(it != pageCounts.end())
 	{
-		std::cout << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
+		std::cout << std::endl;
+		Shared::cli_progress_bar(count, it->second);
+		std::cout << std::endl;
+		// std::cout << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
 	}
 	else
 		std::cout << std::right << count << std::endl;

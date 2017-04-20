@@ -4,8 +4,10 @@ project(WikiMainPath)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+# add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+
 # --- Boost library setup ---
-# set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex unit_test_framework)
 
 # --- Core library ---
@@ -14,7 +16,7 @@ set(CORE_FILES
 	core/wikiDataCache.cpp
 )
 
-add_library(CoreLib SHARED ${CORE_FILES})
+add_library(CoreLib STATIC ${CORE_FILES})
 
 
 
@@ -47,14 +49,22 @@ set(PARSER_FILES
 	parsers/shared.cpp
 )
 
-add_library(ParserLib SHARED ${PARSER_FILES})
+add_library(ParserLib STATIC ${PARSER_FILES})
+
+# parser executables
+add_executable(count_pages ../libs/wiki_xml_dump_xerces/src/examples/countPages/main_countPages.cpp)
+target_link_libraries(count_pages ${Boost_LIBRARIES})
+target_link_libraries(count_pages xerces-c)
+target_link_libraries(count_pages pthread)
 
 # parser executables
 add_executable(countArticleLengths parsers/main_countArticleLengths.cpp)
+target_link_libraries(countArticleLengths CoreLib)
 target_link_libraries(countArticleLengths ParserLib)
 target_link_libraries(countArticleLengths ${Boost_LIBRARIES})
 target_link_libraries(countArticleLengths xerces-c)
 target_link_libraries(countArticleLengths pthread)
+target_link_libraries(countArticleLengths CoreLib)
 
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories CoreLib)
@@ -114,7 +124,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/main_parserTests.cpp
 )
 
-# add_library(ParserTestsLib SHARED ${PARSER_TEST_FILES})
+# add_library(ParserTestsLib STATIC ${PARSER_TEST_FILES})
 
 add_executable(parserTests ${PARSER_TEST_FILES})
 target_link_libraries(parserTests ${Boost_LIBRARIES})
@@ -127,6 +137,7 @@ target_link_libraries(parserTests CoreLib)
 
 # --- backend server ---
 set(BACKEND_FILES
+	backend/serverDataCache.cpp
 	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
 	# backend/serverData.cpp
@@ -146,8 +157,8 @@ set(PORTER_2_STEMMER_FILES
 	../libs/porter2_stemmer/util/hash.h
 )
 
-add_library(BackendLib SHARED ${BACKEND_FILES})
-add_library(Porter2_Stemmer SHARED ${PORTER_2_STEMMER_FILES})
+add_library(BackendLib STATIC ${BACKEND_FILES})
+add_library(Porter2_Stemmer STATIC ${PORTER_2_STEMMER_FILES})
 
 add_executable(backend backend/main_backend.cpp)
 target_link_libraries(backend BackendLib)

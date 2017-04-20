@@ -1,5 +1,6 @@
 #include "categoryHasArticleHandler.h"
 
+#include <iostream>
 #include <boost/algorithm/string/trim.hpp>
 
 CategoryHasArticleHandler::CategoryHasArticleHandler(
