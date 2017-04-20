@@ -4,6 +4,7 @@
 
 #include "../core/wikiDataCache.h"
 #include "fullTextSearch.h"
+#include "serverDataCache.h"
 
 namespace WikiMainPath {
 
@@ -15,7 +16,8 @@ namespace WikiMainPath {
 			Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &request);
 
 		private:
-			const WikiDataCache& _data;
+			const WikiDataCache& _wiki_data_cache;
+			ServerDataCache _server_data_cache;
 			const InvertedIndex _article_titles_inverted_index;
 			const InvertedIndex _category_titles_inverted_index;
 	};
