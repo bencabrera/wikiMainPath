@@ -19,13 +19,14 @@ ServerDataCache::ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_ca
 	_category_titles(wiki_data_cache.category_titles()),
 	_article_dates(wiki_data_cache.article_dates()),
 	_category_has_article(wiki_data_cache.category_has_article()),
-	_event_indices(wiki_data_cache.event_indices()),
-	_event_network(wiki_data_cache.event_network())
+	_article_network(wiki_data_cache.article_network())
+	// _event_indices(wiki_data_cache.event_indices()),
+	// _event_network(wiki_data_cache.event_network())
 {}
 
 
 
-const EventNetwork& ServerDataCache::get_event_network(std::size_t category_id)
+const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id)
 {
 	if(_event_network_cache.count(category_id) == 0)
 	{
@@ -112,39 +113,46 @@ const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size
 
 void ServerDataCache::compute_event_network(std::size_t category_id)
 {
-	std::vector<std::size_t> events_in_category;	
+	std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
+	std::size_t cur_event_id = 0;
 	for (auto article_id : _category_has_article[category_id]) {
-		for(std::size_t idx = _event_indices[article_id]; idx < _event_indices[article_id+1]; idx++)
-			events_in_category.push_back(idx);
+		events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates.size() - 1 } });
+		cur_event_id += _article_dates.size();
 	}
 
-	EventNetwork subgraph = _event_network.create_subgraph();
-	for (auto i : events_in_category) 
-		boost::add_vertex(i, subgraph);	
+	std::set<std::size_t> articles_in_network;
+	for(auto& ev : events_in_category) 
+		articles_in_network.insert(ev.first);		
 
-	_event_network_cache.insert({ category_id, subgraph });
+	ArticleGraph g(cur_event_id);
 
-	boost::copy_graph(subgraph,_event_network_cache.at(category_id)); // needed because otherwise it looses all its vetices, WTF
+	for(auto& ev : events_in_category)
+	{
+		std::vector<std::size_t> neighbors_in_network;
+		std::set_intersection(_article_network[ev.first].begin(), _article_network[ev.first].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
+
+		for(std::size_t event_1 = ev.second.first; event_1 <= ev.second.second; event_1++)
+			for(auto neighbor_article : neighbors_in_network)
+				for(std::size_t event_2 = events_in_category.at(neighbor_article).first; event_2 <= events_in_category.at(neighbor_article).second; event_2++)
+				{
+					if(_article_dates[ev.first][event_1 - ev.second.first] < _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first])
+						boost::add_edge(event_1, event_2, g);
+					else
+						boost::add_edge(event_2, event_1, g);
+				}
+	}
+
+	_event_network_cache.insert({ category_id, g });
 }
 
 void ServerDataCache::compute_event_list(std::size_t category_id)
 {
-	const auto& event_network = get_event_network(category_id);
-
 	EventList event_list;
-	for (auto v : boost::make_iterator_range(boost::vertices(event_network))) {
-
-		auto global_event_id = event_network.local_to_global(v);
-
-		auto article_it = std::lower_bound(_event_indices.begin(), _event_indices.end(), global_event_id);	
-		std::size_t article_id = article_it - _event_indices.begin();
-		if(_event_indices[article_id] != global_event_id)
-			article_id -= 1;
-		std::size_t date_id = global_event_id - _event_indices[article_id];
-
-		std::string article_title = boost::to_upper_copy(_article_dates[article_id][date_id].Description) + ": " + _article_titles[article_id];
-
-		event_list.push_back(Event{ article_title, global_event_id, _article_dates[article_id][date_id].Begin });
+	for (auto article_id : _category_has_article[category_id]) {
+		for (auto d : _article_dates[article_id]) {
+			std::string article_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
+			event_list.push_back(Event{ article_title, d.Begin });
+		}
 	}
 
 	_event_list_cache.insert({ category_id, std::move(event_list) });

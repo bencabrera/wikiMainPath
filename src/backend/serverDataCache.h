@@ -12,7 +12,6 @@ class ServerDataCache {
 	public:
 		struct Event {
 			std::string Title;			
-			std::size_t Id;
 			std::tm Date;			
 		};
 
@@ -24,7 +23,7 @@ class ServerDataCache {
 
 		ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_cache);
 
-		const EventNetwork& get_event_network(std::size_t category_id);
+		const ArticleGraph& get_event_network(std::size_t category_id);
 		const EventList& get_event_list(std::size_t category_id);
 		const std::vector<double>& get_network_positions(std::size_t category_id);
 		const EdgeList& get_global_main_path(std::size_t category_id);
@@ -34,7 +33,7 @@ class ServerDataCache {
 		static std::vector<double> compute_x_positions(const EventList& event_list);
 
 		void compute_event_network(std::size_t category_id);
-		std::map<std::size_t, EventNetwork> _event_network_cache;
+		std::map<std::size_t, ArticleGraph> _event_network_cache;
 		std::list<std::size_t> _event_network_priority_list;
 
 		void compute_event_list(std::size_t category_id);
@@ -57,8 +56,9 @@ class ServerDataCache {
 		const std::vector<std::string>& _category_titles;
 		const std::vector<std::vector<Date>>& _article_dates;
 		const std::vector<std::vector<std::size_t>>& _category_has_article;
-		const std::vector<std::size_t>& _event_indices;
-		EventNetwork _event_network;
+		const std::vector<std::vector<std::size_t>>& _article_network;
+		// const std::vector<std::size_t>& _event_indices;
+		// ArticleGraph _event_network;
 
 		std::array<Poco::Mutex, N_MUTEX> _mutices;
 };

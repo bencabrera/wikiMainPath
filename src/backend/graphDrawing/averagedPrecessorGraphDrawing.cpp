@@ -1,7 +1,7 @@
 #include "randomGraphDrawing.h"
 #include <random>
 
-std::vector<double> averaged_precessor_graph_drawing(const EventNetwork& event_network)
+std::vector<double> averaged_precessor_graph_drawing(const ArticleGraph& event_network)
 {
 	std::size_t n_wo_incoming = 0;
 	for(std::size_t i = 0; i < boost::num_vertices(event_network); i++)

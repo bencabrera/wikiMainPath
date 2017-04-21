@@ -72,7 +72,6 @@ namespace WikiMainPath {
 		for (auto& event : event_list) {
 			Object el;
 			el.set("title", event.Title);
-			el.set("id", event.Id);
 			el.set("date", to_iso_string(event.Date));
 
 			events_array.add(el);

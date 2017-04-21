@@ -37,12 +37,15 @@ int main(int argc, char* argv[])
 	timer.start_timing_step("read_article_dates","Reading in 'article_dates'", &std::cout);
 	data.article_dates();
 	timer.stop_timing_step("read_article_dates",&std::cout);
-	timer.start_timing_step("read_event_network","Reading in 'event_network'", &std::cout);
-	data.event_network();
-	timer.stop_timing_step("read_event_network",&std::cout);
-	timer.start_timing_step("read_event_indices","Reading in 'event_indices'", &std::cout);
-	data.event_indices();
-	timer.stop_timing_step("read_event_indices",&std::cout);
+	timer.start_timing_step("read_article_network","Reading in 'article_network'", &std::cout);
+	data.article_network();
+	timer.stop_timing_step("read_article_network",&std::cout);
+	// timer.start_timing_step("read_event_network","Reading in 'event_network'", &std::cout);
+	// data.event_network();
+	// timer.stop_timing_step("read_event_network",&std::cout);
+	// timer.start_timing_step("read_event_indices","Reading in 'event_indices'", &std::cout);
+	// data.event_indices();
+	// timer.stop_timing_step("read_event_indices",&std::cout);
 
 	std::cout << "---------------------------------------------------" << std::endl;
 	std::cout << "IO Timings: " << std::endl;
