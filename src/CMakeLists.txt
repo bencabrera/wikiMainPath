@@ -142,9 +142,10 @@ set(BACKEND_FILES
 	backend/serverDataCache.cpp
 	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
+	backend/serverApplication.cpp
 	# backend/serverData.cpp
 	# backend/httpRequestHandlers/mpaHandler.cpp
-	backend/httpRequestHandlers/searchHandler.cpp
+	backend/httpRequestHandlers/categorySearchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
 	backend/httpRequestHandlers/articleListHandler.cpp
 	backend/httpRequestHandlers/eventNetworkHandler.cpp

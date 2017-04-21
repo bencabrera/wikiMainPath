@@ -272,7 +272,7 @@ namespace WikiMainPath {
 					linked_articles.push_back(std::stoi(tmpStr));
 			}
 
-			category_has_article->push_back(linked_articles);
+			category_has_article->push_back(std::move(linked_articles));
 		}
 
 		return category_has_article;
@@ -300,7 +300,7 @@ namespace WikiMainPath {
 					linked_articles.insert(std::stoi(tmpStr));
 			}
 
-			category_has_article->push_back(linked_articles);
+			category_has_article->push_back(std::move(linked_articles));
 		}
 
 		return category_has_article;

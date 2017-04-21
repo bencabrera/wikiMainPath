@@ -1,4 +1,4 @@
-#include "searchHandler.h"
+#include "categorySearchHandler.h"
 
 #include <boost/algorithm/string/trim.hpp>
 #include <Poco/JSON/Object.h>
@@ -8,13 +8,12 @@
 
 namespace WikiMainPath {
 
-	SearchHandler::SearchHandler(const std::string json_attribute_name, const std::vector<std::string>& vec, const InvertedIndex& inverted_index)
-		:_json_attribute_name(json_attribute_name),
-		_vector(vec),
+	CategorySearchHandler::CategorySearchHandler(const WikiDataCache& wiki_data_cache, const InvertedIndex& inverted_index)
+		:_wiki_data_cache(wiki_data_cache),
 		_inverted_index(inverted_index)
 	{}
 
-	void SearchHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+	void CategorySearchHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 	{
 		using namespace Poco::JSON;
 
@@ -50,13 +49,14 @@ namespace WikiMainPath {
 
 		for (auto res : results) {
 			Object el;
-			el.set("title", _vector[res]);
+			el.set("title", _wiki_data_cache.category_titles()[res]);
 			el.set("id", res);
+			el.set("n_articles", _wiki_data_cache.category_has_article()[res].size());
 
 			matchingCategoriesArray.add(el);
 		}
 
-		root.set(_json_attribute_name, matchingCategoriesArray);
+		root.set("matching-categories", matchingCategoriesArray);
 
 		root.stringify(response.send(), 4); 
 	}
