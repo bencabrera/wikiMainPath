@@ -37,12 +37,11 @@ export class NetworkComponent implements AfterViewInit
 	private original_time_scale : any;
 	private y_scale : any;
 	private time_axis : any;
-	private axis_object : any;
 	private label_box : any;
 	private label: any;
 
 	// constants
-	readonly MAX_ZOOM_RATIO : number = 100;
+	readonly MAX_ZOOM_RATIO : number = 500;
 	readonly NORMAL_LINK_WIDTH : number = 1;
 	readonly NORMAL_LINK_COLOR : string = "grey";
 	readonly NORMAL_VERTEX_COLOR : string = "black";
@@ -124,10 +123,10 @@ export class NetworkComponent implements AfterViewInit
 
 		this.time_axis = d3.axisBottom(this.time_scale);
 
-		this.axis_object = svg.append("g")
-		.attr("transform", "translate(" + this.PADDING + "," + (svgHeight-this.PADDING) + ")");
-
-		this.axis_object.call(this.time_axis);
+		svg.append("g")
+		.attr("class","axis")
+		.attr("transform", "translate(" + this.PADDING + "," + (svgHeight-this.PADDING) + ")")
+		.call(this.time_axis);
 
 		this.label_box = svg.append("rect")
 		.attr("class", "label-box")
@@ -175,7 +174,8 @@ export class NetworkComponent implements AfterViewInit
 			return;
 
 		// first update scales
-		this.axis_object.call(this.time_axis);
+		this.d3_canvas.select("g.axis")
+		.call(this.time_axis);
 
 		this.d3_canvas.selectAll("line")
 		// .data(this.network_data.links, function(d,i) { console.log(d); return "link_" + d[0] + "_" +d[1]; })
@@ -256,11 +256,9 @@ export class NetworkComponent implements AfterViewInit
 		var new_time_scale = transform.rescaleX(this.original_time_scale);
 		this.time_scale = new_time_scale;
 		this.time_axis.scale(this.time_scale);
-		// // this.axis_objectg.call(this.time_axis);
+		this.d3_canvas.select("g.axis")
+		.call(this.time_axis);
 
-		// // // draw the circles in their new positions
-		// // circles.attr('cx', function(d) { return transform.applyX(xScale(d)); });
-		// //
 		this.d3_canvas.selectAll("line.link")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
 		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
@@ -277,8 +275,6 @@ export class NetworkComponent implements AfterViewInit
 		.attr("cx", (d) => { return this.time_scale(d.date) + this.PADDING; })
 		.attr("cy", (d, i) => { return this.y_scale(this.network_data.positions[i]) + this.PADDING; })
 		.attr("r", 5);
-
-		// this.axis_object.call(this.time_axis);
 	}
 
 }
