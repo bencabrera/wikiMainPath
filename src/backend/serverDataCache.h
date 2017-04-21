@@ -13,7 +13,7 @@ class ServerDataCache {
 		struct Event {
 			std::string Title;			
 			std::size_t Id;
-			std::string Date;			
+			std::tm Date;			
 		};
 
 		using EventList = std::vector<Event>;
@@ -30,6 +30,8 @@ class ServerDataCache {
 		const EdgeList& get_global_main_path(std::size_t category_id);
 
 	private:
+
+		static std::vector<double> compute_x_positions(const EventList& event_list);
 
 		void compute_event_network(std::size_t category_id);
 		std::map<std::size_t, EventNetwork> _event_network_cache;

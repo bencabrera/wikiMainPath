@@ -73,7 +73,7 @@ namespace WikiMainPath {
 			Object el;
 			el.set("title", event.Title);
 			el.set("id", event.Id);
-			el.set("date", event.Date);
+			el.set("date", to_iso_string(event.Date));
 
 			events_array.add(el);
 		}

@@ -3,7 +3,10 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "graphDrawing/randomGraphDrawing.h"
+#include "graphDrawing/averagedPrecessorGraphDrawing.h"
 #include <iostream>
+#include "../core/dateDifference.h"
+
 
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/checkGraphProperties.hpp"
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/edgeWeightGeneration.hpp"
@@ -141,16 +144,43 @@ void ServerDataCache::compute_event_list(std::size_t category_id)
 
 		std::string article_title = boost::to_upper_copy(_article_dates[article_id][date_id].Description) + ": " + _article_titles[article_id];
 
-		event_list.push_back(Event{ article_title, global_event_id, to_iso_string(_article_dates[article_id][date_id].Begin) });
+		event_list.push_back(Event{ article_title, global_event_id, _article_dates[article_id][date_id].Begin });
 	}
 
 	_event_list_cache.insert({ category_id, std::move(event_list) });
 }
 
+std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_list)
+{
+	auto min_event_it = std::min_element(event_list.begin(), event_list.end(), [](const Event& e1, const Event& e2) {
+		return e1.Date < e2.Date;
+	});
+
+	std::size_t max_difference = 0;
+	std::vector<std::size_t> day_differences;
+	for (auto event : event_list) 
+	{
+		auto diff = difference_in_days(event.Date, min_event_it->Date);
+		max_difference = std::max(max_difference, diff);
+		day_differences.push_back(diff);
+	}
+
+	std::vector<double> x_positions;
+	for (auto diff : day_differences) 
+		x_positions.push_back(diff / static_cast<double>(max_difference));
+
+	return x_positions;
+}
+
 void ServerDataCache::compute_network_positions(std::size_t category_id)
 {
 	const auto& event_network = get_event_network(category_id);
-	auto positions = random_graph_drawing(event_network);
+	// const auto& event_list = get_event_list(category_id);
+
+	// // get normalized x coordinates for drawing algorithms
+	// auto x_positions = compute_x_positions(event_list);
+
+	auto positions = averaged_precessor_graph_drawing(event_network);
 	_network_positions_cache.insert({ category_id, std::move(positions) });
 }
 

@@ -14,6 +14,7 @@ find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options gr
 set(CORE_FILES
 	core/date.cpp
 	core/wikiDataCache.cpp
+	core/dateDifference.cpp
 )
 
 add_library(CoreLib STATIC ${CORE_FILES})
@@ -149,6 +150,7 @@ set(BACKEND_FILES
 	backend/httpRequestHandlers/eventNetworkHandler.cpp
 	# backend/httpRequestHandlers/articleNetworkHandler.cpp
 	backend/graphDrawing/randomGraphDrawing.cpp
+	backend/graphDrawing/averagedPrecessorGraphDrawing.cpp
 )
 
 set(PORTER_2_STEMMER_FILES
