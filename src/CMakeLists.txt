@@ -52,7 +52,8 @@ set(PARSER_FILES
 add_library(ParserLib STATIC ${PARSER_FILES})
 
 # parser executables
-add_executable(count_pages ../libs/wiki_xml_dump_xerces/src/examples/countPages/main_countPages.cpp)
+add_executable(count_pages parsers/main_countPages.cpp)
+target_link_libraries(count_pages ParserLib)
 target_link_libraries(count_pages ${Boost_LIBRARIES})
 target_link_libraries(count_pages xerces-c)
 target_link_libraries(count_pages pthread)

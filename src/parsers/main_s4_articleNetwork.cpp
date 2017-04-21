@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
+		("selection-file", po::value<std::string>(), "The file that contains a list of all .xml files which should be considered.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
 		;
 	po::variables_map vm;
@@ -83,27 +84,24 @@ int main(int argc, char* argv[])
 	const auto& redirects = wiki_data_cache.redirects();
 	timer.stop_timing_step("reading");
 
-	// initialize xerces
-	xercesc::XMLPlatformUtils::Initialize();
+
+	// scan for xml files in the input-folder
+	std::vector<std::string> paths;
+	if(vm.count("selection-file"))
+		paths = selected_filename_in_folder(inputXmlFolder, fs::path(vm["selection-file"].as<std::string>()));
+	else
+		paths = selected_filename_in_folder(inputXmlFolder);
+		
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
-	std::cout << "Found the following .xml files: " << std::endl;
-	// scan xml folder for files and put them into list
-	std::vector<fs::path> xmlFileList;
-	for(auto dir_it = fs::directory_iterator(inputXmlFolder); dir_it != fs::directory_iterator(); dir_it++)
-	{
-		if(!fs::is_directory(dir_it->path()))
-			xmlFileList.push_back(dir_it->path());
-	}
-
-	std::vector<std::string> paths;
-	for (auto el : xmlFileList) {
-		std::cout << el << std::endl;
-		paths.push_back(el.string());
-	}
+	std::cout << "Found the following files: " << std::endl;
+	for (auto f : paths) 
+		std::cout << f << std::endl;
 
 	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
 
+	// initialize xerces
+	xercesc::XMLPlatformUtils::Initialize();
 	VectorMutex<1000> vecMutex;
 	std::vector<boost::container::flat_set<std::size_t>> adjList(articles.size());
 

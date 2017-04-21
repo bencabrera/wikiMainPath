@@ -1,6 +1,8 @@
 #include "shared.h"
 
 #include "../../libs/shared/cpp/cliProgressBar.hpp"
+#include <set>
+#include <boost/algorithm/string/trim.hpp>
 
 std::string timingToReadable(std::size_t milliseconds)
 {
@@ -30,6 +32,35 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	}
 
 	return rtn;
+}
+
+std::vector<std::string> selected_filename_in_folder(boost::filesystem::path input_folder, boost::filesystem::path selection_file_path)
+{
+	namespace fs = boost::filesystem;
+
+	// read in selection file if possible
+	std::set<std::string> selected_file_names;
+	if(!selection_file_path.empty() && fs::is_regular_file(selection_file_path))
+	{
+		std::ifstream selection_file(selection_file_path.string());
+		std::string line;
+		while(std::getline(selection_file, line))
+		{
+			boost::trim(line);
+			if(line.length() > 0)
+				selected_file_names.insert(line);
+		}
+	}
+
+	std::vector<std::string> xml_file_list;
+	for(auto dir_it = fs::directory_iterator(input_folder); dir_it != fs::directory_iterator(); dir_it++)
+	{
+		std::string filename = dir_it->path().filename().string();
+		if(fs::is_regular_file(dir_it->path()) && (selected_file_names.size() == 0 || selected_file_names.count(filename) > 0))
+			xml_file_list.push_back(dir_it->path().string());
+	}
+
+	return xml_file_list;
 }
 
 void printProgress(const std::map<std::string, std::size_t>& pageCounts, const std::string& path_str, std::size_t count, std::string article_title)

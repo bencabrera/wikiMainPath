@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 		("help", "Produce help message.")
 		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
+		("selection-file", po::value<std::string>(), "The file that contains a list of all .xml files which should be considered.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
 		;
 	po::variables_map vm;
@@ -84,20 +85,17 @@ int main(int argc, char* argv[])
 
 
 	// scan for xml files in the input-folder
-	std::vector<fs::path> xmlFileList;
-	for(auto dir_it = fs::directory_iterator(inputFolder); dir_it != fs::directory_iterator(); dir_it++)
-	{
-		if(!fs::is_directory(dir_it->path()))
-			xmlFileList.push_back(dir_it->path());
-	}
+	std::vector<std::string> paths;
+	if(vm.count("selection-file"))
+		paths = selected_filename_in_folder(inputFolder, fs::path(vm["selection-file"].as<std::string>()));
+	else
+		paths = selected_filename_in_folder(inputFolder);
+		
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following files: " << std::endl;
-	std::vector<std::string> paths;
-	for (auto el : xmlFileList) {
-		std::cout << el << std::endl;
-		paths.push_back(el.string());
-	}
+	for (auto f : paths) 
+		std::cout << f << std::endl;
 
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
@@ -154,8 +152,8 @@ int main(int argc, char* argv[])
 	
 	// short feedback to user
 	std::size_t totalArticleNumber = 0;
-	for (auto path : xmlFileList) {
-		auto it = pageCounts.find(path.filename().c_str());
+	for (auto path : paths) {
+		auto it = pageCounts.find(path);
 		if(it != pageCounts.end())
 			totalArticleNumber += it->second;
 	}
