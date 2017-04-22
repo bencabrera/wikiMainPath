@@ -182,7 +182,6 @@ export class NetworkComponent implements AfterViewInit
 		.data(this.network_data.links)
 		.enter()
 		.append("line")
-		.attr("class", "link")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
 		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
 		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
@@ -199,7 +198,15 @@ export class NetworkComponent implements AfterViewInit
 			   return this.MAIN_PATH_LINK_WIDTH;
 			 else
 			   return this.NORMAL_LINK_WIDTH;
+		})
+		.attr("class", (d) => {
+			if(this.check_in_array(this.network_data.main_path,d))  
+				return "link main-path-link";
+			else
+				return "link";
 		});
+
+		this.d3_canvas.selectAll("line.main-path-link").raise();
 
 		// this.d3_canvas.selectAll("line")
 		// // .data(this.network_data.main_path)
