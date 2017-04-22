@@ -44,10 +44,15 @@ namespace WikiMainPath {
 		if(query_str != "")
 			 results = query(_inverted_index, query_str);
 
+		std::vector<std::size_t> results_ordered(results.begin(), results.end());
+		std::sort(results_ordered.begin(), results_ordered.end(), [this](const std::size_t i1, const std::size_t i2) {
+			return _wiki_data_cache.category_titles()[i1].size() < _wiki_data_cache.category_titles()[i2].size();
+		});
+
 		Object root;
 		Array matchingCategoriesArray;
 
-		for (auto res : results) {
+		for (auto res : results_ordered) {
 			Object el;
 			el.set("title", _wiki_data_cache.category_titles()[res]);
 			el.set("id", res);
