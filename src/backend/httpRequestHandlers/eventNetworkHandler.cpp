@@ -115,11 +115,24 @@ namespace WikiMainPath {
 		}
 		timer.stop_timing_step("build_main_path", &std::cout);
 
+		Array timespan_array;
+		auto min_date = std::min_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
+			return e1.Date < e2.Date;
+		})->Date;
+		auto max_date = std::max_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
+			return e1.Date < e2.Date;
+		})->Date;
+		timespan_array.set(0, to_iso_string(min_date));
+		timespan_array.set(1, to_iso_string(max_date));
+
+
 		Object root;
 		root.set("events", events_array);
 		root.set("links", links_array);
 		root.set("positions", positions_array);
 		root.set("main_path", mpa_array);
+		root.set("category_title", _wiki_data_cache.category_titles()[category_id]);
+		root.set("timespan", timespan_array);
 
 		root.stringify(response.send(), 4); 
 	}

@@ -12,11 +12,6 @@ import { Observable }     from 'rxjs/Observable';
 	selector: 'network',
 	template: `<svg #svg_element id="network-svg"></svg>`,
 	styles: [`
-		:host {
-			width: 100%;
-			height: 100%;
-		}
-
 		svg { 
 			width: 100%;
 			height: 100%;

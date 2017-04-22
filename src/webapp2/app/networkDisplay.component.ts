@@ -19,7 +19,11 @@ import { ActivatedRoute } from '@angular/router';
 						</div>
 					</div>
 
-					<network [data]="networkData"></network>	
+					<div class="info-sidebar" [hidden]="!is_spinner_hidden">
+						<sidebar-information [data]="networkData"></sidebar-information>
+					</div>
+
+					<network class="network" [data]="networkData"></network>	
 				</div>
 			</div>
 		</div>`
@@ -59,6 +63,8 @@ export class NetworkDisplayComponent
 						this.networkData = value;
 						console.log("set network data");
 						this.is_spinner_hidden = true;	
+						this.networkData.timespan[0] = moment(this.networkData.timespan[0]);
+						this.networkData.timespan[1] = moment(this.networkData.timespan[1]);
 					});
 				}
 		});

@@ -28,11 +28,11 @@ html, body {
 }
 
 .info-sidebar {
-	position: fixed;
 	padding: 10px;
 	top: 100px;
 	bottom: 10px;
-	width: 15%;
+	width: 10%;
+	min-width: 300px;
 	background-color: #f8f8f8;
 	border: 1px solid #e7e7e7;
 	min-height: 500px;
@@ -40,11 +40,17 @@ html, body {
 
 .main-content {
 	position: fixed;
-	left: 50px;
-	right: 50px;
-	top: 100px;
-	bottom: 10px;
+	left: 30px;
+	right: 30px;
+	top: 110px;
+	bottom: 30px;
+	display: flex;
+	flex-direction: row;
 	/* width: 80%; */
+}
+
+.network {
+	flex: 1;
 }
 
 .label {
