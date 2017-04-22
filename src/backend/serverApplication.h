@@ -43,6 +43,8 @@ class Server : public Poco::Util::ServerApplication
 			Poco::Net::HTTPServerParams *pParams = new Poco::Net::HTTPServerParams();
 			pParams->setMaxQueued(100);
 			pParams->setMaxThreads(16);
+			pParams->setKeepAlive(true);
+			pParams->setTimeout(100000);
 
 			auto handler_factor = new WikiMainPath::RoutingHandlerFactory(_wiki_data_cache, _server_data_cache);
 

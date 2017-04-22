@@ -116,8 +116,8 @@ void ServerDataCache::compute_event_network(std::size_t category_id)
 	std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
 	std::size_t cur_event_id = 0;
 	for (auto article_id : _category_has_article[category_id]) {
-		events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates.size() - 1 } });
-		cur_event_id += _article_dates.size();
+		events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates[article_id].size() - 1 } });
+		cur_event_id += _article_dates[article_id].size();
 	}
 
 	std::set<std::size_t> articles_in_network;
@@ -125,21 +125,35 @@ void ServerDataCache::compute_event_network(std::size_t category_id)
 		articles_in_network.insert(ev.first);		
 
 	ArticleGraph g(cur_event_id);
-
+	
 	for(auto& ev : events_in_category)
 	{
 		std::vector<std::size_t> neighbors_in_network;
 		std::set_intersection(_article_network[ev.first].begin(), _article_network[ev.first].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
 
 		for(std::size_t event_1 = ev.second.first; event_1 <= ev.second.second; event_1++)
+		{
 			for(auto neighbor_article : neighbors_in_network)
+			{
 				for(std::size_t event_2 = events_in_category.at(neighbor_article).first; event_2 <= events_in_category.at(neighbor_article).second; event_2++)
 				{
-					if(_article_dates[ev.first][event_1 - ev.second.first] < _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first])
-						boost::add_edge(event_1, event_2, g);
+					if(_article_dates[ev.first][event_1 - ev.second.first] == _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first])
+					{
+						if(event_1 < event_2)	
+							boost::add_edge(event_1, event_2, g);
+						else
+							boost::add_edge(event_2, event_1, g);
+					}
 					else
-						boost::add_edge(event_2, event_1, g);
+					{
+						if(_article_dates[ev.first][event_1 - ev.second.first] < _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first])
+							boost::add_edge(event_1, event_2, g);
+						else
+							boost::add_edge(event_2, event_1, g);
+					}
 				}
+			}
+		}
 	}
 
 	_event_network_cache.insert({ category_id, g });

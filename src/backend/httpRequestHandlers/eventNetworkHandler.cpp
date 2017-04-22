@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "../graphDrawing/randomGraphDrawing.h"
+#include "../../../libs/shared/cpp/stepTimer.hpp"
 
 namespace WikiMainPath {
 
@@ -64,9 +65,14 @@ namespace WikiMainPath {
 		}
 
 
+		Shared::StepTimer timer;
+
+		timer.start_timing_step("build_event_network", "Build event network", &std::cout);
 		const auto& subgraph = _server_data_cache.get_event_network(category_id);
+		timer.stop_timing_step("build_event_network", &std::cout);
 
 		// build list of articles in category
+		timer.start_timing_step("build_event_list", "Build event list", &std::cout);
 		const auto& event_list = _server_data_cache.get_event_list(category_id);
 		Array events_array;
 		for (auto& event : event_list) {
@@ -76,7 +82,9 @@ namespace WikiMainPath {
 
 			events_array.add(el);
 		}
+		timer.stop_timing_step("build_event_list", &std::cout);
 
+		timer.start_timing_step("build_links_array", "Build links array", &std::cout);
 		Array links_array;
 		for (auto e : boost::make_iterator_range(boost::edges(subgraph))) {
 
@@ -86,12 +94,16 @@ namespace WikiMainPath {
 
 			links_array.add(link);
 		}
+		timer.stop_timing_step("build_links_array", &std::cout);
 
+		timer.start_timing_step("build_positions", "Build positions", &std::cout);
 		const auto& positions = _server_data_cache.get_network_positions(category_id);
 		Array positions_array;
 		for (auto pos : positions) 
 			positions_array.add(pos);
+		timer.stop_timing_step("build_positions", &std::cout);
 
+		timer.start_timing_step("build_main_path", "Build main path", &std::cout);
 		const auto& main_path = _server_data_cache.get_global_main_path(category_id);
 		Array mpa_array;
 		for (auto edge : main_path) {
@@ -101,6 +113,7 @@ namespace WikiMainPath {
 
 			mpa_array.add(link);
 		}
+		timer.stop_timing_step("build_main_path", &std::cout);
 
 		Object root;
 		root.set("events", events_array);
