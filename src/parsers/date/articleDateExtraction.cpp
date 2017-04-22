@@ -15,6 +15,7 @@ namespace WikiMainPath {
 	// where the split should not append (start) or (end) but it should put e.g. birth, death
 	void split_range_dates(std::vector<Date>& dates)
 	{
+		std::vector<Date> tmp_dates;
 		for (auto date : dates) {
 			if(date.IsRange) {
 				Date d1, d2;
@@ -24,12 +25,13 @@ namespace WikiMainPath {
 				d2.Begin = date.End;
 				d1.Description = date.Description + " (Start)";
 				d2.Description = date.Description + " (End)";
-				dates.push_back(d1);
-				dates.push_back(d2);
+				tmp_dates.push_back(d1);
+				tmp_dates.push_back(d2);
 			}	
 		}	
 
-		std::remove_if(dates.begin(), dates.end(), [](const Date& d) { return d.IsRange; });
+		dates.erase(std::remove_if(dates.begin(), dates.end(), [](const Date& d) { return d.IsRange; }), dates.end());
+		dates.insert(dates.end(), tmp_dates.begin(), tmp_dates.end());
 	}
 
 	// warning: only works for non-range dates (which should be all we need because of split_range step
