@@ -12,7 +12,11 @@ BOOST_AUTO_TEST_SUITE(date_string_grammar_tests)
 std::vector<std::string> date_examples = {
 	"1 September 1917",
 	"29 november 1776",
-	"18/19 December 1999 (aged 73)"
+	"18/19 December 1999 (aged 73)",
+	"11-May 1944",
+	"9 July – 17 August 1943",
+	"9 - 17 August 1943",
+	"9 – 17 August 1943"
 };
 
 std::vector<Date> expected_dates = {
@@ -20,6 +24,10 @@ std::vector<Date> expected_dates = {
 	{false, {	   0,	   0,		 0,		1,		8,	  17 }, {}},
 	{false, {	   0,	   0,		 0,		29,		10,	  -124 }, {}},
 	{false, {	   0,	   0,		 0,		18,		11,	  99 }, {}},
+	{false, {	   0,	   0,		 0,		11,		4,	  44 }, {}},
+	{true, {	   0,	   0,		 0,		9,		6,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
+	{true, {	   0,	   0,		 0,		9,		7,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
+	{true, {	   0,	   0,		 0,		9,		7,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
 };
 
 BOOST_DATA_TEST_CASE(

@@ -119,10 +119,10 @@ target_link_libraries(s5_eventComputations ${Boost_LIBRARIES})
 
 # --- Parser tests ---
 set(PARSER_TEST_FILES
-	parsers/tests/articlesAndCategories/articleNetworkTests.cpp
+	# parsers/tests/articlesAndCategories/articleNetworkTests.cpp
 	# parsers/tests/articlesAndCategories/categoryTests.cpp
-	parsers/tests/articlesAndCategories/articleListTests.cpp
-	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
+	# parsers/tests/articlesAndCategories/articleListTests.cpp
+	# parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
 	parsers/tests/date/infoboxDateExtractionTests.cpp
 	parsers/tests/date/articleDateExtractionTests.cpp
