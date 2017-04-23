@@ -68,6 +68,13 @@ target_link_libraries(countArticleLengths xerces-c)
 target_link_libraries(countArticleLengths pthread)
 target_link_libraries(countArticleLengths CoreLib)
 
+add_executable(s1_2_articlesAndCategories parsers/main_s1_2_sortArticleAndCategories.cpp)
+target_link_libraries(s1_2_articlesAndCategories CoreLib)
+target_link_libraries(s1_2_articlesAndCategories ParserLib)
+target_link_libraries(s1_2_articlesAndCategories ${Boost_LIBRARIES})
+target_link_libraries(s1_2_articlesAndCategories xerces-c)
+target_link_libraries(s1_2_articlesAndCategories pthread)
+
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories CoreLib)
 target_link_libraries(s1_articlesAndCategories ParserLib)

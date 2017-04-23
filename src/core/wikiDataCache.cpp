@@ -188,6 +188,10 @@ namespace WikiMainPath {
 		while(std::getline(file, line))
 			rtn->push_back(line);
 
+		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
+			if((*rtn)[i] >= (*rtn)[i+1])
+				throw std::logic_error("article_titles are not ordered");
+
 		return rtn;
 	}
 
@@ -202,6 +206,10 @@ namespace WikiMainPath {
 		std::string line;
 		while(std::getline(file, line))
 			rtn->push_back(line);
+
+		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
+			if((*rtn)[i] >= (*rtn)[i+1])
+				throw std::logic_error("category_titles are not ordered");
 
 		return rtn;
 	}

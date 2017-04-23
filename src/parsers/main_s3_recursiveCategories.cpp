@@ -30,6 +30,7 @@
 
 #include "wikiArticleHandlers/categoryRecursiveHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
 
@@ -125,9 +126,12 @@ int main(int argc, char* argv[])
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_categories();		
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
-	WikiXmlDumpXerces::ParallelParser<CategoryRecursiveHandler> parser([&categories, &graph, &vecMutex](){ 
-		return CategoryRecursiveHandler(categories, graph, vecMutex); 
-	}, parser_properties);
+	// WikiXmlDumpXerces::ParallelParser<CategoryRecursiveHandler> parser([&categories, &graph, &vecMutex](){ 
+		// return CategoryRecursiveHandler(categories, graph, vecMutex); 
+	// }, parser_properties);
+
+	CategoryRecursiveHandler handler(categories, graph, vecMutex);
+	WikiXmlDumpXerces::SingleCoreParser parser(handler, parser_properties);
 	parser.Run(paths.begin(), paths.end());
 
 	// terminate xerces

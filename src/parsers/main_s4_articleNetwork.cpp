@@ -25,6 +25,7 @@
 
 #include "wikiArticleHandlers/linkExtractionHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
 
@@ -80,7 +81,7 @@ int main(int argc, char* argv[])
 	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	const auto& articles = wiki_data_cache.article_titles();
-	const auto& dates = wiki_data_cache.article_dates();
+	// const auto& dates = wiki_data_cache.article_dates();
 	const auto& redirects = wiki_data_cache.redirects();
 	timer.stop_timing_step("reading");
 
@@ -112,9 +113,12 @@ int main(int argc, char* argv[])
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles();		
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
-	WikiXmlDumpXerces::ParallelParser<LinkExtractionHandler> parser([&articles, &redirects, &adjList, &vecMutex, &dates](){ 
-		return LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
-	}, parser_properties);
+	// WikiXmlDumpXerces::ParallelParser<LinkExtractionHandler> parser([&articles, &redirects, &adjList, &vecMutex, &dates](){ 
+		// return LinkExtractionHandler(articles, redirects, adjList, vecMutex); 
+	// }, parser_properties);
+
+	LinkExtractionHandler handler(articles, redirects, adjList, vecMutex);
+	WikiXmlDumpXerces::SingleCoreParser parser(handler, parser_properties);
 	parser.Run(paths.begin(), paths.end());
 
 	// terminate xerces

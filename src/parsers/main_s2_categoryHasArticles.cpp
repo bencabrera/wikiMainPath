@@ -28,6 +28,7 @@
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
+#include "../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
 
 // shared library
 #include "../../libs/shared/cpp/stepTimer.hpp"
@@ -119,9 +120,14 @@ int main(int argc, char* argv[])
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles(); 		
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
-	WikiXmlDumpXerces::ParallelParser<CategoryHasArticleHandler> parser([&articles, &categories, &categoryHasArticle, &vecMutex](){ 
-		return CategoryHasArticleHandler(articles, categories, categoryHasArticle, vecMutex); 
-	}, parser_properties);
+	// WikiXmlDumpXerces::ParallelParser<CategoryHasArticleHandler> parser([&articles, &categories, &categoryHasArticle, &vecMutex](){ 
+		// return CategoryHasArticleHandler(articles, categories, categoryHasArticle, vecMutex); 
+	// }, parser_properties);
+
+
+	CategoryHasArticleHandler handler(articles, categories, categoryHasArticle, vecMutex);
+	WikiXmlDumpXerces::SingleCoreParser parser(handler, parser_properties);
+
 	parser.Run(paths.begin(), paths.end());
 
 	// terminate xerces

@@ -46,7 +46,7 @@ void ArticleDatesAndCategoriesHandler::write_article_titles()
 		}
 		_article_dates_file << std::endl;
 	}
-	// _articles.clear();
+	_articles.clear();
 }
 
 void ArticleDatesAndCategoriesHandler::write_category_titles()
@@ -73,17 +73,19 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 	// if it is redirect, safe it to the redirects map for later
 	if(data.IsRedirect)
 	{
-		_redirects.insert({ title, data.RedirectTarget });
-		if(_redirects.size() % WRITE_INTERVAL == 0)
-			write_redirects();
+		// _redirects.insert({ title, data.RedirectTarget });
+		// if(_redirects.size() % WRITE_INTERVAL == 0)
+			// write_redirects();
+		_redirect_file << title << "\t" << data.RedirectTarget << std::endl;	
 	}
 	else
 	{
 		if(title.size() > 9 && title.substr(0,9) == "Category:")
 		{
-			_categories.push_back(title.substr(9));
-			if(_categories.size() % WRITE_INTERVAL == 0)
-				write_category_titles();
+			// _categories.push_back(title.substr(9));
+			// if(_categories.size() % WRITE_INTERVAL == 0)
+				// write_category_titles();
+			_category_titles_file << title.substr(9) << std::endl;
 		}
 		else
 		{
@@ -91,9 +93,16 @@ void ArticleDatesAndCategoriesHandler::HandleArticle(const WikiXmlDumpXerces::Wi
 			auto extracted_dates = WikiMainPath::extract_all_dates_from_article(data.Content, errors);
 			if(extracted_dates.size() > 0 || !ExtractOnlyArticlesWithDates)
 			{
-				_articles.insert({ title, extracted_dates });
-				if(_articles.size() % WRITE_INTERVAL == 0)
-					write_article_titles();
+				// _articles.insert({ title, extracted_dates });
+				// if(_articles.size() % WRITE_INTERVAL == 0)
+					// write_article_titles();
+					//
+				_article_titles_file << title << std::endl;
+
+				for (auto date : extracted_dates) {
+					_article_dates_file << Date::serialize(date) << '\t';
+				}
+				_article_dates_file << std::endl;
 			}
 
 			n_errors += errors.size();
