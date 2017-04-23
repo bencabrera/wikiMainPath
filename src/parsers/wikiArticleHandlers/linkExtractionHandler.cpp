@@ -63,8 +63,9 @@ void LinkExtractionHandler::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 	{
 		boost::trim(link);
 
-		auto target_it = std::find(_articles.begin(), _articles.end(), link);
-		if(target_it != _articles.end())
+		// auto target_it = std::find(_articles.begin(), _articles.end(), link);
+		auto target_it = std::lower_bound(_articles.begin(), _articles.end(), link);
+		if(target_it != _articles.end() && *target_it == link)
 		{
 			target = target_it - _articles.begin();
 		}
