@@ -22,7 +22,7 @@ namespace WikiMainPath {
 			number_year_ad = -no_case[circa_strs] >> lit("AD") >> int_ [_pass = boost::spirit::_1 > 0, at_c<0>(_val) = (-1*boost::spirit::_1) - 1900, at_c<1>(_val) = 6, at_c<2>(_val) = 15, at_c<3>(_val) = 2];
 			number_year_bc = -no_case[circa_strs] >> int_ [_pass = boost::spirit::_1 > 0, at_c<0>(_val) = (-1*boost::spirit::_1) - 1900, at_c<1>(_val) = 6, at_c<2>(_val) = 15, at_c<3>(_val) = 2] >> lit("BC");
 
-			circa_strs = "c.", "[[circa|c.]]", "ca.", "circa", "{{circa}}", "{{ circa }}", "{{circa|", "{{c.|","{{ca.|";
+			circa_strs = "c.", "[[circa|c.]]", "ca.", "circa", "{{circa}}", "{{ circa }}", "{{circa|", "{{c.|","{{ca.|", "by", "<br>";
 			// BOOST_SPIRIT_DEBUG_NODE(start);
 		}
 

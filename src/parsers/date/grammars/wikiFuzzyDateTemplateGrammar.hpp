@@ -22,6 +22,8 @@
 #include "../../../core/date.h"
 #include "../../../core/adaptDate.h"
 #include "dateStringGrammar.hpp"
+#include "wikiDateTemplateGrammar.hpp"
+#include "plainYearGrammar.hpp"
 
 namespace WikiMainPath {
 
@@ -29,14 +31,24 @@ namespace WikiMainPath {
 		struct WikiFuzzyDateTemplateGrammar : boost::spirit::qi::grammar<Iterator, std::pair<bool,Date>(), Skipper> {
 			WikiFuzzyDateTemplateGrammar();
 
-			boost::spirit::qi::rule<Iterator, Date(), Skipper> fuzzy_template_dates;
-			boost::spirit::qi::symbols<char> fuzzy_template_names;
+			boost::spirit::qi::symbols<char> year_fuzzy_template_names;
+			boost::spirit::qi::symbols<char> single_fuzzy_template_names;
+			boost::spirit::qi::symbols<char> old_new_fuzzy_template_names;
+			boost::spirit::qi::symbols<char> new_old_fuzzy_template_names;
 
-			boost::spirit::qi::rule<Iterator, Skipper> template_non_int_parameter;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> single_fuzzy_template_dates;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> old_new_fuzzy_template_dates;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> new_old_fuzzy_template_dates;
+
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> single_fuzzy_template_year;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> old_new_fuzzy_template_year;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> new_old_fuzzy_template_year;
 
 			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
 	
 			DateStringGrammar<Iterator, Skipper> date_string_grammar;
+			WikiDateTemplateGrammar<Iterator, Skipper> wiki_date_template_grammar;
+			PlainYearGrammar<Iterator, Skipper> plain_year_grammar;
 		};
 
 }
