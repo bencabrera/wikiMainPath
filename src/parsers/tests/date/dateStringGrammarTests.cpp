@@ -16,7 +16,12 @@ std::vector<std::string> date_examples = {
 	"11-May 1944",
 	"9 July – 17 August 1943",
 	"9 - 17 August 1943",
-	"9 – 17 August 1943"
+	"9 – 17 August 1943",
+	"9–17 August 1943",
+	"29 April – 1 May 1794",
+	"13–14 April 1796",
+	"20 to 21 April 1797 (2 floréal an V)",
+	"09 April 1991 to 22 April 1995",
 };
 
 std::vector<Date> expected_dates = {
@@ -28,6 +33,11 @@ std::vector<Date> expected_dates = {
 	{true, {	   0,	   0,		 0,		9,		6,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
 	{true, {	   0,	   0,		 0,		9,		7,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
 	{true, {	   0,	   0,		 0,		9,		7,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
+	{true, {	   0,	   0,		 0,		9,		7,	  43 }, {	   0,	   0,		 0,		17,		7,	  43 }},
+	{true, {	   0,	   0,		 0,		29,		3,	  -106 }, {	   0,	   0,		 0,		1,		4,	  -106 }},
+	{true, {	   0,	   0,		 0,		13,		3,	  -104 }, {	   0,	   0,		 0,		14,		3,	  -104 }},
+	{true, {	   0,	   0,		 0,		20,		3,	  -103 }, {	   0,	   0,		 0,		21,		3,	  -103 }},
+	{true, {	   0,	   0,		 0,		9,		3,	  91 }, {	   0,	   0,		 0,		22,		3,	  95 }},
 };
 
 BOOST_DATA_TEST_CASE(

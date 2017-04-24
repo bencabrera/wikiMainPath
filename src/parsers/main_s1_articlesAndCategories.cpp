@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 
 	// WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([](){ return ArticleDatesAndCategoriesHandler(&std::cout); }, parser_properties);
 	// WikiXmlDumpXerces::ParallelParser<ArticleDatesAndCategoriesHandler> parser([&articles_file, &categories_file, &redirects_file, &article_dates_file, &article_titles_mutex, &category_titles_mutex, &redirect_mutex](){ return ArticleDatesAndCategoriesHandler(articles_file,article_dates_file,categories_file,redirects_file,article_titles_mutex,category_titles_mutex,redirect_mutex); }, parser_properties);
-	ArticleDatesAndCategoriesHandler handler(articles_file,article_dates_file,categories_file,redirects_file,article_titles_mutex,category_titles_mutex,redirect_mutex);
+	ArticleDatesAndCategoriesHandler handler(articles_file,article_dates_file,categories_file,redirects_file,article_titles_mutex,category_titles_mutex,redirect_mutex,&std::cout);
 	WikiXmlDumpXerces::SingleCoreParser parser(handler, parser_properties);
 	parser.Run(paths.begin(), paths.end());
 
