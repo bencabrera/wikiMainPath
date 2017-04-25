@@ -26,6 +26,7 @@ add_library(CoreLib STATIC ${CORE_FILES})
 set(PARSER_FILES
 	# handlers
 	# parsers/wikiArticleHandlers/articleTitlesHandler.cpp
+	parsers/wikiArticleHandlers/allLinksArticleHandler.cpp
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
 	parsers/wikiArticleHandlers/countArticleLengthsHandler.cpp
 	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
@@ -102,6 +103,13 @@ target_link_libraries(s4_articleNetwork CoreLib)
 target_link_libraries(s4_articleNetwork ParserLib)
 target_link_libraries(s4_articleNetwork xerces-c)
 target_link_libraries(s4_articleNetwork pthread)
+
+add_executable(s7_parseAllLinks parsers/main_s7_parseAllLinks.cpp)
+target_link_libraries(s7_parseAllLinks ${Boost_LIBRARIES})
+target_link_libraries(s7_parseAllLinks CoreLib)
+target_link_libraries(s7_parseAllLinks ParserLib)
+target_link_libraries(s7_parseAllLinks xerces-c)
+target_link_libraries(s7_parseAllLinks pthread)
 
 # add_executable(s5_eventComputations parsers/main_s5_eventComputations.cpp)
 # target_link_libraries(s5_eventComputations CoreLib)

@@ -68,6 +68,9 @@ std::vector<std::string> AllLinksArticleHander::parse_all_links(const std::strin
 
 void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData& data)
 {
+	if(data.IsRedirect)
+		return;
+	
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
@@ -78,32 +81,102 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 		is_article = !is_category;
 	}
 
-	std::size_t articleIdx;
-	if(!getPosition(articles, title, articleIdx))
-		return;
+	auto links = parse_all_links(data.Content);
 
-	if(data.IsRedirect)
-		return;
+	// compute where the links to categories lie in links
+	auto categories_begin_it = std::lower_bound(links.begin(), links.end(), "Category:");	
+	auto categories_end_it = std::upper_bound(links.begin(), links.end(), "Category:zzzzzzzzzzzzzzzzzz");	
 
-	// run through categories and add article to this categories
-	std::size_t foundPos = data.Content.find("[[Category:");
-	while(foundPos != std::string::npos)
+	// if it is a category => add link to category hirachy network
+	if(is_category)
 	{
-		std::size_t secondFoundPos = std::min(data.Content.find("]]", foundPos), data.Content.find("|", foundPos));
-		if(secondFoundPos == std::string::npos)
-			break;
-
-		std::string category_title = data.Content.substr(foundPos + 11, secondFoundPos - foundPos - 11);
-		boost::trim(category_title);
-
-		std::size_t categoryIdx;
-		if(getPosition(categories, category_title, categoryIdx))
+		title = title.substr(9);
+		std::size_t i_parent;
+		if(!get_position(_category_titles, title, i_parent))
+			return;
+		
+		for(auto it = categories_begin_it; it != categories_end_it; it++)
 		{
-			_vecMutex.lock(categoryIdx);
-			categoryHasArticle[categoryIdx].insert(articleIdx);			
-			_vecMutex.unlock(categoryIdx);
+			auto linked_category_title = it->substr(9);
+			if(_redirects.count(linked_category_title) > 0)
+				linked_category_title = _redirects.at(linked_category_title);
+
+			std::size_t i_child;
+			if(!get_position(_category_titles, linked_category_title, i_child))
+				continue;
+
+			std::size_t i_min = std::min(i_child % 1000, i_parent % 1000);
+			std::size_t i_max = std::max(i_child % 1000, i_parent % 1000);
+				
+			if(i_min == i_max)
+				_vecMutex.lock(i_min);
+			else
+			{
+				_vecMutex.lock(i_min);
+				_vecMutex.lock(i_max);
+			}
+
+			boost::add_edge(i_parent, i_child, _category_hirachy_graph);
+			_vecMutex.unlock(i_max);
+			_vecMutex.unlock(i_min);
 		}
 
-		foundPos = data.Content.find("[[Category:", secondFoundPos);
+		return;
 	}
+
+	if(is_article)
+	{
+		std::size_t i_from_article;
+		if(!get_position(_article_titles, title, i_from_article))
+			return;
+
+		// categories that this is part of
+		for(auto it = categories_begin_it; it != categories_end_it; it++)
+		{
+			auto category_title = it->substr(9);
+
+			if(_redirects.count(category_title) > 0)
+				category_title = _redirects.at(category_title);
+
+			std::size_t i_category;
+			if(get_position(_category_titles, category_title, i_category))
+			{
+				_vecMutex.lock(i_category);
+				_category_has_article[i_category].insert(i_from_article);			
+				_vecMutex.unlock(i_category);
+			}
+		}
+
+
+		// link to other articles (the following loop-bodies are equivalent)
+		for(auto it = links.begin(); it != categories_begin_it; it++)
+		{
+			std::string article_title = *it;
+			if(_redirects.count(article_title) > 0)
+				article_title = _redirects.at(article_title);
+			
+			std::size_t i_to_article;
+			if(!get_position(_article_titles, article_title, i_to_article))
+				continue;
+
+			_vecMutex.lock(i_from_article);
+			_article_adjacency_list[i_from_article].insert(i_to_article);
+			_vecMutex.unlock(i_from_article);
+		}
+		for(auto it = categories_end_it; it != links.end(); it++)
+		{
+			std::string article_title = *it;
+			if(_redirects.count(article_title) > 0)
+				article_title = _redirects.at(article_title);
+			
+			std::size_t i_to_article;
+			if(!get_position(_article_titles, article_title, i_to_article))
+				continue;
+
+			_vecMutex.lock(i_from_article);
+			_article_adjacency_list[i_from_article].insert(i_to_article);
+			_vecMutex.unlock(i_from_article);
+		}
+	}
+
 }

@@ -22,9 +22,10 @@
 // local files
 #include "shared.h"
 #include "../core/wikiDataCache.h"
+#include "s3_recursiveFillCategories.h"
 
 // wiki xml dump lib
-#include "wikiArticleHandlers/categoryHasArticleHandler.h"
+#include "wikiArticleHandlers/allLinksArticleHandler.h"
 #include "../../libs/wiki_xml_dump_xerces/src/parsers/parallelParser.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"
 #include "../../libs/wiki_xml_dump_xerces/src/handlers/basicTitleFilters.hpp"
@@ -102,16 +103,22 @@ int main(int argc, char* argv[])
 		std::cout << f << std::endl;
 
 	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
+
+	// setup existing data and containers for upcoming
 	WikiDataCache wiki_data_cache(outputFolder.string());
-	const auto& articles = wiki_data_cache.article_titles();
-	const auto& categories = wiki_data_cache.category_titles();
+	const auto& article_titles = wiki_data_cache.article_titles();
+	const auto& category_titles = wiki_data_cache.category_titles();
+	const auto& redirects = wiki_data_cache.redirects();
+
+	std::vector<boost::container::flat_set<std::size_t>> category_has_article;
+	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph;
+	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list;
+	VectorMutex<1000> vecMutex;
+
 	timer.stop_timing_step("reading");
 
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
 	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
-
-	VectorMutex<1000> vecMutex;
-	std::vector<boost::container::flat_set<std::size_t>> categoryHasArticle(categories.size());
 
 	// init xerces
 	xercesc::XMLPlatformUtils::Initialize();
@@ -120,11 +127,9 @@ int main(int argc, char* argv[])
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles(); 		
 	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
 
-	WikiXmlDumpXerces::ParallelParser<CategoryHasArticleHandler> parser([&articles, &categories, &categoryHasArticle, &vecMutex](){ 
-		return CategoryHasArticleHandler(articles, categories, categoryHasArticle, vecMutex); 
+	WikiXmlDumpXerces::ParallelParser<AllLinksArticleHander> parser([&article_titles, &category_titles, &redirects, &category_has_article, &category_hirachy_graph, &article_adjacency_list, &vecMutex](){ 
+		return AllLinksArticleHander(article_titles, category_titles, redirects, category_has_article, category_hirachy_graph, article_adjacency_list, vecMutex); 
 	}, parser_properties);
-
-
 	// CategoryHasArticleHandler handler(articles, categories, categoryHasArticle, vecMutex);
 	// WikiXmlDumpXerces::SingleCoreParser parser(handler, parser_properties);
 
@@ -135,9 +140,14 @@ int main(int argc, char* argv[])
 
 	timer.stop_timing_step("parsing");
 
+	// computing recursive category_has_article
+	timer.start_timing_step("recursive", "Computing recursive category_has_article", &std::cout);
+	recursiveFillCategories(category_hirachy_graph, category_has_article);	
+	timer.stop_timing_step("recursive");
 
 	timer.start_timing_step("output", "Writing output files", &std::cout);
-	wiki_data_cache.write_category_has_article(categoryHasArticle);
+	wiki_data_cache.write_category_has_article(category_has_article);
+	wiki_data_cache.write_article_network(article_adjacency_list);
 	timer.stop_timing_step("output");
 
 	timer.stop_timing_step("global");

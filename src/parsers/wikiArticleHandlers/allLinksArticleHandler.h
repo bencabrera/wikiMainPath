@@ -30,7 +30,7 @@ class AllLinksArticleHander : public WikiXmlDumpXerces::AbstractWikiPageHandler 
 
 
 	private:
-		std::vector<std::string> parse_all_links(const std::string& content);
+		static std::vector<std::string> parse_all_links(const std::string& content);
 
 		inline static bool get_position(const std::vector<std::string>& vec, std::string str, std::size_t& pos)
 		{
