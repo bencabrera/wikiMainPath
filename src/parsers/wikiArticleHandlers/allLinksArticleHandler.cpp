@@ -38,6 +38,20 @@ _vecMutex(vecMut)
 
 	if(category_titles.size() != boost::num_vertices(category_hirachy_graph))
 		throw std::logic_error("'category_titles' has to have the same size as the number of vertices inf 'category_hirachy_graph'.");
+
+	if(article_titles.size() > 0)
+	{
+		for(std::size_t i = 0; i < std::min(article_titles.size()-1,10ul); i++)
+			if(article_titles[i] > article_titles[i+1])
+				throw std::logic_error("'article_titles seems not to be sorted");
+	}
+
+	if(category_titles.size() > 0)
+	{
+		for(std::size_t i = 0; i < std::min(category_titles.size()-1,10ul); i++)
+			if(category_titles[i] > category_titles[i+1])
+				throw std::logic_error("'category_titles seems not to be sorted");
+	}
 }
 
 std::vector<std::string> AllLinksArticleHander::parse_all_links(const std::string& content)
@@ -51,13 +65,13 @@ std::vector<std::string> AllLinksArticleHander::parse_all_links(const std::strin
 
 	links_rule = *(char_ - lit('[')) >> 
 		-(
-			(&lit("[[") >> link_rule [boost::phoenix::insert(boost::phoenix::ref(links), _1)] >> links_rule) 
-			| (lit('[') >> links_rule)
-		);
+				(&lit("[[") >> link_rule [boost::phoenix::insert(boost::phoenix::ref(links), _1)] >> links_rule) 
+				| (lit('[') >> links_rule)
+		 );
 	link_rule = lit("[[") 
-					>> +(!lit("]]") >> (char_ - lit('|'))) [_val += _1]
-					>> -(lit('|') >> +(!lit("]]") >> char_)) 
-					>> lit("]]");
+		>> +(!lit("]]") >> (char_ - lit('|'))) [_val += _1]
+		>> -(lit('|') >> +(!lit("]]") >> char_)) 
+		>> lit("]]");
 
 	auto it = content.cbegin();
 	parse(it, content.cend(), links_rule);
@@ -70,7 +84,7 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 {
 	if(data.IsRedirect)
 		return;
-	
+
 	std::string title = data.MetaData.at("title");
 	boost::trim(title);
 
@@ -94,7 +108,7 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 		std::size_t i_parent;
 		if(!get_position(_category_titles, title, i_parent))
 			return;
-		
+
 		for(auto it = categories_begin_it; it != categories_end_it; it++)
 		{
 			auto linked_category_title = it->substr(9);
@@ -107,7 +121,7 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 
 			std::size_t i_min = std::min(i_child % 1000, i_parent % 1000);
 			std::size_t i_max = std::max(i_child % 1000, i_parent % 1000);
-				
+
 			if(i_min == i_max)
 				_vecMutex.lock(i_min);
 			else
@@ -154,7 +168,7 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 			std::string article_title = *it;
 			if(_redirects.count(article_title) > 0)
 				article_title = _redirects.at(article_title);
-			
+
 			std::size_t i_to_article;
 			if(!get_position(_article_titles, article_title, i_to_article))
 				continue;
@@ -168,7 +182,7 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 			std::string article_title = *it;
 			if(_redirects.count(article_title) > 0)
 				article_title = _redirects.at(article_title);
-			
+
 			std::size_t i_to_article;
 			if(!get_position(_article_titles, article_title, i_to_article))
 				continue;

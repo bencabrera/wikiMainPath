@@ -110,9 +110,9 @@ int main(int argc, char* argv[])
 	const auto& category_titles = wiki_data_cache.category_titles();
 	const auto& redirects = wiki_data_cache.redirects();
 
-	std::vector<boost::container::flat_set<std::size_t>> category_has_article;
-	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph;
-	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list;
+	std::vector<boost::container::flat_set<std::size_t>> category_has_article(category_titles.size());
+	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph(category_titles.size());
+	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list(article_titles.size());
 	VectorMutex<1000> vecMutex;
 
 	timer.stop_timing_step("reading");

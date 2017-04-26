@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <fstream>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/container/flat_set.hpp>
@@ -25,6 +26,14 @@ namespace WikiMainPath {
 
 			// constructor
 			WikiDataCache(std::string folder);
+			WikiDataCache(
+				std::shared_ptr<std::istream> article_titles_file = std::shared_ptr<std::istream>(), 
+				std::shared_ptr<std::istream> article_dates_file = std::shared_ptr<std::istream>(), 
+				std::shared_ptr<std::istream> category_titles_file = std::shared_ptr<std::istream>(), 
+				std::shared_ptr<std::istream> redirects_file = std::shared_ptr<std::istream>(), 
+				std::shared_ptr<std::istream> category_has_article_file = std::shared_ptr<std::istream>(), 
+				std::shared_ptr<std::istream> article_network_file = std::shared_ptr<std::istream>()
+			);
 
 			// getter methods
 			const std::vector<std::string>& article_titles();
@@ -60,14 +69,21 @@ namespace WikiMainPath {
 		private:
 			boost::filesystem::path _folder;
 
+			std::shared_ptr<std::istream> _article_titles_file;
+			std::shared_ptr<std::istream> _article_dates_file;
+			std::shared_ptr<std::istream> _category_titles_file;
+			std::shared_ptr<std::istream> _redirects_file;
+			std::shared_ptr<std::istream> _category_has_article_file;
+			std::shared_ptr<std::istream> _article_network_file;
+
 			// file reader methods
-			static std::unique_ptr<std::vector<std::string>> read_article_titles(std::string articles_file_path);
-			static std::unique_ptr<std::vector<std::string>> read_category_titles(std::string categories_file_path);
-			static std::unique_ptr<std::map<std::string,std::string>> read_redirects(std::string categories_file_path);
-			static std::unique_ptr<std::vector<std::vector<Date>>> read_article_dates(std::string dates_file_path);
-			static std::unique_ptr<std::vector<std::vector<std::size_t>>> read_category_has_article(std::string category_has_article_file_path);
-			static std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> read_category_has_article_set(std::string category_has_article_file_path);
-			static std::unique_ptr<std::vector<std::vector<std::size_t>>> read_article_network(std::string article_network_path);
+			std::unique_ptr<std::vector<std::string>> read_article_titles(std::string articles_file_path);
+			std::unique_ptr<std::vector<std::string>> read_category_titles(std::string categories_file_path);
+			std::unique_ptr<std::map<std::string,std::string>> read_redirects(std::string categories_file_path);
+			std::unique_ptr<std::vector<std::vector<Date>>> read_article_dates(std::string dates_file_path);
+			std::unique_ptr<std::vector<std::vector<std::size_t>>> read_category_has_article(std::string category_has_article_file_path);
+			std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> read_category_has_article_set(std::string category_has_article_file_path);
+			std::unique_ptr<std::vector<std::vector<std::size_t>>> read_article_network(std::string article_network_path);
 			// static std::unique_ptr<std::vector<std::size_t>> read_event_indices(std::string event_indices_file_path);
 			// static std::unique_ptr<EventNetwork> read_event_network(std::string event_network_path);
 

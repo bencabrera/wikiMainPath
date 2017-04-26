@@ -22,6 +22,21 @@ namespace WikiMainPath {
 			boost::filesystem::create_directory(_folder);
 	}
 
+	WikiDataCache::WikiDataCache(
+		std::shared_ptr<std::istream> article_titles_file, 
+		std::shared_ptr<std::istream> article_dates_file, 
+		std::shared_ptr<std::istream> category_titles_file, 
+		std::shared_ptr<std::istream> redirects_file, 
+		std::shared_ptr<std::istream> category_has_article_file, 
+		std::shared_ptr<std::istream> article_network_file
+	)
+		:_article_titles_file(article_titles_file),
+		_article_dates_file(article_dates_file),
+		_category_titles_file(category_titles_file),
+		_redirects_file(redirects_file),
+		_category_has_article_file(category_has_article_file),
+		_article_network_file(article_network_file)
+	{}
 
 
 	// getter methods
@@ -80,22 +95,6 @@ namespace WikiMainPath {
 
 		return *_article_network;
 	}
-
-	// const std::vector<std::size_t>& WikiDataCache::event_indices()
-	// {
-		// if(_event_indices == nullptr)
-			// _event_indices = read_event_indices((_folder / EVENT_INDICES_FILE).string());	
-
-		// return *_event_indices;
-	// }
-
-	// const EventNetwork& WikiDataCache::event_network()
-	// {
-		// if(_event_network == nullptr)
-			// _event_network = read_event_network((_folder / EVENT_NETWORK_FILE).string());	
-
-		// return *_event_network;
-	// }
 
 
 
@@ -156,36 +155,23 @@ namespace WikiMainPath {
 		return *_article_network;
 	}
 
-	// const std::vector<std::size_t>& WikiDataCache::event_indices() const
-	// {
-		// if(_event_indices == nullptr)
-			// throw std::logic_error("Accessed event_indices without reading it first");
-
-		// return *_event_indices;
-	// }
-
-	// const EventNetwork& WikiDataCache::event_network() const
-	// {
-		// if(_event_network == nullptr)
-			// throw std::logic_error("Accessed event_network without reading it first");
-
-		// return *_event_network;
-	// }
-
-
 
 
 	// file reader methods
-	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_article_titles(std::string articles_file_path)
+	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_article_titles(std::string path)
 	{
-		std::ifstream file(articles_file_path);	
-		if(!file.is_open())
-			throw std::logic_error("Article file not found");
+		if(!_article_titles_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Article file not found");
+			_article_titles_file = tmp;
+		}
 
 		std::unique_ptr<std::vector<std::string>> rtn(new std::vector<std::string>());
 
 		std::string line;
-		while(std::getline(file, line))
+		while(std::getline(*_article_titles_file, line))
 			rtn->push_back(line);
 
 		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
@@ -195,16 +181,20 @@ namespace WikiMainPath {
 		return rtn;
 	}
 
-	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_category_titles(std::string categories_file_path)
+	std::unique_ptr<std::vector<std::string>> WikiDataCache::read_category_titles(std::string path)
 	{
-		std::ifstream file(categories_file_path);	
-		if(!file.is_open())
-			throw std::logic_error("Categories file not found");
+		if(!_category_titles_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Category file not found");
+			_category_titles_file = tmp;
+		}
 
 		std::unique_ptr<std::vector<std::string>> rtn(new std::vector<std::string>());
 
 		std::string line;
-		while(std::getline(file, line))
+		while(std::getline(*_category_titles_file, line))
 			rtn->push_back(line);
 
 		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
@@ -214,16 +204,20 @@ namespace WikiMainPath {
 		return rtn;
 	}
 
-	std::unique_ptr<std::map<std::string,std::string>> WikiDataCache::read_redirects(std::string redirects_file_path)
+	std::unique_ptr<std::map<std::string,std::string>> WikiDataCache::read_redirects(std::string path)
 	{
-		std::ifstream file(redirects_file_path);	
-		if(!file.is_open())
-			throw std::logic_error("Redirects file not found");
+		if(!_redirects_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Redirects file not found");
+			_redirects_file = tmp;
+		}
 
 		std::unique_ptr<std::map<std::string,std::string>> rtn(new std::map<std::string,std::string>());
 
 		std::string line;
-		while(std::getline(file, line))
+		while(std::getline(*_redirects_file, line))
 		{
 			std::vector<std::string> strs;
 			boost::split(strs,line,boost::is_any_of("\t"));
@@ -233,16 +227,20 @@ namespace WikiMainPath {
 		return rtn;
 	}
 
-	std::unique_ptr<std::vector<std::vector<Date>>> WikiDataCache::read_article_dates(std::string dates_file_path)
+	std::unique_ptr<std::vector<std::vector<Date>>> WikiDataCache::read_article_dates(std::string path)
 	{
-		std::ifstream dates_file(dates_file_path);	
-		if(!dates_file.is_open())
-			throw std::logic_error("Article dates file not found");
+		if(!_article_dates_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Article dates file not found");
+			_article_dates_file = tmp;
+		}
 
 		std::unique_ptr<std::vector<std::vector<Date>>> rtn(new std::vector<std::vector<Date>>());
 
 		std::string line;
-		while(std::getline(dates_file, line))
+		while(std::getline(*_article_dates_file, line))
 		{
 			std::vector<std::string> date_strs;
 			std::vector<Date> dates;
@@ -258,16 +256,20 @@ namespace WikiMainPath {
 		return rtn;
 	}
 
-	std::unique_ptr<std::vector<std::vector<std::size_t>>> WikiDataCache::read_category_has_article(std::string category_has_article_file_path)
+	std::unique_ptr<std::vector<std::vector<std::size_t>>> WikiDataCache::read_category_has_article(std::string path)
 	{
-		std::ifstream category_has_article_file(category_has_article_file_path);	
-		if(!category_has_article_file.is_open())
-			throw std::logic_error("Category_has_article file not found");
+		if(!_category_has_article_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Category_has_article file not found");
+			_category_has_article_file = tmp;
+		}
 
 		std::unique_ptr<std::vector<std::vector<std::size_t>>> category_has_article(new std::vector<std::vector<std::size_t>>());
 
 		std::string line;
-		while(std::getline(category_has_article_file, line))
+		while(std::getline(*_category_has_article_file, line))
 		{
 			std::vector<std::size_t> linked_articles;	
 
@@ -286,45 +288,50 @@ namespace WikiMainPath {
 		return category_has_article;
 	}
 
-	std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> WikiDataCache::read_category_has_article_set(std::string category_has_article_file_path)
+	std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> WikiDataCache::read_category_has_article_set(std::string path)
 	{
-		std::ifstream category_has_article_file(category_has_article_file_path);	
-		if(!category_has_article_file.is_open())
-			throw std::logic_error("Category_has_article file not found");
+		throw std::logic_error("Not implemented");
+		// std::ifstream category_has_article_file(category_has_article_file_path);	
+		// if(!category_has_article_file.is_open())
+			// throw std::logic_error("Category_has_article file not found");
 
-		std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> category_has_article(new std::vector<boost::container::flat_set<std::size_t>>());
+		// std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> category_has_article(new std::vector<boost::container::flat_set<std::size_t>>());
 
-		std::string line;
-		while(std::getline(category_has_article_file, line))
-		{
-			boost::container::flat_set<std::size_t> linked_articles;	
+		// std::string line;
+		// while(std::getline(category_has_article_file, line))
+		// {
+			// boost::container::flat_set<std::size_t> linked_articles;	
 
-			std::istringstream ss(line);
-			while(!ss.eof())
-			{
-				std::string tmpStr;
-				ss >> tmpStr;
-				if(tmpStr != "")
-					linked_articles.insert(std::stoi(tmpStr));
-			}
+			// std::istringstream ss(line);
+			// while(!ss.eof())
+			// {
+				// std::string tmpStr;
+				// ss >> tmpStr;
+				// if(tmpStr != "")
+					// linked_articles.insert(std::stoi(tmpStr));
+			// }
 
-			category_has_article->push_back(std::move(linked_articles));
-		}
+			// category_has_article->push_back(std::move(linked_articles));
+		// }
 
-		return category_has_article;
+		// return category_has_article;
 	}
 
 
-	std::unique_ptr<std::vector<std::vector<std::size_t>>> WikiDataCache::read_article_network(std::string article_network_path)
+	std::unique_ptr<std::vector<std::vector<std::size_t>>> WikiDataCache::read_article_network(std::string path)
 	{
-		std::ifstream adj_list_file(article_network_path);	
-		if(!adj_list_file.is_open())
-			throw std::logic_error("Article network file not found");
+		if(!_article_network_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Article network file not found");
+			_article_network_file = tmp;
+		}
 
 		std::unique_ptr<std::vector<std::vector<std::size_t>>> adj_list(new std::vector<std::vector<std::size_t>>());
 
 		std::string line;
-		while(std::getline(adj_list_file, line))
+		while(std::getline(*_article_network_file, line))
 		{
 			std::vector<std::size_t> neighbors;
 			std::istringstream ss(line);
@@ -343,54 +350,6 @@ namespace WikiMainPath {
 
 		return adj_list;
 	}
-
-	// std::unique_ptr<std::vector<std::size_t>> WikiDataCache::read_event_indices(std::string event_indices_file_path)
-	// {
-		// std::ifstream file(event_indices_file_path);	
-		// if(!file.is_open())
-			// throw std::logic_error("Event indices file not found");
-
-		// std::unique_ptr<std::vector<std::size_t>> rtn(new std::vector<std::size_t>());
-
-		// std::size_t tmp;
-		// while(!file.eof())
-		// {
-			// file >> tmp;
-			// rtn->push_back(tmp);
-		// }
-
-		// return rtn;
-	// }
-
-	// std::unique_ptr<ArticleNetwork> WikiDataCache::read_event_network(std::string event_network_path)
-	// {
-		// std::ifstream adj_list_file(event_network_path);	
-		// if(!adj_list_file.is_open())
-			// throw std::logic_error("Article network file not found");
-
-		// std::unique_ptr<ArticleNetwork> graph(new EventNetwork());
-
-		// std::size_t source = 0;
-		// std::string line;
-		// while(std::getline(adj_list_file, line))
-		// {
-			// std::istringstream ss(line);
-			// while(!ss.eof())
-			// {
-				// std::string tmpStr;
-				// ss >> tmpStr;
-				// if(tmpStr != "")
-				// {
-					// std::size_t target = std::stoi(tmpStr);
-					// boost::add_edge(source, target, *graph);
-				// }
-			// }
-
-			// source++;
-		// }
-
-		// return graph;
-	// }
 
 
 
@@ -450,24 +409,5 @@ namespace WikiMainPath {
 			graphFile << std::endl;
 		}
 	}
-
-	// void WikiDataCache::write_event_indices(const std::vector<std::size_t>& event_indices)
-	// {
-		// std::ofstream file((_folder / EVENT_INDICES_FILE).string());	
-		// for(auto idx : event_indices)
-			// file << idx << std::endl;
-	// }
-
-	// void WikiDataCache::write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list)
-	// {
-		// std::ofstream graphFile((_folder / EVENT_NETWORK_FILE).string());	
-		// for (auto arts : adj_list) 
-		// {
-			// for (auto art : arts) 
-				// graphFile << art << " ";
-
-			// graphFile << std::endl;
-		// }
-	// }
 
 }

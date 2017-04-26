@@ -49,6 +49,7 @@ set(PARSER_FILES
 	parsers/s3_cycle_detector_visitor.cpp
 	parsers/shared.h
 	parsers/shared.cpp
+	parsers/sortTitlesHelper.cpp
 )
 
 add_library(ParserLib STATIC ${PARSER_FILES})
@@ -127,10 +128,10 @@ target_link_libraries(s7_parseAllLinks pthread)
 
 # --- Parser tests ---
 set(PARSER_TEST_FILES
-	# parsers/tests/articlesAndCategories/articleNetworkTests.cpp
-	# parsers/tests/articlesAndCategories/categoryTests.cpp
-	# parsers/tests/articlesAndCategories/articleListTests.cpp
-	# parsers/tests/articlesAndCategories/cycleDectionTests.cpp
+	parsers/tests/articlesAndCategories/articleNetworkTests.cpp
+	parsers/tests/articlesAndCategories/categoryTitlesTests.cpp
+	parsers/tests/articlesAndCategories/articleTitlesTests.cpp
+	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
 	parsers/tests/date/infoboxDateExtractionTests.cpp
 	parsers/tests/date/articleDateExtractionTests.cpp
@@ -143,14 +144,14 @@ set(PARSER_TEST_FILES
 
 # add_library(ParserTestsLib STATIC ${PARSER_TEST_FILES})
 
-add_executable(parserTests ${PARSER_TEST_FILES})
-target_link_libraries(parserTests ${Boost_LIBRARIES})
-target_link_libraries(parserTests CoreLib)
-target_link_libraries(parserTests ParserLib)
-target_link_libraries(parserTests xerces-c)
-target_link_libraries(parserTests ${Boost_LIBRARIES})
-target_link_libraries(parserTests ParserLib)
-target_link_libraries(parserTests CoreLib)
+add_executable(parser_tests ${PARSER_TEST_FILES})
+target_link_libraries(parser_tests ${Boost_LIBRARIES})
+target_link_libraries(parser_tests CoreLib)
+target_link_libraries(parser_tests ParserLib)
+target_link_libraries(parser_tests xerces-c)
+target_link_libraries(parser_tests ${Boost_LIBRARIES})
+target_link_libraries(parser_tests ParserLib)
+target_link_libraries(parser_tests CoreLib)
 
 # --- backend server ---
 set(BACKEND_FILES
