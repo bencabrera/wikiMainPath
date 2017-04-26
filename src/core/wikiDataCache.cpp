@@ -174,9 +174,12 @@ namespace WikiMainPath {
 		while(std::getline(*_article_titles_file, line))
 			rtn->push_back(line);
 
-		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
-			if((*rtn)[i] >= (*rtn)[i+1])
-				throw std::logic_error("article_titles are not ordered");
+		if(rtn->size() > 0)
+		{
+			for(std::size_t i = 0; i < std::min(rtn->size()-1,10ul); i++)
+				if((*rtn)[i] >= (*rtn)[i+1])
+					throw std::logic_error("article_titles are not ordered");
+		}
 
 		return rtn;
 	}
@@ -197,9 +200,12 @@ namespace WikiMainPath {
 		while(std::getline(*_category_titles_file, line))
 			rtn->push_back(line);
 
-		for(std::size_t i = 0; i < std::min(rtn->size(),10ul); i++)
+		if(rtn->size() > 0)
+		{
+		for(std::size_t i = 0; i < std::min(rtn->size()-1,10ul); i++)
 			if((*rtn)[i] >= (*rtn)[i+1])
 				throw std::logic_error("category_titles are not ordered");
+		}
 
 		return rtn;
 	}
@@ -293,25 +299,25 @@ namespace WikiMainPath {
 		throw std::logic_error("Not implemented");
 		// std::ifstream category_has_article_file(category_has_article_file_path);	
 		// if(!category_has_article_file.is_open())
-			// throw std::logic_error("Category_has_article file not found");
+		// throw std::logic_error("Category_has_article file not found");
 
 		// std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> category_has_article(new std::vector<boost::container::flat_set<std::size_t>>());
 
 		// std::string line;
 		// while(std::getline(category_has_article_file, line))
 		// {
-			// boost::container::flat_set<std::size_t> linked_articles;	
+		// boost::container::flat_set<std::size_t> linked_articles;	
 
-			// std::istringstream ss(line);
-			// while(!ss.eof())
-			// {
-				// std::string tmpStr;
-				// ss >> tmpStr;
-				// if(tmpStr != "")
-					// linked_articles.insert(std::stoi(tmpStr));
-			// }
+		// std::istringstream ss(line);
+		// while(!ss.eof())
+		// {
+		// std::string tmpStr;
+		// ss >> tmpStr;
+		// if(tmpStr != "")
+		// linked_articles.insert(std::stoi(tmpStr));
+		// }
 
-			// category_has_article->push_back(std::move(linked_articles));
+		// category_has_article->push_back(std::move(linked_articles));
 		// }
 
 		// return category_has_article;

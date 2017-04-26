@@ -130,6 +130,7 @@ target_link_libraries(s7_parseAllLinks pthread)
 set(PARSER_TEST_FILES
 	parsers/tests/articlesAndCategories/articleNetworkTests.cpp
 	parsers/tests/articlesAndCategories/categoryTitlesTests.cpp
+	parsers/tests/articlesAndCategories/categoryHasArticleTests.cpp
 	parsers/tests/articlesAndCategories/articleTitlesTests.cpp
 	parsers/tests/articlesAndCategories/cycleDectionTests.cpp
 	parsers/tests/date/dateModelTests.cpp
@@ -139,6 +140,7 @@ set(PARSER_TEST_FILES
 	parsers/tests/date/plainYearGrammarTests.cpp
 	parsers/tests/date/wikiDateTemplateGrammarTests.cpp
 	parsers/tests/date/wikiFuzzyDateTemplateGrammarTests.cpp
+	parsers/tests/helpers/buildArtificialDump.cpp
 	parsers/tests/main_parserTests.cpp
 )
 
