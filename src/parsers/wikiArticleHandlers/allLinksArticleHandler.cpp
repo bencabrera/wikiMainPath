@@ -105,8 +105,8 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 	if(is_category)
 	{
 		title = title.substr(9);
-		std::size_t i_parent;
-		if(!get_position(_category_titles, title, i_parent))
+		std::size_t i_child;
+		if(!get_position(_category_titles, title, i_child))
 			return;
 
 		for(auto it = categories_begin_it; it != categories_end_it; it++)
@@ -115,8 +115,8 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 			if(_redirects.count(linked_category_title) > 0)
 				linked_category_title = _redirects.at(linked_category_title);
 
-			std::size_t i_child;
-			if(!get_position(_category_titles, linked_category_title, i_child))
+			std::size_t i_parent;
+			if(!get_position(_category_titles, linked_category_title, i_parent))
 				continue;
 
 			std::size_t i_min = std::min(i_child % 1000, i_parent % 1000);
@@ -147,10 +147,10 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 		// categories that this is part of
 		for(auto it = categories_begin_it; it != categories_end_it; it++)
 		{
-			auto category_title = it->substr(9);
-
+			auto category_title = *it;
 			if(_redirects.count(category_title) > 0)
 				category_title = _redirects.at(category_title);
+			category_title = category_title.substr(9);
 
 			std::size_t i_category;
 			if(get_position(_category_titles, category_title, i_category))
