@@ -45,9 +45,9 @@ BOOST_AUTO_TEST_CASE(check_if_recursive_articles_are_detected_articial)
 	};
 
 	std::vector<std::pair<std::string,std::string>> expected_category_containment = {
-		{ "A", "Category:C1" },
-		{ "A", "Category:C2" },
-		{ "A", "Category:C3" },
+		{ "A", "C1" },
+		{ "A", "C2" },
+		{ "A", "C3" },
 	};
 
 
@@ -102,6 +102,10 @@ BOOST_AUTO_TEST_CASE(check_if_recursive_articles_are_detected_articial)
 	parser2.RunOnString(content);
 
 	xercesc::XMLPlatformUtils::Terminate();
+
+	for (auto title : category_titles) {
+		std::cout << title << std::endl;	
+	}
 
 	recursiveFillCategories(category_hirachy_graph, category_has_article);	
 
