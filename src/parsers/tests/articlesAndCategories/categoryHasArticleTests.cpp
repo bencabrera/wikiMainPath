@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_SUITE(category_has_article_tests)
 
 BOOST_AUTO_TEST_CASE(check_if_recursive_articles_are_detected_articial)
 {
-	std::vector<std::string> titles = { "A", "B", "C", "D", "E", "Category:C1", "Category:C2", "Category:C3" };
+	std::vector<std::string> titles = { "A", "B", "C", "D", "E", "Category:C1", "Category:C2", "Category:C3", "Category:C4", "Category:C5" };
 	std::vector<std::pair<std::string,std::string>> expected_links = {
 		{ "A", "C" },
 		{ "A", "D" },
@@ -38,14 +38,21 @@ BOOST_AUTO_TEST_CASE(check_if_recursive_articles_are_detected_articial)
 		{ "B", "Category:C3" },
 		{ "C", "Category:C2" },
 		{ "D", "Category:C1" },
+		{ "E", "Category:C1" },
 		{ "Category:C2", "Category:C1" },
 		{ "Category:C3", "Category:C2" },
+		{ "Category:C4", "Category:C1" },
+		{ "Category:C3", "Category:C4" },
+		{ "Category:C4", "Category:C5" },
 	};
 
 	std::vector<std::pair<std::string,std::string>> expected_category_containment = {
 		{ "A", "C1" },
 		{ "A", "C2" },
 		{ "A", "C3" },
+		{ "A", "C4" },
+		{ "E", "C1" },
+		{ "D", "C1" },
 	};
 
 
