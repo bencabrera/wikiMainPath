@@ -4,6 +4,8 @@ project(WikiMainPath)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+include_directories(../libs/eigen)
+
 # add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 # --- Boost library setup ---
@@ -170,6 +172,7 @@ set(BACKEND_FILES
 	# backend/httpRequestHandlers/articleNetworkHandler.cpp
 	backend/graphDrawing/randomGraphDrawing.cpp
 	backend/graphDrawing/averagedPrecessorGraphDrawing.cpp
+	backend/graphDrawing/forceDirectedGraphDrawing.cpp
 )
 
 set(PORTER_2_STEMMER_FILES
@@ -187,11 +190,11 @@ target_link_libraries(backend BackendLib)
 target_link_libraries(backend CoreLib)
 target_link_libraries(backend ${Boost_LIBRARIES})
 target_link_libraries(backend Porter2_Stemmer)
+target_link_libraries(backend PocoFoundation)
 target_link_libraries(backend PocoUtil)
 target_link_libraries(backend PocoNet)
 target_link_libraries(backend PocoJSON)
 target_link_libraries(backend PocoXML)
-target_link_libraries(backend PocoFoundation)
 target_link_libraries(backend pthread)
 
 add_executable(backend_test backend/main_backend_test.cpp)
