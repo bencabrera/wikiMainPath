@@ -218,3 +218,23 @@ target_link_libraries(backend_test2 PocoJSON)
 target_link_libraries(backend_test2 PocoXML)
 target_link_libraries(backend_test2 PocoFoundation)
 target_link_libraries(backend_test2 pthread)
+
+
+
+
+set(BACKEND_TEST_FILES
+	backend/tests/forceDirectedGraphDrawingTests.cpp
+	backend/tests/main_backendTests.cpp
+)
+
+add_executable(backend_tests ${BACKEND_TEST_FILES})
+target_link_libraries(backend_tests ${Boost_LIBRARIES})
+target_link_libraries(backend_tests BackendLib)
+target_link_libraries(backend_tests CoreLib)
+target_link_libraries(backend_tests ${Boost_LIBRARIES})
+target_link_libraries(backend_tests PocoUtil)
+target_link_libraries(backend_tests PocoNet)
+target_link_libraries(backend_tests PocoJSON)
+target_link_libraries(backend_tests PocoXML)
+target_link_libraries(backend_tests PocoFoundation)
+target_link_libraries(backend_tests pthread)
