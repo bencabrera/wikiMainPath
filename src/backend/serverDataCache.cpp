@@ -203,7 +203,7 @@ void ServerDataCache::compute_network_positions(std::size_t category_id)
 	// get normalized x coordinates for drawing algorithms
 	auto x_positions = compute_x_positions(event_list);
 
-	auto positions = force_directed_graph_drawing(event_network, x_positions);
+	auto positions = WikiMainPath::GraphDrawing::force_directed_graph_drawing(event_network, x_positions);
 	// auto positions = averaged_precessor_graph_drawing(event_network);
 	_network_positions_cache.insert({ category_id, std::move(positions) });
 }

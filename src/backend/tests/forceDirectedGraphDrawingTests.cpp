@@ -7,11 +7,14 @@
 #include <random>
 
 #include "../graphDrawing/forceDirectedGraphDrawing.h"
+#include "../graphDrawing/forceDirectedFunctors.h"
 
 BOOST_AUTO_TEST_SUITE(force_directed_tests)
 
 BOOST_AUTO_TEST_CASE(isolated_vertex_should_be_place_at_middle)
 {
+	using namespace WikiMainPath::GraphDrawing;
+
 	ArticleGraph g;
 	boost::add_vertex(g);
 
@@ -24,6 +27,8 @@ BOOST_AUTO_TEST_CASE(isolated_vertex_should_be_place_at_middle)
 
 BOOST_AUTO_TEST_CASE(test2)
 {
+	using namespace WikiMainPath::GraphDrawing;
+
 	ArticleGraph g;
 	auto v1 = boost::add_vertex(g);
 	auto v2 = boost::add_vertex(g);
@@ -32,13 +37,12 @@ BOOST_AUTO_TEST_CASE(test2)
 	std::vector<double> x_positions = { 0.5, 0.5 };
 
 	auto y = force_directed_graph_drawing(g, x_positions);	
-
-	std::cout << "Positions: " << std::endl;
-	std::cout << y[0] << ", " << y[1] << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test3)
 {
+	using namespace WikiMainPath::GraphDrawing;
+	
 	ArticleGraph g;
 	auto v1 = boost::add_vertex(g);
 	auto v2 = boost::add_vertex(g);

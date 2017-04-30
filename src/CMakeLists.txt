@@ -173,6 +173,7 @@ set(BACKEND_FILES
 	backend/graphDrawing/randomGraphDrawing.cpp
 	backend/graphDrawing/averagedPrecessorGraphDrawing.cpp
 	backend/graphDrawing/forceDirectedGraphDrawing.cpp
+	backend/graphDrawing/forceDirectedFunctors.cpp
 )
 
 set(PORTER_2_STEMMER_FILES

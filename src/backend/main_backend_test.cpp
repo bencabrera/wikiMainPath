@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 
 	ServerDataCache _server_data_cache(data);
 
-	const std::size_t category_id = 79000;
+	const std::size_t category_id = 85944;
 
 	timer_server.start_timing_step("build_event_list", "Build event list", &std::cout);
 	const auto& event_list = _server_data_cache.get_event_list(category_id);
@@ -86,6 +86,7 @@ int main(int argc, char** argv)
 	// std::cout << main_path.size() << std::endl;
 	// timer_server.stop_timing_step("build_main_path", &std::cout);
 
+	timer_server.print_timings(std::cout);
 
 
 
