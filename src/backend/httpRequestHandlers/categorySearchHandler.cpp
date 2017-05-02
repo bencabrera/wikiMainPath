@@ -25,7 +25,7 @@ namespace WikiMainPath {
 		Poco::URI uri(request.getURI());
 		auto parameters = uri.getQueryParameters();
 
-		if(parameters.size() != 1 || parameters[0].first != "query-str")
+		if(parameters.size() == 0 || parameters[0].first != "query-str")
 		{
 			response.setStatus("400"); // = Bad Request
 
@@ -40,6 +40,15 @@ namespace WikiMainPath {
 		std::string query_str = parameters[0].second;
 		boost::trim(query_str);
 
+		std::size_t n_limit = 0;
+		if(parameters.size() == 2)
+		{
+			std::string limit_str = parameters[1].second;
+			boost::trim(limit_str);
+
+			n_limit = std::stoul(limit_str);
+		}
+
 		DocumentSet results;
 		if(query_str != "")
 			 results = query(_inverted_index, query_str);
@@ -52,6 +61,7 @@ namespace WikiMainPath {
 		Object root;
 		Array matchingCategoriesArray;
 
+		std::size_t count = 0;
 		for (auto res : results_ordered) {
 			Object el;
 			el.set("title", _wiki_data_cache.category_titles()[res]);
@@ -59,6 +69,10 @@ namespace WikiMainPath {
 			el.set("n_articles", _wiki_data_cache.category_has_article()[res].size());
 
 			matchingCategoriesArray.add(el);
+			count++;
+
+			if(count > n_limit && n_limit != 0)
+				break;
 		}
 
 		root.set("matching-categories", matchingCategoriesArray);

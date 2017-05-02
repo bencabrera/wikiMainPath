@@ -44,7 +44,7 @@ namespace WikiMainPath {
 			for(int i = 0; i < y.size(); i++)
 				y(i) = unif_0_1(rand_gen);
 
-			int flag = lm_solver.minimize(y);
+			/*int flag = */lm_solver.minimize(y);
 			// std::cout << "FLAG: " << flag_to_string(flag) << std::endl;
 
 			std::vector<double> rtn;

@@ -198,12 +198,13 @@ std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_
 void ServerDataCache::compute_network_positions(std::size_t category_id)
 {
 	const auto& event_network = get_event_network(category_id);
-	const auto& event_list = get_event_list(category_id);
+	// const auto& event_list = get_event_list(category_id);
 
 	// get normalized x coordinates for drawing algorithms
-	auto x_positions = compute_x_positions(event_list);
+	// auto x_positions = compute_x_positions(event_list);
 
-	auto positions = WikiMainPath::GraphDrawing::force_directed_graph_drawing(event_network, x_positions);
+	// auto positions = WikiMainPath::GraphDrawing::force_directed_graph_drawing(event_network, x_positions);
+	auto positions = WikiMainPath::GraphDrawing::averaged_precessor_graph_drawing(event_network);
 	// auto positions = averaged_precessor_graph_drawing(event_network);
 	_network_positions_cache.insert({ category_id, std::move(positions) });
 }

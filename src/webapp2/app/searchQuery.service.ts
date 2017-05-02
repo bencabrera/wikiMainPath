@@ -15,7 +15,7 @@ export class SearchQueryService {
 
 	public searchForCategory(queryString: string): Observable<{ title: string, id: number }[]>
 	{
-		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/search-category?query-str=" + queryString);
+		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/search-category?query-str=" + queryString + "&limit=100");
 		return this.http.get(url).map(
 			(response: Response) => <{ title: string, id: number }[]>(response.json()["matching-categories"]) 
 		);	

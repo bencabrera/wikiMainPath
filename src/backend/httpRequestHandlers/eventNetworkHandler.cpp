@@ -64,6 +64,7 @@ namespace WikiMainPath {
 			std::cout << "Hello_logic" << e.what() << std::endl;
 		}
 
+		std::cout << std::endl << "===============================================================" << std::endl;
 
 		Shared::StepTimer timer;
 
@@ -115,6 +116,8 @@ namespace WikiMainPath {
 		}
 		timer.stop_timing_step("build_main_path", &std::cout);
 
+		timer.start_timing_step("build_return_json", "Building JSON to return", &std::cout);
+
 		Array timespan_array;
 		auto min_date = std::min_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
 			return e1.Date < e2.Date;
@@ -133,6 +136,13 @@ namespace WikiMainPath {
 		root.set("main_path", mpa_array);
 		root.set("category_title", _wiki_data_cache.category_titles()[category_id]);
 		root.set("timespan", timespan_array);
+
+		timer.stop_timing_step("build_return_json", &std::cout);
+
+		std::cout << std::endl << "Timings: " << std::endl;
+		timer.print_timings(std::cout);
+
+		std::cout.flush();
 
 		root.stringify(response.send(), 4); 
 	}
