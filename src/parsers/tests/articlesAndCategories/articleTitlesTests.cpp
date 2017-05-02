@@ -14,7 +14,7 @@
 
 // wiki xml dump lib
 #include "../../../core/wikiDataCache.h"
-#include "../../sortTitlesHelper.h"
+#include "../../helpers/sortTitlesHelper.h"
 #include "../../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
 #include "../../../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"
 #include "../../../../libs/wiki_xml_dump_xerces/src/handlers/wikiDumpHandlerProperties.hpp"

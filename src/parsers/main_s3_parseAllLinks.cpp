@@ -20,9 +20,9 @@
 #include <boost/algorithm/string/trim.hpp>
 
 // local files
-#include "shared.h"
+#include "helpers/shared.h"
 #include "../core/wikiDataCache.h"
-#include "s3_recursiveFillCategories.h"
+#include "helpers/s3_recursiveFillCategories.h"
 
 // wiki xml dump lib
 #include "wikiArticleHandlers/allLinksArticleHandler.h"
@@ -148,10 +148,20 @@ int main(int argc, char* argv[])
 	timer.start_timing_step("output", "Writing output files", &std::cout);
 	wiki_data_cache.write_category_has_article(category_has_article);
 	wiki_data_cache.write_article_network(article_adjacency_list);
+
+	std::ofstream graphFile((outputFolder / "category_hirachy_graph.txt").string());	
+	for (auto v : boost::make_iterator_range(boost::vertices(category_hirachy_graph)))
+	{
+		for (auto e : boost::make_iterator_range(boost::out_edges(v,category_hirachy_graph))) 
+			graphFile << boost::target(e,category_hirachy_graph) << " ";
+
+		graphFile << std::endl;
+	}
+
 	timer.stop_timing_step("output");
 
 	timer.stop_timing_step("global");
-	
+
 	// output timings
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Timings: " << std::endl << std::endl;

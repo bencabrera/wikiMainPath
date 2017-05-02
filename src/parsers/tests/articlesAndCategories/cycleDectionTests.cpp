@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../../s3_cycle_detector_visitor.h"
+#include "../../helpers/s3_cycle_detector_visitor.h"
 
 BOOST_AUTO_TEST_SUITE(cycle_detection_tests)
 

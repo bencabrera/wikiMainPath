@@ -11,10 +11,10 @@
 #include <xercesc/util/XMLString.hpp>
 
 // wiki xml dump lib
-#include "../../s3_recursiveFillCategories.h"
+#include "../../helpers/s3_recursiveFillCategories.h"
 #include "../helpers/buildArtificialDump.h"
 #include "../../../core/wikiDataCache.h"
-#include "../../sortTitlesHelper.h"
+#include "../../helpers/sortTitlesHelper.h"
 #include "../../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
 #include "../../wikiArticleHandlers/allLinksArticleHandler.h"
 #include "../../../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"

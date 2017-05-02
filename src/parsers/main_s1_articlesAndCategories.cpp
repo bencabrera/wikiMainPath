@@ -19,7 +19,7 @@
 #include <boost/program_options.hpp>
 
 // local files
-#include "shared.h"
+#include "helpers/shared.h"
 #include "../core/wikiDataCache.h"
 
 // wiki xml dump lib

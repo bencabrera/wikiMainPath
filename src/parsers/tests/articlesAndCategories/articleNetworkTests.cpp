@@ -13,7 +13,7 @@
 // wiki xml dump lib
 #include "../helpers/buildArtificialDump.h"
 #include "../../../core/wikiDataCache.h"
-#include "../../sortTitlesHelper.h"
+#include "../../helpers/sortTitlesHelper.h"
 #include "../../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
 #include "../../wikiArticleHandlers/allLinksArticleHandler.h"
 #include "../../../../libs/wiki_xml_dump_xerces/src/parsers/singleCoreParser.hpp"

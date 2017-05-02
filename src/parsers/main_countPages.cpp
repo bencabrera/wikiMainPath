@@ -18,7 +18,7 @@
 
 // local files
 #include "../../libs/wiki_xml_dump_xerces/src/examples/countPages/countPagesXercesHandler.hpp"
-#include "shared.h"
+#include "helpers/shared.h"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;

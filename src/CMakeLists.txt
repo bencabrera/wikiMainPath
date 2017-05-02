@@ -1,3 +1,6 @@
+# =====================================================================
+# General setup
+# =====================================================================
 cmake_minimum_required(VERSION 3.1)
 project(WikiMainPath)
 
@@ -6,11 +9,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 include_directories(../libs/eigen)
 
-# add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-
 # --- Boost library setup ---
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem system program_options graph regex unit_test_framework)
+
+
+
+# =====================================================================
+# Core
+# =====================================================================
 
 # --- Core library ---
 set(CORE_FILES
@@ -23,17 +30,16 @@ add_library(CoreLib STATIC ${CORE_FILES})
 
 
 
+# =====================================================================
+# Parsers
+# =====================================================================
 
-# --- Parsers ---
+# --- parser static library ---
+
 set(PARSER_FILES
 	# handlers
-	# parsers/wikiArticleHandlers/articleTitlesHandler.cpp
 	parsers/wikiArticleHandlers/allLinksArticleHandler.cpp
 	parsers/wikiArticleHandlers/articleDatesAndCategoriesHandler.cpp
-	parsers/wikiArticleHandlers/countArticleLengthsHandler.cpp
-	parsers/wikiArticleHandlers/categoryHasArticleHandler.cpp
-	parsers/wikiArticleHandlers/categoryRecursiveHandler.cpp
-	parsers/wikiArticleHandlers/linkExtractionHandler.cpp
 
 	# date extraction
 	parsers/date/articleDateExtraction.cpp
@@ -47,37 +53,24 @@ set(PARSER_FILES
 	parsers/date/grammars/wikiFuzzyDateTemplateGrammar.cpp
 	parsers/date/grammars/infoboxKeyValueGrammar.cpp
 
-	parsers/s3_recursiveFillCategories.cpp
-	parsers/s3_cycle_detector_visitor.cpp
-	parsers/shared.h
-	parsers/shared.cpp
-	parsers/sortTitlesHelper.cpp
+	parsers/helpers/s3_recursiveFillCategories.cpp
+	parsers/helpers/s3_cycle_detector_visitor.cpp
+	parsers/helpers/shared.h
+	parsers/helpers/shared.cpp
+	parsers/helpers/sortTitlesHelper.cpp
 )
 
 add_library(ParserLib STATIC ${PARSER_FILES})
 
-# parser executables
+
+
+# --- parser executables ---
+
 add_executable(count_pages parsers/main_countPages.cpp)
 target_link_libraries(count_pages ParserLib)
 target_link_libraries(count_pages ${Boost_LIBRARIES})
 target_link_libraries(count_pages xerces-c)
 target_link_libraries(count_pages pthread)
-
-# parser executables
-add_executable(countArticleLengths parsers/main_countArticleLengths.cpp)
-target_link_libraries(countArticleLengths CoreLib)
-target_link_libraries(countArticleLengths ParserLib)
-target_link_libraries(countArticleLengths ${Boost_LIBRARIES})
-target_link_libraries(countArticleLengths xerces-c)
-target_link_libraries(countArticleLengths pthread)
-target_link_libraries(countArticleLengths CoreLib)
-
-add_executable(s1_2_articlesAndCategories parsers/main_s1_2_sortArticleAndCategories.cpp)
-target_link_libraries(s1_2_articlesAndCategories CoreLib)
-target_link_libraries(s1_2_articlesAndCategories ParserLib)
-target_link_libraries(s1_2_articlesAndCategories ${Boost_LIBRARIES})
-target_link_libraries(s1_2_articlesAndCategories xerces-c)
-target_link_libraries(s1_2_articlesAndCategories pthread)
 
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories CoreLib)
@@ -86,49 +79,24 @@ target_link_libraries(s1_articlesAndCategories ${Boost_LIBRARIES})
 target_link_libraries(s1_articlesAndCategories xerces-c)
 target_link_libraries(s1_articlesAndCategories pthread)
 
-add_executable(s2_categoryHasArticles parsers/main_s2_categoryHasArticles.cpp)
-target_link_libraries(s2_categoryHasArticles CoreLib)
-target_link_libraries(s2_categoryHasArticles ParserLib)
-target_link_libraries(s2_categoryHasArticles ${Boost_LIBRARIES})
-target_link_libraries(s2_categoryHasArticles xerces-c)
-target_link_libraries(s2_categoryHasArticles pthread)
+add_executable(s2_sortArticlesAndCategories parsers/main_s2_sortArticleAndCategories.cpp)
+target_link_libraries(s2_sortArticlesAndCategories CoreLib)
+target_link_libraries(s2_sortArticlesAndCategories ParserLib)
+target_link_libraries(s2_sortArticlesAndCategories ${Boost_LIBRARIES})
+target_link_libraries(s2_sortArticlesAndCategories xerces-c)
+target_link_libraries(s2_sortArticlesAndCategories pthread)
 
-add_executable(s3_recursiveCategories parsers/main_s3_recursiveCategories.cpp)
-target_link_libraries(s3_recursiveCategories CoreLib)
-target_link_libraries(s3_recursiveCategories ParserLib)
-target_link_libraries(s3_recursiveCategories ${Boost_LIBRARIES})
-target_link_libraries(s3_recursiveCategories xerces-c)
-target_link_libraries(s3_recursiveCategories pthread)
-
-add_executable(s4_articleNetwork parsers/main_s4_articleNetwork.cpp)
-target_link_libraries(s4_articleNetwork ${Boost_LIBRARIES})
-target_link_libraries(s4_articleNetwork CoreLib)
-target_link_libraries(s4_articleNetwork ParserLib)
-target_link_libraries(s4_articleNetwork xerces-c)
-target_link_libraries(s4_articleNetwork pthread)
-
-add_executable(s7_parseAllLinks parsers/main_s7_parseAllLinks.cpp)
-target_link_libraries(s7_parseAllLinks ${Boost_LIBRARIES})
-target_link_libraries(s7_parseAllLinks CoreLib)
-target_link_libraries(s7_parseAllLinks ParserLib)
-target_link_libraries(s7_parseAllLinks xerces-c)
-target_link_libraries(s7_parseAllLinks pthread)
-
-# add_executable(s5_eventComputations parsers/main_s5_eventComputations.cpp)
-# target_link_libraries(s5_eventComputations CoreLib)
-# target_link_libraries(s5_eventComputations ParserLib)
-# target_link_libraries(s5_eventComputations ${Boost_LIBRARIES})
-
-# add_executable(countPages parsers/main_countPages.cpp)
-# target_link_libraries(countPages ParserLib)
-# target_link_libraries(countPages ${Boost_LIBRARIES})
-# target_link_libraries(countPages xerces-c)
-# target_link_libraries(countPages pthread)
+add_executable(s3_parseAllLinks parsers/main_s3_parseAllLinks.cpp)
+target_link_libraries(s3_parseAllLinks ${Boost_LIBRARIES})
+target_link_libraries(s3_parseAllLinks CoreLib)
+target_link_libraries(s3_parseAllLinks ParserLib)
+target_link_libraries(s3_parseAllLinks xerces-c)
+target_link_libraries(s3_parseAllLinks pthread)
 
 
 
+# --- parser tests ---
 
-# --- Parser tests ---
 set(PARSER_TEST_FILES
 	parsers/tests/articlesAndCategories/articleNetworkTests.cpp
 	parsers/tests/articlesAndCategories/categoryTitlesTests.cpp
@@ -146,8 +114,6 @@ set(PARSER_TEST_FILES
 	parsers/tests/main_parserTests.cpp
 )
 
-# add_library(ParserTestsLib STATIC ${PARSER_TEST_FILES})
-
 add_executable(parser_tests ${PARSER_TEST_FILES})
 target_link_libraries(parser_tests ${Boost_LIBRARIES})
 target_link_libraries(parser_tests CoreLib)
@@ -157,7 +123,14 @@ target_link_libraries(parser_tests ${Boost_LIBRARIES})
 target_link_libraries(parser_tests ParserLib)
 target_link_libraries(parser_tests CoreLib)
 
-# --- backend server ---
+
+
+
+
+# =====================================================================
+# Webapp Server Backend
+# =====================================================================
+
 set(BACKEND_FILES
 	backend/serverDataCache.cpp
 	backend/routingHandlerFactory.cpp
@@ -209,19 +182,9 @@ target_link_libraries(backend_test PocoXML)
 target_link_libraries(backend_test PocoFoundation)
 target_link_libraries(backend_test pthread)
 
-add_executable(backend_test2 backend/main_backend_test2.cpp)
-target_link_libraries(backend_test2 BackendLib)
-target_link_libraries(backend_test2 CoreLib)
-target_link_libraries(backend_test2 ${Boost_LIBRARIES})
-target_link_libraries(backend_test2 PocoUtil)
-target_link_libraries(backend_test2 PocoNet)
-target_link_libraries(backend_test2 PocoJSON)
-target_link_libraries(backend_test2 PocoXML)
-target_link_libraries(backend_test2 PocoFoundation)
-target_link_libraries(backend_test2 pthread)
 
 
-
+# --- backend tests ---
 
 set(BACKEND_TEST_FILES
 	backend/tests/forceDirectedGraphDrawingTests.cpp

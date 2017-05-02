@@ -3,7 +3,7 @@
 #include <numeric>
 #include <boost/filesystem.hpp>
 #include "../core/wikiDataCache.h"
-#include "sortTitlesHelper.h"
+#include "helpers/sortTitlesHelper.h"
 
 
 
