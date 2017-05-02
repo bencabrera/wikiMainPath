@@ -69,6 +69,8 @@ namespace WikiMainPath {
 				"up to"
 			;
 
+			numeric_abbrv = "th", "nd", "st";
+
 			month_year_date = month_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1];
 
 			day_range_dmy_date = 
@@ -113,7 +115,7 @@ namespace WikiMainPath {
 				>> int_ [at_c<2>(_val) = boost::spirit::_1, _pass = boost::spirit::_1 < 32];
 			month_day_year = 
 				(no_case[long_month_str] | no_case[short_month_str] ) [at_c<1>(_val) = boost::spirit::_1] >> -lit(',') 
-				>> int_ [at_c<2>(_val) = boost::spirit::_1] >> -lit(',') 
+				>> int_ [at_c<2>(_val) = boost::spirit::_1] >> -numeric_abbrv >> -lit(',') 
 				>> int_ [at_c<0>(_val) = boost::spirit::_1 - 1900];
 
 			// BOOST_SPIRIT_DEBUG_NODE(start);

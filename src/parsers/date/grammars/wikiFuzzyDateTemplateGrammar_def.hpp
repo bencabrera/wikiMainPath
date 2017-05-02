@@ -45,25 +45,25 @@ namespace WikiMainPath {
 			single_fuzzy_template_year = 
 				lit("{{") >> no_case[year_fuzzy_template_names] >> '|' 
 				>> *(&wiki_date_template_grammar.template_non_int_parameter >> wiki_date_template_grammar.template_non_int_parameter >> '|') 
-				>> plain_year_grammar [_val = at_c<1>(boost::spirit::_1)]
+				>> plain_year_grammar.without_eoi [_val = at_c<1>(boost::spirit::_1)]
 				// >> -(wiki_date_template_grammar.template_non_int_parameter % '|') 
 				>> lit("}}");
 
 			old_new_fuzzy_template_year = 
 				lit("{{") >> no_case[year_fuzzy_template_names] >> '|' 
 				>> *(&wiki_date_template_grammar.template_non_int_parameter >> wiki_date_template_grammar.template_non_int_parameter >> '|') 
-				>> plain_year_grammar [at_c<1>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
+				>> plain_year_grammar.without_eoi [at_c<1>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
 				>> '|' 
-				>> plain_year_grammar [at_c<2>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
+				>> plain_year_grammar.without_eoi [at_c<2>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
 				// >> -(wiki_date_template_grammar.template_non_int_parameter % '|') 
 				>> lit("}}");
 
 			new_old_fuzzy_template_year = 
 				lit("{{") >> no_case[year_fuzzy_template_names] >> '|' 
 				>> *(&wiki_date_template_grammar.template_non_int_parameter >> wiki_date_template_grammar.template_non_int_parameter >> '|') 
-				>> plain_year_grammar [at_c<2>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
+				>> plain_year_grammar.without_eoi [at_c<2>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
 				>> '|' 
-				>> plain_year_grammar [at_c<1>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
+				>> plain_year_grammar.without_eoi [at_c<1>(_val) = at_c<1>(at_c<1>(boost::spirit::_1))]
 				// >> -(wiki_date_template_grammar.template_non_int_parameter % '|') 
 				>> lit("}}");
 

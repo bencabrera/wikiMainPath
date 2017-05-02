@@ -47,6 +47,7 @@ namespace WikiMainPath {
 			boost::spirit::qi::symbols<char,int> short_month_str;
 			boost::spirit::qi::symbols<char,int> long_month_str;
 			boost::spirit::qi::symbols<char> to_separator;
+			boost::spirit::qi::symbols<char> numeric_abbrv;
 		};
 
 }

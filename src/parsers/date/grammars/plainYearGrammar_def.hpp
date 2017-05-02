@@ -11,7 +11,9 @@ namespace WikiMainPath {
 			using namespace boost::spirit::qi;
 			using namespace boost::phoenix;
 
-			start =	number_year_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1];
+			start =	number_year_date [at_c<1>(_val) = boost::spirit::_1] >> eoi[at_c<0>(_val) = true];
+
+			without_eoi = number_year_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1];
 
 
 			number_year_date = (&number_year_ad >> number_year_ad [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1])

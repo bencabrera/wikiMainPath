@@ -28,6 +28,12 @@ BOOST_AUTO_TEST_SUITE(plain_year_grammar_tests)
 		"1 BC",
 	};
 
+	std::vector<std::string> not_parse_date_examples = {
+		"18 November",
+		"1 BC d",
+	};
+
+
 std::vector<std::pair<bool,Date>> expected_dates = {
 	// tm_sec	tm_min	tm_hour	tm_mday	tm_mon	tm_year	tm_wday	tm_yday	tm_isdst
 	{true, {false, {	   0,	   0,		 0,		1,		8,	  17 }, {}}},
@@ -60,6 +66,25 @@ BOOST_DATA_TEST_CASE(
 	BOOST_CHECK_EQUAL(expected_extracted, was_extracted);
 	if(expected_extracted)
 		BOOST_CHECK_EQUAL(expected_date.Begin.tm_year, p.second.Begin.tm_year);
+}
+
+
+
+BOOST_DATA_TEST_CASE(
+	plain_year_grammar_should_not_parse,
+	boost::unit_test::data::make(not_parse_date_examples),
+	date_str
+)
+{
+	std::string str = date_str;
+
+	WikiMainPath::PlainYearGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
+
+	std::pair<bool, Date> p;
+	auto it = str.cbegin();
+	boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, p);
+	bool was_extracted = p.first;
+	BOOST_CHECK(!was_extracted);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

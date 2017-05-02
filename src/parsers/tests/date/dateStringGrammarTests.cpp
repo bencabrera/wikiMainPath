@@ -25,6 +25,11 @@ std::vector<std::string> date_examples = {
 	"12, April, 1750",
 	"April 29, 1829 (aged 79)",
 	"31 March − 1 April 1942",
+	"December 15th, 2004",
+};
+
+std::vector<std::string> not_parse_date_examples = {
+	"18 November"
 };
 
 std::vector<Date> expected_dates = {
@@ -44,6 +49,7 @@ std::vector<Date> expected_dates = {
 	{false, {	   0,	   0,		 0,		12,		3,	  -150 }, {}},
 	{false, {	   0,	   0,		 0,		29,		3,	  -71 }, {}},
 	{true, {	   0,	   0,		 0,		31,		2,	  42 }, {	   0,	   0,		 0,		1,		3,	  42 }},
+	{false, {	   0,	   0,		 0,		15,		11,	  104 }, {}},
 };
 
 BOOST_DATA_TEST_CASE(
@@ -61,6 +67,24 @@ BOOST_DATA_TEST_CASE(
 	bool was_extracted = p.first;
 	BOOST_CHECK(was_extracted);
 	BOOST_CHECK_EQUAL(expected_date, p.second);
+}
+
+
+BOOST_DATA_TEST_CASE(
+	should_not_parse,
+	boost::unit_test::data::make(not_parse_date_examples),
+	date_str
+)
+{
+	std::string str = date_str;
+
+	WikiMainPath::DateStringGrammar<std::string::const_iterator, boost::spirit::qi::blank_type> date_string_grammar;
+
+	std::pair<bool, Date> p;
+	auto it = str.cbegin();
+	boost::spirit::qi::phrase_parse(it, str.cend(), date_string_grammar, boost::spirit::qi::blank, p);
+	bool was_extracted = p.first;
+	BOOST_CHECK(!was_extracted);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

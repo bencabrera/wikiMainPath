@@ -29,6 +29,7 @@ namespace WikiMainPath {
 			PlainYearGrammar();
 
 			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> start;
+			boost::spirit::qi::rule<Iterator, std::pair<bool,Date>(), Skipper> without_eoi;
 
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> number_year_date;
 
