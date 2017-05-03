@@ -173,6 +173,9 @@ void AllLinksArticleHander::HandleArticle(const WikiXmlDumpXerces::WikiPageData&
 			if(!get_position(_article_titles, article_title, i_to_article))
 				continue;
 
+			if(i_from_article == i_to_article)
+				continue;
+
 			_vecMutex.lock(i_from_article);
 			_article_adjacency_list[i_from_article].insert(i_to_article);
 			_vecMutex.unlock(i_from_article);

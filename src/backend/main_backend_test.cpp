@@ -1,6 +1,7 @@
 #include "../core/wikiDataCache.h"
 #include "serverDataCache.h"
 #include <boost/filesystem.hpp>
+#include <boost/graph/graphviz.hpp>
 
 #include "../../libs/shared/cpp/stepTimer.hpp"
 
@@ -36,7 +37,7 @@ int main(int argc, char** argv)
 	data.article_dates();
 	timer.stop_timing_step("read_article_dates",&std::cout);
 	timer.start_timing_step("read_article_network","Reading in 'article_network'", &std::cout);
-	data.article_network();
+	auto& article_network = data.article_network();
 	timer.stop_timing_step("read_article_network",&std::cout);
 	// timer.start_timing_step("read_event_network","Reading in 'event_network'", &std::cout);
 	// data.event_network();
@@ -72,6 +73,9 @@ int main(int argc, char** argv)
 	std::cout << boost::num_vertices(subgraph) << std::endl;
 	timer_server.stop_timing_step("build_event_network", &std::cout);
 
+	std::ofstream graphviz_file("/home/cabrera/Schreibtisch/test.dot");
+	boost::write_graphviz(graphviz_file, subgraph);
+
 	timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
 	const auto& positions = _server_data_cache.get_network_positions(category_id);
 	std::cout << positions.size() << std::endl;
@@ -81,10 +85,33 @@ int main(int argc, char** argv)
 	}
 	timer_server.stop_timing_step("build_positions", &std::cout);
 
-	timer_server.start_timing_step("build_main_path", "Build main path", &std::cout);
-	const auto& main_path = _server_data_cache.get_global_main_path(category_id);
-	std::cout << main_path.size() << std::endl;
-	timer_server.stop_timing_step("build_main_path", &std::cout);
+
+	std::cout << "Loops in article network" << std::endl;
+	
+	std::size_t v1 = 0, n_loops = 0, n_multi_edges = 0, previous = 0;
+	for (auto neighbors : article_network) 
+	{
+		previous = 0;
+		for (auto v2 : neighbors)
+		{
+			if(v1 == v2)
+			{
+				std::cout << v1 << " --> " << v2 << std::endl;
+				n_loops++;
+			}
+			if(v2 == previous)
+				n_multi_edges++;
+			previous = v2;
+		}
+		v1++;
+	}
+	
+	std::cout << "In total found " << n_loops << " loops and " << n_multi_edges << " multi edges" << std::endl;
+
+	// timer_server.start_timing_step("build_main_path", "Build main path", &std::cout);
+	// const auto& main_path = _server_data_cache.get_global_main_path(category_id);
+	// std::cout << main_path.size() << std::endl;
+	// timer_server.stop_timing_step("build_main_path", &std::cout);
 
 	timer_server.print_timings(std::cout);
 

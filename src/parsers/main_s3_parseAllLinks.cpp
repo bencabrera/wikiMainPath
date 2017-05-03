@@ -142,12 +142,6 @@ int main(int argc, char* argv[])
 
 	// computing recursive category_has_article
 	timer.start_timing_step("recursive", "Computing recursive category_has_article", &std::cout);
-	recursiveFillCategories(category_hirachy_graph, category_has_article);	
-	timer.stop_timing_step("recursive");
-
-	timer.start_timing_step("output", "Writing output files", &std::cout);
-	wiki_data_cache.write_category_has_article(category_has_article);
-	wiki_data_cache.write_article_network(article_adjacency_list);
 
 	std::ofstream graphFile((outputFolder / "category_hirachy_graph.txt").string());	
 	for (auto v : boost::make_iterator_range(boost::vertices(category_hirachy_graph)))
@@ -157,6 +151,14 @@ int main(int argc, char* argv[])
 
 		graphFile << std::endl;
 	}
+
+	recursiveFillCategories(category_hirachy_graph, category_has_article);	
+	timer.stop_timing_step("recursive");
+
+	timer.start_timing_step("output", "Writing output files", &std::cout);
+	wiki_data_cache.write_category_has_article(category_has_article);
+	wiki_data_cache.write_article_network(article_adjacency_list);
+
 
 	timer.stop_timing_step("output");
 
