@@ -21,7 +21,7 @@ export class SearchQueryService {
 		);	
 	}
 
-	public getEventNetwork(category_id: number): Observable<{ title: string, id: number }[]>
+	public getEventNetwork(category_id: number): Observable<any>
 	{
 		var url : string = encodeURI(this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id);
 		return this.http.get(url).map(
