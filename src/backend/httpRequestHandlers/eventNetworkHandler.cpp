@@ -55,6 +55,7 @@ namespace WikiMainPath {
 				Object root;
 				root.set("error", "GET-Parameter category-id was larger than the sizes of _category_has_article.");
 				root.stringify(response.send(), 4); 
+				std::cerr << "Aborting request" << std::endl;
 				return;
 			}
 		}
@@ -63,6 +64,7 @@ namespace WikiMainPath {
 			Object root;
 			root.set("error", e.what());
 			root.stringify(response.send(), 4); 
+			std::cerr << "Aborting request" << std::endl;
 			return;
 		}
 
@@ -132,6 +134,7 @@ namespace WikiMainPath {
 			Object root;
 			root.set("error", boost::diagnostic_information(e, true));
 			root.stringify(response.send(), 4); 
+			std::cerr << "Aborting request" << std::endl;
 			return;
 		}
 		catch(std::exception& e)
@@ -140,6 +143,7 @@ namespace WikiMainPath {
 			Object root;
 			root.set("error", e.what());
 			root.stringify(response.send(), 4); 
+			std::cerr << "Aborting request" << std::endl;
 			return;
 		}
 
