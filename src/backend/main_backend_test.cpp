@@ -57,33 +57,33 @@ int main(int argc, char** argv)
 
 	ServerDataCache _server_data_cache(data);
 
-	const std::size_t category_id = 1564179;
+	// const std::size_t category_id = 1564179;
 
-	timer_server.start_timing_step("build_event_list", "Build event list", &std::cout);
-	const auto& event_list = _server_data_cache.get_event_list(category_id);
-	std::cout << event_list.size() << std::endl;
-	timer_server.stop_timing_step("build_event_list", &std::cout);
+	// timer_server.start_timing_step("build_event_list", "Build event list", &std::cout);
+	// const auto& event_list = _server_data_cache.get_event_list(category_id);
+	// std::cout << event_list.size() << std::endl;
+	// timer_server.stop_timing_step("build_event_list", &std::cout);
 
-	for (auto event : event_list) {
-		std::cout << std::setw(80) << event.Title << " " << to_iso_string(event.Date) << std::endl;	
-	}
+	// for (auto event : event_list) {
+		// std::cout << std::setw(80) << event.Title << " " << to_iso_string(event.Date) << std::endl;	
+	// }
 
-	timer_server.start_timing_step("build_event_network", "Build event network", &std::cout);
-	const auto& subgraph = _server_data_cache.get_event_network(category_id);
-	std::cout << boost::num_vertices(subgraph) << std::endl;
-	timer_server.stop_timing_step("build_event_network", &std::cout);
+	// timer_server.start_timing_step("build_event_network", "Build event network", &std::cout);
+	// const auto& subgraph = _server_data_cache.get_event_network(category_id);
+	// std::cout << boost::num_vertices(subgraph) << std::endl;
+	// timer_server.stop_timing_step("build_event_network", &std::cout);
 
-	std::ofstream graphviz_file("/home/cabrera/Schreibtisch/test.dot");
-	boost::write_graphviz(graphviz_file, subgraph);
+	// std::ofstream graphviz_file("/home/cabrera/Schreibtisch/test.dot");
+	// boost::write_graphviz(graphviz_file, subgraph);
 
-	timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
-	const auto& positions = _server_data_cache.get_network_positions(category_id);
-	std::cout << positions.size() << std::endl;
-	std::cout << "positions: " << std::endl;
-	for (auto pos : positions) {
-		std::cout << pos << std::endl;
-	}
-	timer_server.stop_timing_step("build_positions", &std::cout);
+	// timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
+	// const auto& positions = _server_data_cache.get_network_positions(category_id);
+	// std::cout << positions.size() << std::endl;
+	// std::cout << "positions: " << std::endl;
+	// for (auto pos : positions) {
+		// std::cout << pos << std::endl;
+	// }
+	// timer_server.stop_timing_step("build_positions", &std::cout);
 
 
 	std::cout << "Loops in article network" << std::endl;
