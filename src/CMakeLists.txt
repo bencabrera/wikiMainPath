@@ -93,6 +93,13 @@ target_link_libraries(s3_parseAllLinks ParserLib)
 target_link_libraries(s3_parseAllLinks xerces-c)
 target_link_libraries(s3_parseAllLinks pthread)
 
+add_executable(s4_manual parsers/main_s4_manualRecursiveCategories.cpp)
+target_link_libraries(s4_manual ${Boost_LIBRARIES})
+target_link_libraries(s4_manual CoreLib)
+target_link_libraries(s4_manual ParserLib)
+target_link_libraries(s4_manual xerces-c)
+target_link_libraries(s4_manual pthread)
+target_link_libraries(s4_manual ${Boost_LIBRARIES})
 
 
 # --- parser tests ---

@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace WikiMainPath {
 
@@ -12,8 +13,7 @@ namespace WikiMainPath {
 	constexpr char WikiDataCache::ARTICLE_DATES_FILE[];
 	constexpr char WikiDataCache::CAT_HAS_ARTICLE_FILE[];
 	constexpr char WikiDataCache::ARTICLE_NETWORK_FILE[];
-	constexpr char WikiDataCache::EVENT_INDICES_FILE[];
-	constexpr char WikiDataCache::EVENT_NETWORK_FILE[];
+	constexpr char WikiDataCache::CATEGORY_HIRACHY_GRAPH_FILE[];
 
 	WikiDataCache::WikiDataCache(std::string folder)
 		:_folder(folder)
@@ -28,14 +28,16 @@ namespace WikiMainPath {
 		std::shared_ptr<std::istream> category_titles_file, 
 		std::shared_ptr<std::istream> redirects_file, 
 		std::shared_ptr<std::istream> category_has_article_file, 
-		std::shared_ptr<std::istream> article_network_file
+		std::shared_ptr<std::istream> article_network_file,
+		std::shared_ptr<std::istream> category_hirachy_graph_file
 	)
 		:_article_titles_file(article_titles_file),
 		_article_dates_file(article_dates_file),
 		_category_titles_file(category_titles_file),
 		_redirects_file(redirects_file),
 		_category_has_article_file(category_has_article_file),
-		_article_network_file(article_network_file)
+		_article_network_file(article_network_file),
+		_category_hirachy_graph_file(category_hirachy_graph_file)
 	{}
 
 
@@ -96,7 +98,13 @@ namespace WikiMainPath {
 		return *_article_network;
 	}
 
+	const CategoryHirachyGraph& WikiDataCache::category_hirachy_graph()
+	{
+		if(_category_hirachy_graph == nullptr)
+			_category_hirachy_graph = read_category_hirachy_graph((_folder / CATEGORY_HIRACHY_GRAPH_FILE).string());	
 
+		return *_category_hirachy_graph;
+	}
 
 	// const getter methods
 	const std::vector<std::string>& WikiDataCache::article_titles() const
@@ -155,6 +163,13 @@ namespace WikiMainPath {
 		return *_article_network;
 	}
 
+	const CategoryHirachyGraph& WikiDataCache::category_hirachy_graph() const
+	{
+		if(_category_hirachy_graph == nullptr)
+			throw std::logic_error("Accessed category_hirachy_graph without reading it first");
+
+		return *_category_hirachy_graph;
+	}
 
 
 	// file reader methods
@@ -167,6 +182,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Article file not found");
 			_article_titles_file = tmp;
 		}
+		_article_titles_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::vector<std::string>> rtn(new std::vector<std::string>());
 
@@ -193,6 +209,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Category file not found");
 			_category_titles_file = tmp;
 		}
+		_category_titles_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::vector<std::string>> rtn(new std::vector<std::string>());
 
@@ -219,6 +236,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Redirects file not found");
 			_redirects_file = tmp;
 		}
+		_redirects_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::map<std::string,std::string>> rtn(new std::map<std::string,std::string>());
 
@@ -242,6 +260,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Article dates file not found");
 			_article_dates_file = tmp;
 		}
+		_article_dates_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::vector<std::vector<Date>>> rtn(new std::vector<std::vector<Date>>());
 
@@ -252,9 +271,12 @@ namespace WikiMainPath {
 			std::vector<Date> dates;
 			boost::split(date_strs,line,boost::is_any_of("\t"));
 
-			for (auto& date_str : date_strs) 
+			for (auto date_str : date_strs) 
+			{
+				boost::trim(date_str);
 				if(date_str != "")
 					dates.push_back(Date::deserialize(date_str));
+			}
 
 			rtn->push_back(dates);
 		}
@@ -271,6 +293,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Category_has_article file not found");
 			_category_has_article_file = tmp;
 		}
+		_category_has_article_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::vector<std::vector<std::size_t>>> category_has_article(new std::vector<std::vector<std::size_t>>());
 
@@ -284,6 +307,7 @@ namespace WikiMainPath {
 			{
 				std::string tmpStr;
 				ss >> tmpStr;
+				boost::trim(tmpStr);
 				if(tmpStr != "")
 					linked_articles.push_back(std::stoi(tmpStr));
 			}
@@ -296,31 +320,36 @@ namespace WikiMainPath {
 
 	std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> WikiDataCache::read_category_has_article_set(std::string path)
 	{
-		throw std::logic_error("Not implemented");
-		// std::ifstream category_has_article_file(category_has_article_file_path);	
-		// if(!category_has_article_file.is_open())
-		// throw std::logic_error("Category_has_article file not found");
+		if(!_category_has_article_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("Category_has_article file not found");
+			_category_has_article_file = tmp;
+		}
+		_category_has_article_file->seekg(0, std::ios::beg);
 
-		// std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> category_has_article(new std::vector<boost::container::flat_set<std::size_t>>());
+		std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> category_has_article_set(new std::vector<boost::container::flat_set<std::size_t>>());
 
-		// std::string line;
-		// while(std::getline(category_has_article_file, line))
-		// {
-		// boost::container::flat_set<std::size_t> linked_articles;	
+		std::string line;
+		while(std::getline(*_category_has_article_file, line))
+		{
+			boost::container::flat_set<std::size_t> linked_articles;	
 
-		// std::istringstream ss(line);
-		// while(!ss.eof())
-		// {
-		// std::string tmpStr;
-		// ss >> tmpStr;
-		// if(tmpStr != "")
-		// linked_articles.insert(std::stoi(tmpStr));
-		// }
+			std::istringstream ss(line);
+			while(!ss.eof())
+			{
+				std::string tmpStr;
+				ss >> tmpStr;
+				boost::trim(tmpStr);
+				if(tmpStr != "")
+					linked_articles.insert(std::stoi(tmpStr));
+			}
 
-		// category_has_article->push_back(std::move(linked_articles));
-		// }
+			category_has_article_set->push_back(std::move(linked_articles));
+		}
 
-		// return category_has_article;
+		return category_has_article_set;
 	}
 
 
@@ -333,6 +362,7 @@ namespace WikiMainPath {
 				throw std::logic_error("Article network file not found");
 			_article_network_file = tmp;
 		}
+		_article_network_file->seekg(0, std::ios::beg);
 
 		std::unique_ptr<std::vector<std::vector<std::size_t>>> adj_list(new std::vector<std::vector<std::size_t>>());
 
@@ -345,6 +375,7 @@ namespace WikiMainPath {
 			{
 				std::string tmpStr;
 				ss >> tmpStr;
+				boost::trim(tmpStr);
 				if(tmpStr != "")
 				{
 					std::size_t target = std::stoi(tmpStr);
@@ -358,6 +389,44 @@ namespace WikiMainPath {
 	}
 
 
+	std::unique_ptr<CategoryHirachyGraph> WikiDataCache::read_category_hirachy_graph(std::string path)
+	{
+		if(!_category_hirachy_graph_file)
+		{
+			auto tmp = std::make_shared<std::fstream>(path);
+			if(!tmp->is_open())
+				throw std::logic_error("CategoryHirachyGraph file not found");
+			_category_hirachy_graph_file = tmp;
+		}
+		_category_hirachy_graph_file->seekg(0, std::ios::beg);
+
+		std::string line;
+		std::getline(*_category_hirachy_graph_file, line);
+		std::size_t n_vertices = std::stoul(line);
+
+		std::unique_ptr<CategoryHirachyGraph> g(new CategoryHirachyGraph(n_vertices));
+
+		std::size_t i_from = 0;
+		while(std::getline(*_category_hirachy_graph_file, line))
+		{
+			std::istringstream ss(line);
+			while(!ss.eof())
+			{
+				std::string tmpStr;
+				ss >> tmpStr;
+				boost::trim(tmpStr);
+				if(tmpStr != "")
+				{
+					std::size_t i_to = std::stoul(tmpStr);
+					boost::add_edge(i_from, i_to, *g);
+				}
+			}
+
+			i_from++;
+		}
+
+		return g;
+	}
 
 	// file writer methods
 	void WikiDataCache::write_article_titles(const std::map<std::string,std::vector<Date>>& articles_with_dates)
@@ -416,4 +485,16 @@ namespace WikiMainPath {
 		}
 	}
 
+	void WikiDataCache::write_category_hirachy_graph(const CategoryHirachyGraph& g)
+	{
+		std::ofstream graphFile((_folder / CATEGORY_HIRACHY_GRAPH_FILE).string());	
+		graphFile << boost::num_vertices(g) << std::endl;
+		for (auto v : boost::make_iterator_range(boost::vertices(g)))
+		{
+			for (auto e : boost::make_iterator_range(boost::out_edges(v,g))) 
+				graphFile << boost::target(e,g) << " ";
+
+			graphFile << std::endl;
+		}
+	}
 }

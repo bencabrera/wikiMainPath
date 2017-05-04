@@ -21,8 +21,7 @@ namespace WikiMainPath {
 			constexpr static char ARTICLE_DATES_FILE[] = "article_dates.txt";
 			constexpr static char CAT_HAS_ARTICLE_FILE[] = "category_has_article.txt";
 			constexpr static char ARTICLE_NETWORK_FILE[] = "article_network.txt";
-			constexpr static char EVENT_INDICES_FILE[] = "event_indices.txt";
-			constexpr static char EVENT_NETWORK_FILE[] = "event_network.txt";
+			constexpr static char CATEGORY_HIRACHY_GRAPH_FILE[] = "category_hirachy_graph.txt";
 
 			// constructor
 			WikiDataCache(std::string folder);
@@ -32,7 +31,8 @@ namespace WikiMainPath {
 				std::shared_ptr<std::istream> category_titles_file = std::shared_ptr<std::istream>(), 
 				std::shared_ptr<std::istream> redirects_file = std::shared_ptr<std::istream>(), 
 				std::shared_ptr<std::istream> category_has_article_file = std::shared_ptr<std::istream>(), 
-				std::shared_ptr<std::istream> article_network_file = std::shared_ptr<std::istream>()
+				std::shared_ptr<std::istream> article_network_file = std::shared_ptr<std::istream>(),
+				std::shared_ptr<std::istream> category_hirachy_graph_file = std::shared_ptr<std::istream>()
 			);
 
 			// getter methods
@@ -43,8 +43,7 @@ namespace WikiMainPath {
 			const std::vector<std::vector<std::size_t>>& category_has_article();
 			const std::vector<boost::container::flat_set<std::size_t>>& category_has_article_set();
 			const std::vector<std::vector<std::size_t>>& article_network();
-			// const std::vector<std::size_t>& event_indices();
-			// const EventNetwork& event_network();
+			const CategoryHirachyGraph& category_hirachy_graph();
 
 			const std::vector<std::string>& article_titles() const;
 			const std::vector<std::string>& category_titles() const;
@@ -53,8 +52,7 @@ namespace WikiMainPath {
 			const std::vector<std::vector<std::size_t>>& category_has_article() const;
 			const std::vector<boost::container::flat_set<std::size_t>>& category_has_article_set() const;
 			const std::vector<std::vector<std::size_t>>& article_network() const;
-			// const std::vector<std::size_t>& event_indices() const;
-			// const EventNetwork& event_network() const;
+			const CategoryHirachyGraph& category_hirachy_graph() const;
 
 			// file writer methods
 			void write_article_titles(const std::map<std::string,std::vector<Date>>& articles_with_dates);
@@ -63,8 +61,7 @@ namespace WikiMainPath {
 			void write_article_dates(const std::map<std::string,std::vector<Date>>& articles_with_dates);
 			void write_category_has_article(const std::vector<boost::container::flat_set<std::size_t>>& var);
 			void write_article_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
-			// void write_event_indices(const std::vector<std::size_t>& event_indices);
-			// void write_event_network(const std::vector<boost::container::flat_set<std::size_t>>& adj_list);
+			void write_category_hirachy_graph(const CategoryHirachyGraph& g);
 
 		private:
 			boost::filesystem::path _folder;
@@ -75,6 +72,7 @@ namespace WikiMainPath {
 			std::shared_ptr<std::istream> _redirects_file;
 			std::shared_ptr<std::istream> _category_has_article_file;
 			std::shared_ptr<std::istream> _article_network_file;
+			std::shared_ptr<std::istream> _category_hirachy_graph_file;
 
 			// file reader methods
 			std::unique_ptr<std::vector<std::string>> read_article_titles(std::string articles_file_path);
@@ -84,8 +82,7 @@ namespace WikiMainPath {
 			std::unique_ptr<std::vector<std::vector<std::size_t>>> read_category_has_article(std::string category_has_article_file_path);
 			std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> read_category_has_article_set(std::string category_has_article_file_path);
 			std::unique_ptr<std::vector<std::vector<std::size_t>>> read_article_network(std::string article_network_path);
-			// static std::unique_ptr<std::vector<std::size_t>> read_event_indices(std::string event_indices_file_path);
-			// static std::unique_ptr<EventNetwork> read_event_network(std::string event_network_path);
+			std::unique_ptr<CategoryHirachyGraph> read_category_hirachy_graph(std::string path);
 
 			std::unique_ptr<std::vector<std::string>> _article_titles;
 			std::unique_ptr<std::vector<std::string>> _category_titles;
@@ -94,9 +91,7 @@ namespace WikiMainPath {
 			std::unique_ptr<std::vector<std::vector<std::size_t>>> _category_has_article;
 			std::unique_ptr<std::vector<boost::container::flat_set<std::size_t>>> _category_has_article_set;
 			std::unique_ptr<std::vector<std::vector<std::size_t>>> _article_network;
-
-			// std::unique_ptr<std::vector<std::size_t>> _event_indices;
-			// std::unique_ptr<EventNetwork> _event_network;
+			std::unique_ptr<CategoryHirachyGraph> _category_hirachy_graph;
 	};
 
 }

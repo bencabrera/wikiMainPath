@@ -102,21 +102,20 @@ int main(int argc, char* argv[])
 	for (auto f : paths) 
 		std::cout << f << std::endl;
 
-	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
-
 	// setup existing data and containers for upcoming
+	timer.start_timing_step("reading", "Reading in already parsed files... ", &std::cout);
 	WikiDataCache wiki_data_cache(outputFolder.string());
 	const auto& article_titles = wiki_data_cache.article_titles();
 	const auto& category_titles = wiki_data_cache.category_titles();
 	const auto& redirects = wiki_data_cache.redirects();
 
 	std::vector<boost::container::flat_set<std::size_t>> category_has_article(category_titles.size());
-	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph(category_titles.size());
+	CategoryHirachyGraph category_hirachy_graph(category_titles.size());
 	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list(article_titles.size());
 	VectorMutex<1000> vecMutex;
+	timer.stop_timing_step("reading", &std::cout);
 
-	timer.stop_timing_step("reading");
-
+	
 	// setup and run the handler for running over all entrys in xml file and extracting titles and dates
 	timer.start_timing_step("parsing", "Parsing .xml files", &std::cout);
 
@@ -138,29 +137,33 @@ int main(int argc, char* argv[])
 	// terminate xerces
 	xercesc::XMLPlatformUtils::Terminate();
 
-	timer.stop_timing_step("parsing");
+	timer.stop_timing_step("parsing", &std::cout);
+
+	// write article network
+	timer.start_timing_step("write_article_network", "Writing article network", &std::cout);
+	wiki_data_cache.write_article_network(article_adjacency_list);
+	timer.stop_timing_step("write_article_network", &std::cout);
+
+	// write category has article in the non-recursive version
+	timer.start_timing_step("write_category_has_article_nonrecursive", "Writing non-recursive category_has_article", &std::cout);
+	wiki_data_cache.write_category_has_article(category_has_article);
+	timer.stop_timing_step("write_category_has_article_nonrecursive", &std::cout);
+
+	// write category_hirachy_graph
+	timer.start_timing_step("write_hirachy_graph", "Writing category_hirachy_graph", &std::cout);
+	wiki_data_cache.write_category_hirachy_graph(category_hirachy_graph);
+	timer.stop_timing_step("write_hirachy_graph", &std::cout);
 
 	// computing recursive category_has_article
-	timer.start_timing_step("recursive", "Computing recursive category_has_article", &std::cout);
-
-	std::ofstream graphFile((outputFolder / "category_hirachy_graph.txt").string());	
-	for (auto v : boost::make_iterator_range(boost::vertices(category_hirachy_graph)))
-	{
-		for (auto e : boost::make_iterator_range(boost::out_edges(v,category_hirachy_graph))) 
-			graphFile << boost::target(e,category_hirachy_graph) << " ";
-
-		graphFile << std::endl;
-	}
-
+	timer.start_timing_step("compute_recursive_cha", "Computing recursive category_has_article", &std::cout);
 	recursiveFillCategories(category_hirachy_graph, category_has_article);	
-	timer.stop_timing_step("recursive");
+	timer.stop_timing_step("compute_recursive_cha", &std::cout);
 
-	timer.start_timing_step("output", "Writing output files", &std::cout);
+	// write final category_has_article file
+	timer.start_timing_step("final_cha", "Writing final category_has_article", &std::cout);
 	wiki_data_cache.write_category_has_article(category_has_article);
-	wiki_data_cache.write_article_network(article_adjacency_list);
+	timer.stop_timing_step("final_cha", &std::cout);
 
-
-	timer.stop_timing_step("output");
 
 	timer.stop_timing_step("global");
 

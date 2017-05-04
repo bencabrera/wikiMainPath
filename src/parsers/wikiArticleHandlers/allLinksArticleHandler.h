@@ -10,11 +10,10 @@
 
 #include "../../../libs/wiki_xml_dump_xerces/src/handlers/abstractWikiPageHandler.hpp"
 #include "vectorMutex.hpp"
+#include "../../core/graph.h"
 
 class AllLinksArticleHander : public WikiXmlDumpXerces::AbstractWikiPageHandler {
 	public:
-
-		typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> CategoryHirachyGraph;
 
 		AllLinksArticleHander(
 			const std::vector<std::string>& article_titles, 
