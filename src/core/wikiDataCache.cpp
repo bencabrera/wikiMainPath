@@ -5,6 +5,8 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
+#include <boost/graph/depth_first_search.hpp>
+
 namespace WikiMainPath {
 
 	constexpr char WikiDataCache::ARTICLES_TITLES_FILE[];
@@ -424,6 +426,19 @@ namespace WikiMainPath {
 
 			i_from++;
 		}
+
+
+		class CycleDetector : public boost::default_dfs_visitor
+		{
+			public:
+				void back_edge(CategoryHirachyGraph::edge_descriptor e, const CategoryHirachyGraph& g)
+				{
+					throw std::logic_error("Detected a cycle in category_hirachy_graph");
+				}
+		};
+
+		CycleDetector vis;
+		boost::depth_first_search(*g, boost::visitor(vis));
 
 		return g;
 	}
