@@ -53,11 +53,13 @@ set(PARSER_FILES
 	parsers/date/grammars/wikiFuzzyDateTemplateGrammar.cpp
 	parsers/date/grammars/infoboxKeyValueGrammar.cpp
 
-	parsers/helpers/s3_recursiveFillCategories.cpp
-	parsers/helpers/s3_cycle_detector_visitor.cpp
 	parsers/helpers/shared.h
 	parsers/helpers/shared.cpp
 	parsers/helpers/sortTitlesHelper.cpp
+
+	parsers/helpers/buildRecursiveCategories.cpp
+	parsers/helpers/cycleDetectorVisitor.cpp
+	parsers/helpers/removeCyclesInCategoryHirachy.cpp
 )
 
 add_library(ParserLib STATIC ${PARSER_FILES})

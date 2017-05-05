@@ -15,7 +15,7 @@
 // local files
 #include "helpers/shared.h"
 #include "../core/wikiDataCache.h"
-#include "helpers/s3_recursiveFillCategories.h"
+#include "helpers/removeCyclesInCategoryHirachy.h"
 
 // shared library
 #include "../../libs/shared/cpp/stepTimer.hpp"
@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
 	timer.stop_timing_step("reading", &std::cout);
 
 	// computing recursive category_has_article
-	timer.start_timing_step("compute_recursive_cha", "Computing recursive category_has_article", &std::cout);
-	recursiveFillCategories(category_hirachy_graph, category_has_article);	
-	timer.stop_timing_step("compute_recursive_cha", &std::cout);
+	timer.start_timing_step("remove_cycles", "Removing cycles in category_hirachy_graph", &std::cout);
+	remove_cycles_in_category_hirachy(category_hirachy_graph);	
+	timer.stop_timing_step("remove_cycles", &std::cout);
 
 	// write final category_has_article file
 	// timer.start_timing_step("final_cha", "Writing final category_has_article", &std::cout);
