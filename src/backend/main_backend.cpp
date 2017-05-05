@@ -40,6 +40,9 @@ int main(int argc, char* argv[])
 	timer.start_timing_step("read_article_network","Reading in 'article_network'", &std::cout);
 	data.article_network();
 	timer.stop_timing_step("read_article_network",&std::cout);
+	timer.start_timing_step("read_category_hirachy_graph","Reading in 'category_hirachy_graph'", &std::cout);
+	data.category_hirachy_graph();
+	timer.stop_timing_step("read_category_hirachy_graph",&std::cout);
 	// timer.start_timing_step("read_event_network","Reading in 'event_network'", &std::cout);
 	// data.event_network();
 	// timer.stop_timing_step("read_event_network",&std::cout);

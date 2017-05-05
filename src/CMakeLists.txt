@@ -24,6 +24,7 @@ set(CORE_FILES
 	core/date.cpp
 	core/wikiDataCache.cpp
 	core/dateDifference.cpp
+	core/buildOneCategoryRecursively.cpp
 )
 
 add_library(CoreLib STATIC ${CORE_FILES})
@@ -57,7 +58,7 @@ set(PARSER_FILES
 	parsers/helpers/shared.cpp
 	parsers/helpers/sortTitlesHelper.cpp
 
-	parsers/helpers/buildRecursiveCategories.cpp
+	parsers/helpers/buildCategoryHirachyRecursively.cpp
 	parsers/helpers/cycleDetectorVisitor.cpp
 	parsers/helpers/removeCyclesInCategoryHirachy.cpp
 )

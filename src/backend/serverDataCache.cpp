@@ -8,6 +8,7 @@
 #include <iostream>
 #include "../core/dateDifference.h"
 
+#include "../core/buildOneCategoryRecursively.h"
 
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/checkGraphProperties.hpp"
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/edgeWeightGeneration.hpp"
@@ -20,12 +21,30 @@ ServerDataCache::ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_ca
 	_category_titles(wiki_data_cache.category_titles()),
 	_article_dates(wiki_data_cache.article_dates()),
 	_category_has_article(wiki_data_cache.category_has_article()),
-	_article_network(wiki_data_cache.article_network())
-	// _event_indices(wiki_data_cache.event_indices()),
-	// _event_network(wiki_data_cache.event_network())
+	_article_network(wiki_data_cache.article_network()),
+	_category_hirachy_graph(wiki_data_cache.category_hirachy_graph())
 {}
 
 
+const std::vector<std::size_t>& ServerDataCache::get_article_list(std::size_t category_id)
+{
+	if(_article_list_cache.count(category_id) == 0)
+	{
+		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
+		compute_article_list(category_id);	
+		_article_list_priority_list.push_front(category_id);
+
+		auto which_to_delete = _article_list_priority_list.back();
+		if(_article_list_priority_list.size() > MAX_CACHE_SIZE)
+		{
+			Poco::Mutex::ScopedLock lock(_mutices[which_to_delete % N_MUTEX]);	
+			_article_list_cache.erase(which_to_delete);
+			_article_list_priority_list.pop_back();
+		}
+	}
+
+	return _article_list_cache.at(category_id);
+}
 
 const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id)
 {
@@ -112,11 +131,20 @@ const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size
 
 // ---- private ----
 
+void ServerDataCache::compute_article_list(std::size_t category_id)
+{
+	// build recursively all articles in category
+	auto articles_in_category = build_one_category_recursively(category_id, _category_hirachy_graph, _category_has_article);
+	_article_list_cache.insert({ category_id, std::vector<std::size_t>(articles_in_category.begin(), articles_in_category.end()) });
+}
+
 void ServerDataCache::compute_event_network(std::size_t category_id)
 {
+	const auto& article_list = get_article_list(category_id);
+
 	std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
 	std::size_t cur_event_id = 0;
-	for (auto article_id : _category_has_article[category_id]) {
+	for (auto article_id : article_list) {
 		events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates[article_id].size() - 1 } });
 		cur_event_id += _article_dates[article_id].size();
 	}
@@ -156,8 +184,10 @@ void ServerDataCache::compute_event_network(std::size_t category_id)
 
 void ServerDataCache::compute_event_list(std::size_t category_id)
 {
+	const auto& article_list = get_article_list(category_id);
+
 	EventList event_list;
-	for (auto article_id : _category_has_article[category_id]) {
+	for (auto article_id : article_list) {
 		for (auto d : _article_dates[article_id]) {
 			std::string article_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
 			event_list.push_back(Event{ article_title, d.Begin });
