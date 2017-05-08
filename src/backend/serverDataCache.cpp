@@ -271,7 +271,18 @@ void ServerDataCache::compute_event_list(std::size_t category_id)
 	for (auto article_id : article_list) {
 		for (auto d : _article_dates[article_id]) {
 			std::string event_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
-			event_list.push_back(Event{ event_title, d.Begin, article_id });
+
+			bool wrong = false;
+			for (auto& f : event_filters) {
+				if(!f(event_title,d))
+				{
+					wrong = true;
+					break;	
+				}
+			}
+			
+			if(!wrong)
+				event_list.push_back(Event{ event_title, d.Begin, article_id });
 		}
 	}
 

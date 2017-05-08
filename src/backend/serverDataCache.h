@@ -74,4 +74,5 @@ class ServerDataCache {
 		using Filters = std::vector<std::function<FType>>;
 
 		Filters<bool(const std::string&, const std::vector<Date>&)> article_filters;
+		Filters<bool(const std::string&, const Date&)> event_filters;
 };
