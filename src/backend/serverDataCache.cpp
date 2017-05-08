@@ -151,49 +151,117 @@ void ServerDataCache::compute_article_list(std::size_t category_id)
 	_article_list_cache.insert({ category_id, rtn });
 }
 
+
+namespace {
+	void add_correct_edge_between_events(std::size_t i_event_1, std::size_t i_event_2, const ServerDataCache::Event& event_1, const ServerDataCache::Event& event_2, ArticleGraph& g)
+	{
+		if(i_event_2 != i_event_1)
+		{
+			if((event_1.Date == event_2.Date && i_event_1 < i_event_2) || event_1.Date < event_2.Date)
+			{
+				if(!boost::edge(i_event_1, i_event_2, g).second)
+					boost::add_edge(i_event_1, i_event_2, g);
+			}
+			else
+			{
+				if(!boost::edge(i_event_2, i_event_1, g).second)
+					boost::add_edge(i_event_2, i_event_1, g);
+			}
+		}
+	}
+}
+
 void ServerDataCache::compute_event_network(std::size_t category_id)
 {
-	const auto& article_list = get_article_list(category_id);
+	const auto& event_list = get_event_list(category_id);
 
-	std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
-	std::size_t cur_event_id = 0;
-	for (auto article_id : article_list) {
-		events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates[article_id].size() - 1 } });
-		cur_event_id += _article_dates[article_id].size();
+	std::map<std::size_t, std::vector<std::size_t>> events_for_article;
+	std::set<std::size_t> articles_in_network;
+
+	std::size_t i_event = 0;
+	for (const auto& e : event_list) {
+		auto it = events_for_article.find(e.ArticleId);
+		if(it == events_for_article.end())
+			events_for_article.insert({ e.ArticleId, { i_event } });
+		else
+			it->second.push_back(i_event);
+
+		articles_in_network.insert(e.ArticleId);
+
+		i_event++;
 	}
 
-	std::set<std::size_t> articles_in_network;
-	for(auto& ev : events_in_category) 
-		articles_in_network.insert(ev.first);		
-
-	ArticleGraph g(cur_event_id);
-	
-	for(auto& ev : events_in_category)
+	ArticleGraph g(event_list.size());
+	for (std::size_t i_event_1 = 0; i_event_1 < event_list.size(); i_event_1++)
 	{
-		std::vector<std::size_t> neighbors_in_network;
-		std::set_intersection(_article_network[ev.first].begin(), _article_network[ev.first].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
+		const auto& event_1 = event_list[i_event_1];
 
-		for(std::size_t event_1 = ev.second.first; event_1 <= ev.second.second; event_1++)
-			for(auto neighbor_article : neighbors_in_network)
-				for(std::size_t event_2 = events_in_category.at(neighbor_article).first; event_2 <= events_in_category.at(neighbor_article).second; event_2++)
-				{
-					auto& date_1 = _article_dates[ev.first][event_1 - ev.second.first];
-					auto& date_2 = _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first];
-					if((date_1 == date_2 && event_1 < event_2) || date_1 < date_2)
-					{
-						if(!boost::edge(event_1, event_2, g).second)
-							boost::add_edge(event_1, event_2, g);
-					}
-					else
-					{
-						if(!boost::edge(event_2, event_1, g).second)
-							boost::add_edge(event_2, event_1, g);
-					}
+		// connect event to all other events on same article page
+		for (auto i_event_2 : events_for_article.at(event_1.ArticleId)) {
+			const auto& event_2 = event_list[i_event_2];
+			add_correct_edge_between_events(i_event_1, i_event_2, event_1, event_2, g);
+		}
+
+		// connect to all other connected article's events
+		std::vector<std::size_t> neighbors_in_network;
+		std::set_intersection(_article_network[event_1.ArticleId].begin(), _article_network[event_1.ArticleId].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
+
+		for (auto i_neighbour_article : neighbors_in_network) {
+			auto it2 = events_for_article.find(i_neighbour_article);
+			if(it2 != events_for_article.end())
+			{
+				for (auto i_event_2 : it2->second) {
+					const auto& event_2 = event_list[i_event_2];
+					add_correct_edge_between_events(i_event_1, i_event_2, event_1, event_2, g);
 				}
+			}
+		}
 	}
 
 	_event_network_cache.insert({ category_id, g });
 }
+/* { */
+// const auto& article_list = get_article_list(category_id);
+
+// std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
+// std::size_t cur_event_id = 0;
+// for (auto article_id : article_list) {
+// events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates[article_id].size() - 1 } });
+// cur_event_id += _article_dates[article_id].size();
+// }
+
+// std::set<std::size_t> articles_in_network;
+// for(auto& ev : events_in_category) 
+// articles_in_network.insert(ev.first);		
+
+// ArticleGraph g(cur_event_id);
+
+// for(auto& ev : events_in_category)
+// {
+// std::vector<std::size_t> neighbors_in_network;
+// std::set_intersection(_article_network[ev.first].begin(), _article_network[ev.first].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
+
+// for(std::size_t event_1 = ev.second.first; event_1 <= ev.second.second; event_1++)
+// for(auto neighbor_article : neighbors_in_network)
+// for(std::size_t event_2 = events_in_category.at(neighbor_article).first; event_2 <= events_in_category.at(neighbor_article).second; event_2++)
+// {
+// auto& date_1 = _article_dates[ev.first][event_1 - ev.second.first];
+// auto& date_2 = _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first];
+// if((date_1 == date_2 && event_1 < event_2) || date_1 < date_2)
+// {
+// if(!boost::edge(event_1, event_2, g).second)
+// boost::add_edge(event_1, event_2, g);
+// }
+// else
+// {
+// if(!boost::edge(event_2, event_1, g).second)
+// boost::add_edge(event_2, event_1, g);
+// }
+// }
+// }
+
+// _event_network_cache.insert({ category_id, g });
+/* } */
 
 void ServerDataCache::compute_event_list(std::size_t category_id)
 {
@@ -202,8 +270,8 @@ void ServerDataCache::compute_event_list(std::size_t category_id)
 	EventList event_list;
 	for (auto article_id : article_list) {
 		for (auto d : _article_dates[article_id]) {
-			std::string article_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
-			event_list.push_back(Event{ article_title, d.Begin });
+			std::string event_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
+			event_list.push_back(Event{ event_title, d.Begin, article_id });
 		}
 	}
 
@@ -213,8 +281,8 @@ void ServerDataCache::compute_event_list(std::size_t category_id)
 std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_list)
 {
 	auto min_event_it = std::min_element(event_list.begin(), event_list.end(), [](const Event& e1, const Event& e2) {
-		return e1.Date < e2.Date;
-	});
+			return e1.Date < e2.Date;
+			});
 
 	std::size_t max_difference = 0;
 	std::vector<std::size_t> day_differences;

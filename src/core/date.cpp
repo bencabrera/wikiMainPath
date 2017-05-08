@@ -136,3 +136,32 @@ std::ostream& operator<<(std::ostream& ostr, const Date& date)
 
 	return ostr;
 }
+
+
+Date create_date(int year, int month, int day)
+{
+	Date d;
+	d.Init();
+	d.Begin.tm_year = year - 1900;
+	d.Begin.tm_mon= month - 1;
+	d.Begin.tm_mday= day;
+
+	return d;
+}
+
+Date create_date_range(int year_begin, int month_begin, int day_begin, int year_end, int month_end, int day_end)
+{
+	Date d;
+	d.Init();
+
+	d.IsRange = true;
+	d.Begin.tm_year = year_begin - 1900;
+	d.Begin.tm_mon= month_begin - 1;
+	d.Begin.tm_mday= day_begin;
+
+	d.End.tm_year = year_end - 1900;
+	d.End.tm_mon = month_end - 1;
+	d.End.tm_mday = day_end;
+
+	return d;
+}

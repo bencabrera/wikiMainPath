@@ -20,3 +20,16 @@ std::function<bool(const std::string&, const std::vector<Date>&)> articles_witho
 		return true;	
 	};
 }
+
+std::function<bool(const std::string&, const Date&)> events_in_date_range(Date date_range)
+{
+	if(!date_range.IsRange)
+		throw std::logic_error("'date_range' is not a range");
+
+	return [date_range](const std::string& event_title, const Date& event_date) {
+		if(event_date.Begin < date_range.Begin || date_range.End < event_date.Begin)
+			return false;
+		else
+			return true;	
+	};
+}

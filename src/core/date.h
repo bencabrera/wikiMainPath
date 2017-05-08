@@ -24,3 +24,6 @@ bool operator==(const Date& date1, const Date& date2);
 std::ostream& operator<<(std::ostream& ostr, const Date& date);
 
 std::string to_iso_string(const std::tm& date);
+
+Date create_date(int year, int month, int day);
+Date create_date_range(int year_begin, int month_begin, int day_begin, int year_end, int month_end, int day_end);

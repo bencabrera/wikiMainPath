@@ -12,7 +12,8 @@ class ServerDataCache {
 	public:
 		struct Event {
 			std::string Title;			
-			std::tm Date;			
+			std::tm Date;
+			std::size_t ArticleId;
 		};
 
 		using EventList = std::vector<Event>;
