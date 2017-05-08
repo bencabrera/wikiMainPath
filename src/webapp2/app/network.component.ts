@@ -172,36 +172,38 @@ export class NetworkComponent implements AfterViewInit
 		this.d3_canvas.select("g.axis")
 		.call(this.time_axis);
 
-		this.d3_canvas.selectAll("line")
-		// .data(this.network_data.links, function(d,i) { console.log(d); return "link_" + d[0] + "_" +d[1]; })
-		.data(this.network_data.links)
-		.enter()
-		.append("line")
-		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
-		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
-		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
-		.attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; })
-		// .attr("stroke", this.NORMAL_LINK_COLOR);
-		.attr("stroke", (d) => { 
-			if(this.check_in_array(this.network_data.main_path,d))  
-			   return this.MAIN_PATH_LINK_COLOR;
-			 else
-			   return this.NORMAL_LINK_COLOR;
-		})
-		.attr("stroke-width", (d) => { 
-			if(this.check_in_array(this.network_data.main_path,d))  
-			   return this.MAIN_PATH_LINK_WIDTH;
-			 else
-			   return this.NORMAL_LINK_WIDTH;
-		})
-		.attr("class", (d) => {
-			if(this.check_in_array(this.network_data.main_path,d))  
-				return "link main-path-link";
-			else
-				return "link";
-		});
+		// this.d3_canvas.selectAll("line")
+		// // .data(this.network_data.links, function(d,i) { console.log(d); return "link_" + d[0] + "_" +d[1]; })
+		// .data(this.network_data.links)
+		// .enter()
+		// .append("line")
+		// .attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
+		// .attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
+		// .attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
+		// .attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; })
+		// // .attr("stroke", this.NORMAL_LINK_COLOR);
+		// .attr("stroke", (d) => { 
+			// if(this.check_in_array(this.network_data.main_path,d))  
+			   // return this.MAIN_PATH_LINK_COLOR;
+			 // else
+			   // return this.NORMAL_LINK_COLOR;
+		// })
+		// .attr("stroke-width", (d) => { 
+			// if(this.check_in_array(this.network_data.main_path,d))  
+			   // return this.MAIN_PATH_LINK_WIDTH;
+			 // else
+			   // return this.NORMAL_LINK_WIDTH;
+		// })
+		// .attr("class", (d) => {
+			// if(this.check_in_array(this.network_data.main_path,d))  
+				// return "link main-path-link";
+			// else
+				// return "link";
+		// });
 
-		this.d3_canvas.selectAll("line.main-path-link").raise();
+		// this.d3_canvas.selectAll("line.main-path-link").raise();
+
+
 
 		// this.d3_canvas.selectAll("line")
 		// // .data(this.network_data.main_path)

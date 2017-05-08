@@ -8,6 +8,7 @@
 #include "../core/wikiDataCache.h"
 #include "fullTextSearch.h"
 #include "serverDataCache.h"
+#include "filters.h"
 
 class Server : public Poco::Util::ServerApplication 
 {
@@ -21,7 +22,13 @@ class Server : public Poco::Util::ServerApplication
 		Server(const WikiMainPath::WikiDataCache& wiki_data_cache)
 			:_wiki_data_cache(wiki_data_cache),
 			_server_data_cache(wiki_data_cache)
-		{}
+		{
+			// _server_data_cache.article_filters.push_back([](const std::string&, const std::vector<Date>& dates) {
+				// return true;	
+			// });
+
+			_server_data_cache.article_filters.push_back(articles_without_certain_dates({ "Birth", "Death", "Released", "Recorded", "First aired", "Last aired", "Term started", "Term ended" }));
+		}
 
 		void initialize(Application& self)
 		{

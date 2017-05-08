@@ -146,6 +146,7 @@ set(BACKEND_FILES
 	backend/routingHandlerFactory.cpp
 	backend/fullTextSearch.cpp
 	backend/serverApplication.cpp
+	backend/filters.cpp
 	# backend/serverData.cpp
 	# backend/httpRequestHandlers/mpaHandler.cpp
 	backend/httpRequestHandlers/categorySearchHandler.cpp

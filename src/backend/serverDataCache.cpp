@@ -135,7 +135,20 @@ void ServerDataCache::compute_article_list(std::size_t category_id)
 {
 	// build recursively all articles in category
 	auto articles_in_category = build_one_category_recursively(category_id, _category_hirachy_graph, _category_has_article);
-	_article_list_cache.insert({ category_id, std::vector<std::size_t>(articles_in_category.begin(), articles_in_category.end()) });
+	std::vector<std::size_t> rtn(articles_in_category.begin(), articles_in_category.end()); 
+
+	rtn.erase(
+		std::remove_if(rtn.begin(), rtn.end(), [this](std::size_t i_article)
+		{
+			for (auto& f : article_filters) {
+				if(!f(_article_titles[i_article], _article_dates[i_article]))
+					return true;		
+			}
+			return false;
+		}), 
+		rtn.end()
+	);
+	_article_list_cache.insert({ category_id, rtn });
 }
 
 void ServerDataCache::compute_event_network(std::size_t category_id)

@@ -1,5 +1,6 @@
 #include "../core/wikiDataCache.h"
 #include "serverDataCache.h"
+#include "filters.h"
 #include <boost/filesystem.hpp>
 #include <boost/graph/graphviz.hpp>
 
@@ -54,7 +55,12 @@ int main(int argc, char** argv)
 
 	ServerDataCache _server_data_cache(data);
 
-	const std::size_t category_id = 719007;
+	_server_data_cache.article_filters.push_back(articles_without_certain_dates({ "Birth", "Death", "Released", "Recorded", "First aired", "Last aired", "Term started", "Term ended" }));
+
+	// const std::size_t category_id = 722580; // friendly fire incidents
+	// const std::size_t category_id = 719007; // french revolution
+	const std::size_t category_id = 1564179; // world war II
+
 
 	std::cout << "CATEGORY: " << category_titles[category_id] << std::endl;
 
@@ -81,18 +87,18 @@ int main(int argc, char** argv)
 	boost::write_graphviz(graphviz_file, subgraph);
 
 	timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
-	const auto& positions = _server_data_cache.get_network_positions(category_id);
-	std::cout << positions.size() << std::endl;
-	std::cout << "positions: " << std::endl;
-	for (auto pos : positions) {
-		std::cout << pos << std::endl;
-	}
+	_server_data_cache.get_network_positions(category_id);
+	// std::cout << positions.size() << std::endl;
+	// std::cout << "positions: " << std::endl;
+	// for (auto pos : positions) {
+		// std::cout << pos << std::endl;
+	// }
 	timer_server.stop_timing_step("build_positions", &std::cout);
 
 
 	timer_server.start_timing_step("build_main_path", "Build main path", &std::cout);
-	const auto& main_path = _server_data_cache.get_global_main_path(category_id);
-	std::cout << main_path.size() << std::endl;
+	_server_data_cache.get_global_main_path(category_id);
+	// std::cout << main_path.size() << std::endl;
 	timer_server.stop_timing_step("build_main_path", &std::cout);
 
 	timer_server.print_timings(std::cout);
