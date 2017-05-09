@@ -213,3 +213,10 @@ target_link_libraries(backend_tests PocoJSON)
 target_link_libraries(backend_tests PocoXML)
 target_link_libraries(backend_tests PocoFoundation)
 target_link_libraries(backend_tests pthread)
+
+
+
+
+
+add_executable(big_int_test main_big_int_test.cpp)
+target_link_libraries(parser_tests ${Boost_LIBRARIES})

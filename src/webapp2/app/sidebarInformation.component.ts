@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 		<p>{{ link_number }}</p>
 		<label>Timespan:</label> 
 		<p>{{ from_date }} - {{ to_date }}</p>
-		<label>Main Path:</label> 
+		<label>Main Path ({{ main_path.length }} elements):</label> 
 		<table class="table table-striped table-condensed table-main-path">
 			<tr *ngFor="let v of main_path">
 				<td class="main-path-date-cell">{{ v.date }}</td>

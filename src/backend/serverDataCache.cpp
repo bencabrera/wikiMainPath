@@ -338,15 +338,23 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 	MainPathAnalysis::add_source_and_sink_vertex<ArticleGraph>(g, s, t);
 
 	// compute spc weights
-	auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
+	// auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
+	auto weights = MainPathAnalysis::generate_spc_weights_big_int(g, s, t);
+
+	// temporary output 
+	const std::string weights_file_path = "/home/cabrera/Schreibtisch/weights.txt";
+	std::ofstream weights_file(weights_file_path);
+	for (auto e : boost::make_iterator_range(boost::edges(g))) {
+		weights_file << weights[e] << std::endl;
+	}
 
 	// compute global main path
 	std::vector<ArticleGraph::edge_descriptor> main_path;
-	MainPathAnalysis::global(std::back_inserter(main_path), g, weights, s, t);
+	MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
 
 	// remove s and t from main path and from copy of graph
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);
-	MainPathAnalysis::remove_source_and_sink_vertex(g, s, t);
+	// MainPathAnalysis::remove_source_and_sink_vertex(g, s, t);
 
 	// build json object of main path
 	EdgeList main_path_edges;
