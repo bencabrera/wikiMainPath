@@ -109,14 +109,14 @@ namespace WikiMainPath {
 			timer.stop_timing_step("build_positions", &std::cout);
 
 			timer.start_timing_step("build_main_path", "Build main path", &std::cout);
-			// const auto& main_path = _server_data_cache.get_global_main_path(category_id);
-			// for (auto edge : main_path) {
-				// Array link;
-				// link.set(0, edge.first);
-				// link.set(1, edge.second);
+			const auto& main_path = _server_data_cache.get_global_main_path(category_id);
+			for (auto edge : main_path) {
+				Array link;
+				link.set(0, edge.first);
+				link.set(1, edge.second);
 
-				// mpa_array.add(link);
-			// }
+				mpa_array.add(link);
+			}
 			timer.stop_timing_step("build_main_path", &std::cout);
 
 			auto min_date = std::min_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
