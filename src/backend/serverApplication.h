@@ -28,7 +28,7 @@ class Server : public Poco::Util::ServerApplication
 			// });
 
 			_server_data_cache.article_filters.push_back(articles_without_certain_dates({ "Birth", "Death", "Released", "Recorded", "First aired", "Last aired", "Term started", "Term ended" }));
-			_server_data_cache.event_filters.push_back(events_in_date_range(create_date_range(1780,1,1,1820,1,1)));
+			_server_data_cache.event_filters.push_back(events_in_date_range(create_date_range(1936,1,1,1950,1,1)));
 		}
 
 		void initialize(Application& self)

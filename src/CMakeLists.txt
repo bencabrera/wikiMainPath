@@ -220,3 +220,7 @@ target_link_libraries(backend_tests pthread)
 
 add_executable(big_int_test main_big_int_test.cpp)
 target_link_libraries(parser_tests ${Boost_LIBRARIES})
+
+add_executable(manual_compute_network backend/main_manuallyComputeNetwork.cpp)
+target_link_libraries(manual_compute_network ${Boost_LIBRARIES})
+target_link_libraries(manual_compute_network CoreLib)

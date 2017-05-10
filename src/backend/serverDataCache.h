@@ -30,6 +30,8 @@ class ServerDataCache {
 		const std::vector<double>& get_network_positions(std::size_t category_id);
 		const EdgeList& get_global_main_path(std::size_t category_id);
 
+		void export_event_network_to_file(std::ostream& file, std::size_t category_id);
+
 	private:
 
 		static std::vector<double> compute_x_positions(const EventList& event_list);

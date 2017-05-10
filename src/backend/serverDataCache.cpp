@@ -350,16 +350,18 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 
 	// compute global main path
 	std::vector<ArticleGraph::edge_descriptor> main_path;
-	double alpha = 1;
-	do {
-		main_path.clear();
-		// MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
-		// MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
-		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, alpha);
-		alpha += 1;
-		std::cout << main_path.size() << " " << alpha << std::endl;
-	}
-	while(main_path.size() > 50);
+	// double alpha = 1;
+	// do {
+		// main_path.clear();
+		// // MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+		// // MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+		// MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, alpha);
+		// alpha += 1;
+		// std::cout << main_path.size() << " " << alpha << std::endl;
+	// }
+	// while(main_path.size() > 50);
+
+	MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
 
 	// remove s and t from main path and from copy of graph
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);
@@ -371,4 +373,21 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 		main_path_edges.push_back({ boost::source(e,g), boost::target(e,g) });
 
 	_global_main_path_cache.insert({ category_id, std::move(main_path_edges) });
+}
+
+
+void ServerDataCache::export_event_network_to_file(std::ostream& file, std::size_t category_id)
+{
+	const auto& event_list = get_event_list(category_id);
+	const auto& event_network = get_event_network(category_id);
+
+	file << event_list.size() << std::endl;
+	file << boost::num_edges(event_network) << std::endl;
+	for (auto& event : event_list) {
+		file << event.Title << "\t" << (event.Date.tm_year + 1900) << "_" << (event.Date.tm_mon + 1) << "_" << event.Date.tm_mday << std::endl;	
+	}
+
+	for (auto e : boost::make_iterator_range(boost::edges(event_network))) {
+		file << boost::source(e,event_network) << " " << boost::target(e,event_network) << std::endl;
+	}
 }
