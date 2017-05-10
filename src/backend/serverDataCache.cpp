@@ -342,7 +342,7 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 	auto weights = MainPathAnalysis::generate_spc_weights_big_int(g, s, t);
 
 	// temporary output 
-	const std::string weights_file_path = "/home/cabrera/Schreibtisch/weights.txt";
+	const std::string weights_file_path = "/home/ace7k3/Desktop/weights.txt";
 	std::ofstream weights_file(weights_file_path);
 	for (auto e : boost::make_iterator_range(boost::edges(g))) {
 		weights_file << weights[e] << std::endl;
@@ -350,7 +350,16 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 
 	// compute global main path
 	std::vector<ArticleGraph::edge_descriptor> main_path;
-	MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+	double alpha = 1;
+	do {
+		main_path.clear();
+		// MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+		// MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, alpha);
+		alpha += 1;
+		std::cout << main_path.size() << " " << alpha << std::endl;
+	}
+	while(main_path.size() > 50);
 
 	// remove s and t from main path and from copy of graph
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);
