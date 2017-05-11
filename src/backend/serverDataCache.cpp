@@ -323,7 +323,7 @@ std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_
 void ServerDataCache::compute_network_positions(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	const auto& event_network = get_event_network(category_id, request_parameters);
-	// const auto& event_list = get_event_list(category_id);
+	// const auto& event_list = get_event_list(category_id, request_parameters);
 
 	// get normalized x coordinates for drawing algorithms
 	// auto x_positions = compute_x_positions(event_list);

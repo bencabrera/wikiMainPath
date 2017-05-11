@@ -6,7 +6,29 @@ import { Router } from '@angular/router';
 
 @Component({
 	selector: 'search-bar',
-	templateUrl: '../templates/search_category.html'
+	// templateUrl: '../templates/search_category.html'
+	template:	`
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="row search-bar-row">
+					<div class="col-md-12">
+						<div class="input-group input-group-lg search-field">
+							<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button" (click)="onSearch()">
+									<span class="glyphicon glyphicon-search"></span>
+								</button>
+							</span>
+						</div>
+						<ul class="dropdown-menu search-result-box" *ngIf="resultsVisible">
+							<li class="dropdown-header">Matching categories for your search query</li>
+							<li *ngFor="let res of searchResults | async"><a [routerLink]="['category',res.id]" (mousedown)="onSelectCategory(res.id)">{{ res.title }} ({{ res.n_articles }} Articles)</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+	`
 })
 export class SearchBarComponent 
 { 
