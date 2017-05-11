@@ -14,13 +14,12 @@ namespace WikiMainPath {
 	class EventNetworkHandler: public Poco::Net::HTTPRequestHandler
 	{
 		public:
-			EventNetworkHandler(const WikiDataCache& wiki_data_cache, ServerDataCache& server_data_cache);
+			EventNetworkHandler(const WikiDataCache& wiki_data_cache);
 
 			void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 
 		private:
 			const WikiDataCache& _wiki_data_cache;
-			ServerDataCache& _server_data_cache;
 	};
 
 }

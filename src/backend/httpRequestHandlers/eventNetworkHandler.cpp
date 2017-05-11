@@ -15,13 +15,13 @@
 
 namespace WikiMainPath {
 
-	EventNetworkHandler::EventNetworkHandler(const WikiDataCache& wiki_data_cache, ServerDataCache& server_data_cache)
-		:_wiki_data_cache(wiki_data_cache),
-		_server_data_cache(server_data_cache)
+	EventNetworkHandler::EventNetworkHandler(const WikiDataCache& wiki_data_cache)
+		:_wiki_data_cache(wiki_data_cache)
 	{}
 
 	void EventNetworkHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 	{
+
 		using namespace Poco::JSON;
 
 		response.setChunkedTransferEncoding(true);
@@ -75,6 +75,10 @@ namespace WikiMainPath {
 		std::cout << std::endl << "===============================================================" << std::endl;
 
 		Shared::StepTimer timer;
+
+		timer.start_timing_step("build_cache", "Build server data cache", &std::cout);
+		ServerDataCache _server_data_cache(_wiki_data_cache);
+		timer.stop_timing_step("build_cache", &std::cout);
 
 		RequestParameters request_parameters{ false, 0, 0 };
 

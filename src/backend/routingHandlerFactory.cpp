@@ -31,7 +31,7 @@ namespace WikiMainPath {
 			return new CategorySearchHandler(_wiki_data_cache, _category_titles_inverted_index);
 
 		if(uri.getPath() == "/event-network-in-category")
-			return new EventNetworkHandler(_wiki_data_cache, _server_data_cache);
+			return new EventNetworkHandler(_wiki_data_cache);
 
 
 		// if(uri.getPath() == "/search-article")
