@@ -72,16 +72,18 @@ namespace WikiMainPath {
 
 		Shared::StepTimer timer;
 
+		RequestParameters request_parameters{ true, 1780, 1850 };
+
 		Array events_array, links_array, positions_array, mpa_array, timespan_array;
 
 		try {
 			timer.start_timing_step("build_event_network", "Build event network", &std::cout);
-			const auto& subgraph = _server_data_cache.get_event_network(category_id);
+			const auto& subgraph = _server_data_cache.get_event_network(category_id, request_parameters);
 			timer.stop_timing_step("build_event_network", &std::cout);
 
 			// build list of articles in category
 			timer.start_timing_step("build_event_list", "Build event list", &std::cout);
-			const auto& event_list = _server_data_cache.get_event_list(category_id);
+			const auto& event_list = _server_data_cache.get_event_list(category_id, request_parameters);
 			for (auto& event : event_list) {
 				Object el;
 				el.set("title", event.Title);
@@ -103,13 +105,13 @@ namespace WikiMainPath {
 			timer.stop_timing_step("build_links_array", &std::cout);
 
 			timer.start_timing_step("build_positions", "Build positions", &std::cout);
-			const auto& positions = _server_data_cache.get_network_positions(category_id);
+			const auto& positions = _server_data_cache.get_network_positions(category_id, request_parameters);
 			for (auto pos : positions) 
 				positions_array.add(pos);
 			timer.stop_timing_step("build_positions", &std::cout);
 
 			timer.start_timing_step("build_main_path", "Build main path", &std::cout);
-			const auto& main_path = _server_data_cache.get_global_main_path(category_id);
+			const auto& main_path = _server_data_cache.get_global_main_path(category_id, request_parameters);
 			for (auto edge : main_path) {
 				Array link;
 				link.set(0, edge.first);

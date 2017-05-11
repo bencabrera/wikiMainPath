@@ -2,6 +2,7 @@
 
 #include "../core/graph.h"
 #include "../core/wikiDataCache.h"
+#include "requestParameters.h"
 
 #include <Poco/Mutex.h>
 #include <map>
@@ -24,39 +25,40 @@ class ServerDataCache {
 
 		ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_cache);
 
-		const std::vector<std::size_t>& get_article_list(std::size_t category_id);
-		const ArticleGraph& get_event_network(std::size_t category_id);
-		const EventList& get_event_list(std::size_t category_id);
-		const std::vector<double>& get_network_positions(std::size_t category_id);
-		const EdgeList& get_global_main_path(std::size_t category_id);
+		const std::vector<std::size_t>& get_article_list(std::size_t category_id, const RequestParameters& request_parameters);
+		const ArticleGraph& get_event_network(std::size_t category_id, const RequestParameters& request_parameters);
+		const EventList& get_event_list(std::size_t category_id, const RequestParameters& request_parameters);
+		const std::vector<double>& get_network_positions(std::size_t category_id, const RequestParameters& request_parameters);
+		const EdgeList& get_global_main_path(std::size_t category_id, const RequestParameters& request_parameters);
 
-		void export_event_network_to_file(std::ostream& file, std::size_t category_id);
+		void export_event_network_to_file(std::ostream& file, std::size_t category_id, const RequestParameters& request_parameters);
 
 	private:
 
 		static std::vector<double> compute_x_positions(const EventList& event_list);
 
-		void compute_article_list(std::size_t category_id);
+		void compute_article_list(std::size_t category_id, const RequestParameters& request_parameters);
 		std::map<std::size_t, std::vector<std::size_t>> _article_list_cache;
 		std::list<std::size_t> _article_list_priority_list;
 
-		void compute_event_network(std::size_t category_id);
+		void compute_event_network(std::size_t category_id, const RequestParameters& request_parameters);
 		std::map<std::size_t, ArticleGraph> _event_network_cache;
 		std::list<std::size_t> _event_network_priority_list;
 
-		void compute_event_list(std::size_t category_id);
+		void compute_event_list(std::size_t category_id, const RequestParameters& request_parameters);
 		std::map<std::size_t, EventList> _event_list_cache;
 		std::list<std::size_t> _event_list_priority_list;
 
-		void compute_network_positions(std::size_t category_id);
+		void compute_network_positions(std::size_t category_id, const RequestParameters& request_parameters);
 		std::map<std::size_t, std::vector<double>> _network_positions_cache;
 		std::list<std::size_t> _network_positions_priority_list;
 
-		void compute_global_main_path(std::size_t category_id);
+		void compute_global_main_path(std::size_t category_id, const RequestParameters& request_parameters);
 		std::map<std::size_t, EdgeList> _global_main_path_cache;
 		std::list<std::size_t> _global_main_path_priority_list;
 
 
+		std::size_t compute_hash(std::size_t category_id, const RequestParameters& request_parameters) const;
 
 		const WikiMainPath::WikiDataCache& _wiki_data_cache;
 
@@ -70,11 +72,4 @@ class ServerDataCache {
 		// ArticleGraph _event_network;
 
 		std::array<Poco::Mutex, N_MUTEX> _mutices;
-
-	public:
-		template<typename FType>
-		using Filters = std::vector<std::function<FType>>;
-
-		Filters<bool(const std::string&, const std::vector<Date>&)> article_filters;
-		Filters<bool(const std::string&, const Date&)> event_filters;
 };

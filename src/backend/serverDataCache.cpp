@@ -26,13 +26,14 @@ ServerDataCache::ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_ca
 {}
 
 
-const std::vector<std::size_t>& ServerDataCache::get_article_list(std::size_t category_id)
+const std::vector<std::size_t>& ServerDataCache::get_article_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
+	auto hash = compute_hash(category_id, request_parameters);
 	if(_article_list_cache.count(category_id) == 0)
 	{
 		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_article_list(category_id);	
-		_article_list_priority_list.push_front(category_id);
+		compute_article_list(category_id, request_parameters);	
+		_article_list_priority_list.push_front(hash);
 
 		auto which_to_delete = _article_list_priority_list.back();
 		if(_article_list_priority_list.size() > MAX_CACHE_SIZE)
@@ -43,16 +44,17 @@ const std::vector<std::size_t>& ServerDataCache::get_article_list(std::size_t ca
 		}
 	}
 
-	return _article_list_cache.at(category_id);
+	return _article_list_cache.at(hash);
 }
 
-const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id)
+const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id, const RequestParameters& request_parameters)
 {
+	auto hash = compute_hash(category_id, request_parameters);
 	if(_event_network_cache.count(category_id) == 0)
 	{
 		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_event_network(category_id);	
-		_event_network_priority_list.push_front(category_id);
+		compute_event_network(category_id, request_parameters);	
+		_event_network_priority_list.push_front(hash);
 
 		auto which_to_delete = _event_network_priority_list.back();
 		if(_event_network_priority_list.size() > MAX_CACHE_SIZE)
@@ -63,17 +65,18 @@ const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id)
 		}
 	}
 
-	return _event_network_cache.at(category_id);
+	return _event_network_cache.at(hash);
 }
 
 
-const std::vector<ServerDataCache::Event>& ServerDataCache::get_event_list(std::size_t category_id)
+const std::vector<ServerDataCache::Event>& ServerDataCache::get_event_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
+	auto hash = compute_hash(category_id, request_parameters);
 	if(_event_list_cache.count(category_id) == 0)
 	{
 		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_event_list(category_id);	
-		_event_list_priority_list.push_front(category_id);
+		compute_event_list(category_id, request_parameters);	
+		_event_list_priority_list.push_front(hash);
 
 		auto which_to_delete = _event_list_priority_list.back();
 		if(_event_list_priority_list.size() > MAX_CACHE_SIZE)
@@ -84,17 +87,18 @@ const std::vector<ServerDataCache::Event>& ServerDataCache::get_event_list(std::
 		}
 	}
 
-	return _event_list_cache.at(category_id);
+	return _event_list_cache.at(hash);
 }
 
 
-const std::vector<double>& ServerDataCache::get_network_positions(std::size_t category_id)
+const std::vector<double>& ServerDataCache::get_network_positions(std::size_t category_id, const RequestParameters& request_parameters)
 {
+	auto hash = compute_hash(category_id, request_parameters);
 	if(_network_positions_cache.count(category_id) == 0)
 	{
 		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_network_positions(category_id);	
-		_network_positions_priority_list.push_front(category_id);
+		compute_network_positions(category_id, request_parameters);	
+		_network_positions_priority_list.push_front(hash);
 
 		auto which_to_delete = _network_positions_priority_list.back();
 		if(_network_positions_priority_list.size() > MAX_CACHE_SIZE)
@@ -105,16 +109,17 @@ const std::vector<double>& ServerDataCache::get_network_positions(std::size_t ca
 		}
 	}
 
-	return _network_positions_cache.at(category_id);
+	return _network_positions_cache.at(hash);
 }
 
-const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size_t category_id)
+const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size_t category_id, const RequestParameters& request_parameters)
 {
+	auto hash = compute_hash(category_id, request_parameters);
 	if(_global_main_path_cache.count(category_id) == 0)
 	{
 		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_global_main_path(category_id);	
-		_global_main_path_priority_list.push_front(category_id);
+		compute_global_main_path(category_id, request_parameters);	
+		_global_main_path_priority_list.push_front(hash);
 
 		auto which_to_delete = _global_main_path_priority_list.back();
 		if(_global_main_path_priority_list.size() > MAX_CACHE_SIZE)
@@ -125,20 +130,21 @@ const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size
 		}
 	}
 
-	return _global_main_path_cache.at(category_id);
+	return _global_main_path_cache.at(hash);
 }
 
 
 // ---- private ----
 
-void ServerDataCache::compute_article_list(std::size_t category_id)
+void ServerDataCache::compute_article_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	// build recursively all articles in category
 	auto articles_in_category = build_one_category_recursively(category_id, _category_hirachy_graph, _category_has_article);
 	std::vector<std::size_t> rtn(articles_in_category.begin(), articles_in_category.end()); 
 
+	auto article_filters=request_parameters.article_filters();
 	rtn.erase(
-		std::remove_if(rtn.begin(), rtn.end(), [this](std::size_t i_article)
+		std::remove_if(rtn.begin(), rtn.end(), [this, &article_filters](std::size_t i_article)
 		{
 			for (auto& f : article_filters) {
 				if(!f(_article_titles[i_article], _article_dates[i_article]))
@@ -148,7 +154,7 @@ void ServerDataCache::compute_article_list(std::size_t category_id)
 		}), 
 		rtn.end()
 	);
-	_article_list_cache.insert({ category_id, rtn });
+	_article_list_cache.insert({ compute_hash(category_id, request_parameters), rtn });
 }
 
 
@@ -171,9 +177,9 @@ namespace {
 	}
 }
 
-void ServerDataCache::compute_event_network(std::size_t category_id)
+void ServerDataCache::compute_event_network(std::size_t category_id, const RequestParameters& request_parameters)
 {
-	const auto& event_list = get_event_list(category_id);
+	const auto& event_list = get_event_list(category_id, request_parameters);
 
 	std::map<std::size_t, std::vector<std::size_t>> events_for_article;
 	std::set<std::size_t> articles_in_network;
@@ -218,7 +224,7 @@ void ServerDataCache::compute_event_network(std::size_t category_id)
 		}
 	}
 
-	_event_network_cache.insert({ category_id, g });
+	_event_network_cache.insert({ compute_hash(category_id, request_parameters), g });
 }
 /* { */
 // const auto& article_list = get_article_list(category_id);
@@ -263,11 +269,14 @@ void ServerDataCache::compute_event_network(std::size_t category_id)
 // _event_network_cache.insert({ category_id, g });
 /* } */
 
-void ServerDataCache::compute_event_list(std::size_t category_id)
+void ServerDataCache::compute_event_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
-	const auto& article_list = get_article_list(category_id);
+	const auto& article_list = get_article_list(category_id, request_parameters);
 
 	EventList event_list;
+
+	auto event_filters = request_parameters.event_filters();
+
 	for (auto article_id : article_list) {
 		for (auto d : _article_dates[article_id]) {
 			std::string event_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
@@ -286,7 +295,7 @@ void ServerDataCache::compute_event_list(std::size_t category_id)
 		}
 	}
 
-	_event_list_cache.insert({ category_id, std::move(event_list) });
+	_event_list_cache.insert({ compute_hash(category_id, request_parameters), std::move(event_list) });
 }
 
 std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_list)
@@ -311,9 +320,9 @@ std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_
 	return x_positions;
 }
 
-void ServerDataCache::compute_network_positions(std::size_t category_id)
+void ServerDataCache::compute_network_positions(std::size_t category_id, const RequestParameters& request_parameters)
 {
-	const auto& event_network = get_event_network(category_id);
+	const auto& event_network = get_event_network(category_id, request_parameters);
 	// const auto& event_list = get_event_list(category_id);
 
 	// get normalized x coordinates for drawing algorithms
@@ -322,12 +331,12 @@ void ServerDataCache::compute_network_positions(std::size_t category_id)
 	// auto positions = WikiMainPath::GraphDrawing::force_directed_graph_drawing(event_network, x_positions);
 	// auto positions = WikiMainPath::GraphDrawing::averaged_precessor_graph_drawing(event_network);
 	auto positions = WikiMainPath::GraphDrawing::random_graph_drawing(event_network);
-	_network_positions_cache.insert({ category_id, std::move(positions) });
+	_network_positions_cache.insert({ compute_hash(category_id, request_parameters), std::move(positions) });
 }
 
-void ServerDataCache::compute_global_main_path(std::size_t category_id)
+void ServerDataCache::compute_global_main_path(std::size_t category_id, const RequestParameters& request_parameters)
 {
-	const auto& network = get_event_network(category_id);
+	const auto& network = get_event_network(category_id, request_parameters);
 
 	ArticleGraph g;
 	boost::copy_graph(network, g);
@@ -372,14 +381,24 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id)
 	for (auto e : main_path) 
 		main_path_edges.push_back({ boost::source(e,g), boost::target(e,g) });
 
-	_global_main_path_cache.insert({ category_id, std::move(main_path_edges) });
+	_global_main_path_cache.insert({ compute_hash(category_id, request_parameters), std::move(main_path_edges) });
 }
 
 
-void ServerDataCache::export_event_network_to_file(std::ostream& file, std::size_t category_id)
+std::size_t ServerDataCache::compute_hash(std::size_t category_id, const RequestParameters& request_parameters) const
 {
-	const auto& event_list = get_event_list(category_id);
-	const auto& event_network = get_event_network(category_id);
+	std::size_t seed = 0;
+	boost::hash_combine(seed, category_id);
+	boost::hash_combine(seed, request_parameters.hash());
+
+	return seed;
+}
+
+
+void ServerDataCache::export_event_network_to_file(std::ostream& file, std::size_t category_id, const RequestParameters& request_parameters)
+{
+	const auto& event_list = get_event_list(category_id, request_parameters);
+	const auto& event_network = get_event_network(category_id, request_parameters);
 
 	file << event_list.size() << std::endl;
 	file << boost::num_edges(event_network) << std::endl;
