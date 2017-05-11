@@ -323,6 +323,12 @@ std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_
 void ServerDataCache::compute_network_positions(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	const auto& event_network = get_event_network(category_id, request_parameters);
+
+	if(boost::num_vertices(event_network) == 0)
+	{
+		_network_positions_cache.insert({ compute_hash(category_id, request_parameters), std::vector<double>() });
+		return;
+	}
 	// const auto& event_list = get_event_list(category_id, request_parameters);
 
 	// get normalized x coordinates for drawing algorithms
@@ -337,6 +343,11 @@ void ServerDataCache::compute_network_positions(std::size_t category_id, const R
 void ServerDataCache::compute_global_main_path(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	const auto& network = get_event_network(category_id, request_parameters);
+	if(boost::num_vertices(network) == 0)
+	{
+		_global_main_path_cache.insert({ compute_hash(category_id, request_parameters), EdgeList() });
+		return;
+	}
 
 	ArticleGraph g;
 	boost::copy_graph(network, g);
