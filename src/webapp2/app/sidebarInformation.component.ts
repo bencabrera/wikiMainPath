@@ -9,6 +9,15 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
 	selector: 'sidebar-information',
 	template:	`
+		<label>Year Filter:</label> 
+		<p>
+			<i>From:</i> 
+			<input class="date-filter-input" type="number" [(ngModel)]="from_year" (change)="year_changed()">
+			&nbsp;
+			&nbsp;
+			<i>To:</i> 
+			<input class="date-filter-input" type="number" [(ngModel)]="to_year" (change)="year_changed()">
+		</p>
 		<label>Category:</label> 
 		<p>{{ category_title }}</p>
 		<label>Number of Events:</label> 
@@ -38,7 +47,22 @@ export class SidebarInformationComponent implements OnChanges
 	public to_date : string;
 	public main_path : { date: string, title: string }[];
 
-	constructor()
+	public from_year : number;
+	public to_year : number;
+
+	public year_changed()
+	{
+		console.log(this.from_year);
+		console.log(this.to_year);
+		console.log("changed");
+
+		this.searchQueryService.from_year = this.from_year;
+		this.searchQueryService.to_year = this.to_year;
+		localStorage.setItem("from_year", this.from_year.toString());
+		localStorage.setItem("to_year", this.to_year.toString());
+	}
+
+	constructor(private searchQueryService: SearchQueryService)
 	{
 		this.category_title = "";
 		this.event_number = 0;
@@ -46,6 +70,14 @@ export class SidebarInformationComponent implements OnChanges
 		this.from_date = "";
 		this.to_date = "";
 		this.main_path = new Array();
+
+		this.from_year = 0;
+		this.to_year = 0;
+
+		if(localStorage.getItem("from_year"))
+			this.from_year = localStorage.getItem("from_year");
+		if(localStorage.getItem("to_year"))
+			this.to_year = localStorage.getItem("to_year");
 	}
 
 	ngOnChanges() 

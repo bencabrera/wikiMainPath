@@ -119,3 +119,7 @@ sidebar-information {
 td.main-path-date-cell {
 	min-width: 100px;
 }
+
+.date-filter-input {
+	width: 30%;
+}

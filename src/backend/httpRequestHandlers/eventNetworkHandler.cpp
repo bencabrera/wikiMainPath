@@ -31,13 +31,17 @@ namespace WikiMainPath {
 		// get parameters
 		Poco::URI uri(request.getURI());
 		auto parameters = uri.getQueryParameters();
+		std::map<std::string, std::string> parameter_map;
+		
+		for(auto& p : parameters)
+			parameter_map.insert(p);
 
-		if(parameters.size() != 1 || parameters[0].first != "category-id")
+		if(parameters.size() == 0 || parameter_map.count("category-id") == 0)
 		{
 			response.setStatus("400"); // = Bad Request
 
 			Object root;
-			root.set("error", "GET-Parameter category-id not specified or too many parameters.");
+			root.set("error", "GET-Parameter category-id not specified or too few parameters.");
 
 			root.stringify(response.send(), 4); 
 
@@ -72,7 +76,17 @@ namespace WikiMainPath {
 
 		Shared::StepTimer timer;
 
-		RequestParameters request_parameters{ true, 1780, 1850 };
+		RequestParameters request_parameters{ false, 0, 0 };
+
+		if(parameter_map.count("from-year") > 0 && parameter_map.count("to-year"))
+		{
+			int from_year = std::stoi(parameter_map.at("from-year"));
+			int to_year = std::stoi(parameter_map.at("to-year"));
+
+			request_parameters.has_date_filter = true;
+			request_parameters.start_year = from_year;
+			request_parameters.end_year = to_year;
+		}
 
 		Array events_array, links_array, positions_array, mpa_array, timespan_array;
 
