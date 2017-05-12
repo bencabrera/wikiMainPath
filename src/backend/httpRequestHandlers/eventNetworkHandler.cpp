@@ -80,7 +80,7 @@ namespace WikiMainPath {
 		ServerDataCache _server_data_cache(_wiki_data_cache);
 		timer.stop_timing_step("build_cache", &std::cout);
 
-		RequestParameters request_parameters{ false, 0, 0, RequestParameters::LOCAL, 0.0, false };
+		RequestParameters request_parameters{ false, 0, 0, RequestParameters::LOCAL, 0.0, false, "" };
 
 		if(parameter_map.count("from-year") > 0 && parameter_map.count("to-year"))
 		{
@@ -166,12 +166,20 @@ namespace WikiMainPath {
 
 			auto min_date = std::min_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
 					return e1.Date < e2.Date;
-					})->Date;
+					});
 			auto max_date = std::max_element(event_list.begin(), event_list.end(), [](const ServerDataCache::Event& e1, const ServerDataCache::Event& e2) {
 					return e1.Date < e2.Date;
-					})->Date;
-			timespan_array.set(0, to_iso_string(min_date));
-			timespan_array.set(1, to_iso_string(max_date));
+					});
+
+			if(min_date != event_list.end())
+				timespan_array.set(0, to_iso_string(min_date->Date));
+			else
+				timespan_array.set(0, 0);
+
+			if(max_date != event_list.end())
+				timespan_array.set(1, to_iso_string(max_date->Date));
+			else
+				timespan_array.set(1, 0);
 		}
 		catch(boost::exception& e)
 		{

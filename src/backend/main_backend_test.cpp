@@ -59,9 +59,10 @@ int main(int argc, char** argv)
 	// _server_data_cache.event_filters.push_back(events_in_date_range(create_date_range(1750,1,1,1820,1,1)));
 
 	// const std::size_t category_id = 722580; // friendly fire incidents
-	const std::size_t category_id = 719007; // french revolution
+	// const std::size_t category_id = 719007; // french revolution
 	// const std::size_t category_id = 1564179; // world war II
 	// const std::size_t category_id = 1409141; // thirty years war
+	const std::size_t category_id = 719009; // french revolution films 
 
 
 	std::cout << "CATEGORY: " << category_titles[category_id] << std::endl;
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
 	std::ofstream network_file("/home/cabrera/Schreibtisch/network.txt");
 	// _server_data_cache.export_event_network_to_file(network_file, category_id);
 
-	RequestParameters request_parameters{ true, 600, 601 };
+	RequestParameters request_parameters{ true, 1780, 1849, RequestParameters::LOCAL, 0.0, true, "" };
 	// timer_server.start_timing_step("build_article_list", "Build article list", &std::cout);
 	const auto& article_list = _server_data_cache.get_article_list(category_id, request_parameters);
 	std::cout << article_list.size() << std::endl;

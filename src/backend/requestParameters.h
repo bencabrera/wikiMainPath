@@ -54,14 +54,12 @@ class RequestParameters {
 			if(has_date_filter)
 				rtn.push_back(events_in_date_range(create_date_range(start_year,1,1,end_year,1,1)));
 
-			std::cout << "not_containing: " <<  not_containing << std::endl;
 			if(not_containing != "")
 			{
 				std::vector<std::string> contain_str;	
 				boost::split(contain_str, not_containing, boost::is_any_of(","));
 				for (auto& str : contain_str) {
 					boost::to_lower(str);	
-					std::cout << "ss" << str << std::endl;
 				}
 				rtn.push_back(events_not_containing(contain_str));
 			}

@@ -1,6 +1,6 @@
 import { EventItem } from './dataTypes';
 
-import { Input, Component, ViewChild, OnChanges, ElementRef, } from '@angular/core';
+import { Input, Output, EventEmitter, Component, ViewChild, OnChanges, ElementRef, } from '@angular/core';
 import { SearchQueryService } from './searchQuery.service'
 
 import { Observable }     from 'rxjs/Observable';
@@ -101,6 +101,9 @@ export class SidebarInformationComponent implements OnChanges
 	public no_persons : boolean;
 	public not_containing : string;
 
+	@Output("filter-changed")
+	public filter_changed_event = new EventEmitter();
+
 	public filter_changed()
 	{
 		console.log("changed");
@@ -108,8 +111,8 @@ export class SidebarInformationComponent implements OnChanges
 		localStorage.setItem("from_year", this.from_year.toString());
 		localStorage.setItem("to_year", this.to_year.toString());
 		localStorage.setItem("method", this.method);
-		localStorage.setItem("alpha", this.alpha);
-		localStorage.setItem("no_persons", this.no_persons);
+		localStorage.setItem("alpha", this.alpha.toString());
+		localStorage.setItem("no_persons", this.no_persons.toString());
 		localStorage.setItem("not_containing", this.not_containing);
 
 		console.log(this.from_year);
@@ -118,6 +121,8 @@ export class SidebarInformationComponent implements OnChanges
 		console.log(this.alpha);
 		console.log(this.no_persons);
 		console.log(this.not_containing);
+
+		this.filter_changed_event.emit();
 	}
 
 	constructor(private searchQueryService: SearchQueryService)
@@ -137,16 +142,16 @@ export class SidebarInformationComponent implements OnChanges
 		this.not_containing = "";
 
 		if(localStorage.getItem("from_year"))
-			this.from_year = localStorage.getItem("from_year");
+			this.from_year = parseInt(localStorage.getItem("from_year"));
 		if(localStorage.getItem("to_year"))
-			this.to_year = localStorage.getItem("to_year");
+			this.to_year = parseInt(localStorage.getItem("to_year"));
 		if(localStorage.getItem("method"))
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
-			this.alpha = localStorage.getItem("alpha");
+			this.alpha = parseFloat(localStorage.getItem("alpha"));
 		if(localStorage.getItem("no_persons"))
-			this.no_persons = localStorage.getItem("no_persons");
-		if(localStorage.getItem("not_containing"))
+			this.no_persons = (localStorage.getItem("no_persons") == 'true');
+		if(localStorage.getItem("not_containing") && localStorage.getItem("not_containing") != undefined && localStorage.getItem("not_containing") != "undefined")
 			this.not_containing = localStorage.getItem("not_containing");
 	}
 
@@ -170,8 +175,11 @@ export class SidebarInformationComponent implements OnChanges
 					this.main_path.push({ date: event.date.format("YYYY-MM-DD"), title: event.title });
 			}
 			console.log("final", this.main_path);
-			var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][0];
-			//this.main_path.push({ date: this.network_data.events[last_i_event].date, title: this.network_data.events[last_i_event].title });
+			if(this.network_data.main_path.length > 0)
+			{
+				var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][0];
+				this.main_path.push({ date: this.network_data.events[last_i_event].date, title: this.network_data.events[last_i_event].title });
+			}
 
 			console.log(this.main_path);
 		}

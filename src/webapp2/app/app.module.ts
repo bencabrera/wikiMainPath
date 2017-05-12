@@ -26,7 +26,7 @@ const appRoutes: Routes = [
 ];
 
 @NgModule({
-	imports: [ RouterModule.forRoot(appRoutes), BrowserModule, FormsModule, HttpModule ],
+	imports: [ RouterModule.forRoot(appRoutes, { useHash: true }), BrowserModule, FormsModule, HttpModule ],
 	declarations: [ GlobalComponent, SearchBarComponent, NetworkDisplayComponent, NetworkComponent, SidebarInformationComponent ],
 	bootstrap: [ GlobalComponent ],
 	providers: [ SearchQueryService ]

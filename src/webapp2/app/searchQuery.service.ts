@@ -19,17 +19,21 @@ export class SearchQueryService {
 	public not_containing: string;
 
 	constructor(private http: Http) {
+		this.reload_parameters();
+	}
+
+	public reload_parameters() {
 		if(localStorage.getItem("from_year"))
-			this.from_year = localStorage.getItem("from_year");
+			this.from_year = parseInt(localStorage.getItem("from_year"));
 		if(localStorage.getItem("to_year"))
-			this.to_year = localStorage.getItem("to_year");
+			this.to_year = parseInt(localStorage.getItem("to_year"));
 		if(localStorage.getItem("method"))
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
-			this.alpha = localStorage.getItem("alpha");
+			this.alpha = parseFloat(localStorage.getItem("alpha"));
 		if(localStorage.getItem("no_persons"))
-			this.no_persons = localStorage.getItem("no_persons");
-		if(localStorage.getItem("not_containing"))
+			this.no_persons = (localStorage.getItem("no_persons") == 'true');
+		if(localStorage.getItem("not_containing") && localStorage.getItem("not_containing") != undefined && localStorage.getItem("not_containing") != "undefined")
 			this.not_containing = localStorage.getItem("not_containing");
 	}
 
@@ -43,6 +47,8 @@ export class SearchQueryService {
 
 	public getEventNetwork(category_id: number): Observable<any>
 	{
+		this.reload_parameters();
+
 		var url : string;
 
 		url = this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id;
@@ -54,10 +60,12 @@ export class SearchQueryService {
 		if(this.method == "alpha" && this.alpha)
 			url += "&alpha=" + this.alpha;
 			
-		if(this.no_persons)
+		console.log("no_persons", this.no_persons);
+		console.log("no_persons bool", this.no_persons == true);
+		if(this.no_persons && this.no_persons == true)
 			url += "&no_persons=true";
 
-		if(this.not_containing != "")
+		if(this.not_containing && this.not_containing != "")
 			url += "&not_containing=" + this.not_containing;
 
 		url = encodeURI(url);
