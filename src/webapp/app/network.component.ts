@@ -100,6 +100,8 @@ export class NetworkComponent implements AfterViewInit
 
 		var svgHeight = parseInt(svg.style("height").replace("px", ""));
 		var svgWidth = parseInt(svg.style("width").replace("px", ""));
+		
+		console.log("svgWidth", svgWidth);
 
 		// var minTime = d3.min(this.network_data.events, (d: EventItem) => { return d.date }); 
 		// var maxTime = d3.max(this.network_data.events, (d: EventItem) => { return d.date }); 
@@ -173,8 +175,7 @@ export class NetworkComponent implements AfterViewInit
 		.call(this.time_axis);
 
 		this.d3_canvas.selectAll("line")
-		// .data(this.network_data.links, function(d,i) { console.log(d); return "link_" + d[0] + "_" +d[1]; })
-		.data(this.network_data.links)
+		.data(this.network_data.links, (d,i) => { return "link_" + d[0] + "_" +d[1]; })
 		.enter()
 		.append("line")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
@@ -204,21 +205,8 @@ export class NetworkComponent implements AfterViewInit
 		this.d3_canvas.selectAll("line.main-path-link").raise();
 
 
-
-		// this.d3_canvas.selectAll("line")
-		// // .data(this.network_data.main_path)
-		// .data(this.network_data.main_path, function(d,i) { console.log(d); return "mp_" + d[0] + "_" +d[1]; })
-		// .enter()
-		// .append("line")
-		// .attr("class", "mp")
-		// .attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
-		// .attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
-		// .attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
-		// .attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; })
-		// .attr("stroke", this.MAIN_PATH_LINK_COLOR);
-
 		this.d3_canvas.selectAll("circle")
-		.data(this.network_data.events, (d:EventItem) => { return d.id; })
+		.data(this.network_data.events, (d:EventItem) => { return "event_" + d.id; })
 		.enter()
 		.append("circle")
 		.attr("cx", (d) => { return this.time_scale(d.date) + this.PADDING; })
@@ -264,12 +252,6 @@ export class NetworkComponent implements AfterViewInit
 		.call(this.time_axis);
 
 		this.d3_canvas.selectAll("line.link")
-		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
-		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
-		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
-		.attr("y2", (d) => { return this.y_scale(this.network_data.positions[d[1]]) + this.PADDING; });
-
-		this.d3_canvas.selectAll("line.mp")
 		.attr("x1", (d) => { return this.time_scale(this.network_data.events[d[0]].date) + this.PADDING; })
 		.attr("y1", (d) => { return this.y_scale(this.network_data.positions[d[0]]) + this.PADDING; })
 		.attr("x2", (d) => { return this.time_scale(this.network_data.events[d[1]].date) + this.PADDING; })
