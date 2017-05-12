@@ -381,7 +381,12 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 	// }
 	// while(main_path.size() > 50);
 
-	MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+	if(request_parameters.method == RequestParameters::LOCAL)
+		MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+	if(request_parameters.method == RequestParameters::GLOBAL)
+		MainPathAnalysis::global(std::back_inserter(main_path), g, weights, s, t);
+	if(request_parameters.method == RequestParameters::ALPHA)
+		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, request_parameters.alpha);
 
 	// remove s and t from main path and from copy of graph
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);

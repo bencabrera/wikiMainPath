@@ -80,7 +80,7 @@ namespace WikiMainPath {
 		ServerDataCache _server_data_cache(_wiki_data_cache);
 		timer.stop_timing_step("build_cache", &std::cout);
 
-		RequestParameters request_parameters{ false, 0, 0 };
+		RequestParameters request_parameters{ false, 0, 0, RequestParameters::LOCAL, 0.0 };
 
 		if(parameter_map.count("from-year") > 0 && parameter_map.count("to-year"))
 		{
@@ -90,6 +90,21 @@ namespace WikiMainPath {
 			request_parameters.has_date_filter = true;
 			request_parameters.start_year = from_year;
 			request_parameters.end_year = to_year;
+		}
+
+		request_parameters.method = RequestParameters::LOCAL;
+		if(parameter_map.count("method") > 0)
+		{
+			auto method_str = parameter_map.at("method");
+			if(method_str == "local")
+				request_parameters.method = RequestParameters::LOCAL;
+			if(method_str == "global")
+				request_parameters.method = RequestParameters::GLOBAL;
+			if(method_str == "alpha" && parameter_map.count("alpha") > 0)
+			{
+				request_parameters.method = RequestParameters::ALPHA;
+				request_parameters.alpha = std::stod(parameter_map.at("alpha"));
+			}
 		}
 
 		Array events_array, links_array, positions_array, mpa_array, timespan_array;

@@ -9,15 +9,42 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
 	selector: 'sidebar-information',
 	template:	`
-		<label>Year Filter:</label> 
-		<p>
-			<i>From:</i> 
-			<input class="date-filter-input" type="number" [(ngModel)]="from_year" (change)="year_changed()">
-			&nbsp;
-			&nbsp;
-			<i>To:</i> 
-			<input class="date-filter-input" type="number" [(ngModel)]="to_year" (change)="year_changed()">
-		</p>
+		<label>Filters:</label> 
+		<table class="filter-table">
+			<tr>
+				<th class="filter-label-cell">Years</th>
+				<td class="filter-value-cell">
+					<input class="date-filter-input" type="number" [(ngModel)]="from_year">
+					<span class="date-filter-dash">&mdash;</span>
+					<input class="date-filter-input" type="number" [(ngModel)]="to_year">
+				</td>
+			<tr>
+
+			<tr>
+				<th class="filter-label-cell">Method</th>
+				<td class="filter-value-cell">
+					<select class="method-filter-select" [(ngModel)]="method">
+						<option value="local" selected="selected">Local</option>
+						<option value="global">Global</option>
+						<option value="alpha">Global Alpha</option>
+					</select>
+				</td>
+			</tr>
+
+			<tr [hidden]="method != 'alpha'">
+				<th class="filter-label-cell">Alpha</th>
+				<td class="filter-value-cell">
+					<input class="alpha-filter-input" type="number" [(ngModel)]="alpha">
+				</td>
+			<tr>
+
+			<tr>
+				<th colspan="2">
+					<button class="btn btn-default filter-save-btn" (click)="filter_changed()">Save Filter</button>	
+				</th>
+			<tr>
+		</table>
+		<hr>
 		<label>Category:</label> 
 		<p>{{ category_title }}</p>
 		<label>Number of Events:</label> 
@@ -49,17 +76,22 @@ export class SidebarInformationComponent implements OnChanges
 
 	public from_year : number;
 	public to_year : number;
+	public method : string;
+	public alpha : number;
 
-	public year_changed()
+	public filter_changed()
 	{
-		console.log(this.from_year);
-		console.log(this.to_year);
 		console.log("changed");
 
-		this.searchQueryService.from_year = this.from_year;
-		this.searchQueryService.to_year = this.to_year;
 		localStorage.setItem("from_year", this.from_year.toString());
 		localStorage.setItem("to_year", this.to_year.toString());
+		localStorage.setItem("method", this.method);
+		localStorage.setItem("alpha", this.alpha);
+
+		console.log(this.from_year);
+		console.log(this.to_year);
+		console.log(this.method);
+		console.log(this.alpha);
 	}
 
 	constructor(private searchQueryService: SearchQueryService)
@@ -73,11 +105,17 @@ export class SidebarInformationComponent implements OnChanges
 
 		this.from_year = 0;
 		this.to_year = 0;
+		this.method = "local";
+		this.alpha = 0;
 
 		if(localStorage.getItem("from_year"))
 			this.from_year = localStorage.getItem("from_year");
 		if(localStorage.getItem("to_year"))
 			this.to_year = localStorage.getItem("to_year");
+		if(localStorage.getItem("method"))
+			this.method = localStorage.getItem("method");
+		if(localStorage.getItem("alpha"))
+			this.alpha = localStorage.getItem("alpha");
 	}
 
 	ngOnChanges() 

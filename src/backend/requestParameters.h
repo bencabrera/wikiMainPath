@@ -4,15 +4,27 @@
 
 class RequestParameters {
 	public:
+		enum Method {
+			LOCAL,
+			GLOBAL,
+			ALPHA
+		};
+
 		bool has_date_filter;
 		int start_year;
 		int end_year;
+		Method method;
+		double alpha;
+
+
 
 		std::size_t hash() const {
 			std::size_t seed = 0;
 			boost::hash_combine(seed, has_date_filter);
 			boost::hash_combine(seed, start_year);
 			boost::hash_combine(seed, end_year);
+			boost::hash_combine(seed, method);
+			boost::hash_combine(seed, alpha);
 
 			return seed;
 		};

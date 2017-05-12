@@ -120,6 +120,29 @@ td.main-path-date-cell {
 	min-width: 100px;
 }
 
+.filter-table {
+	font-size: 13px;
+}
+.filter-label-cell {
+	padding-right: 10px;
+}
+.filter-value-cell {
+	padding: 5px 0;
+}
 .date-filter-input {
-	width: 30%;
+	width: 45%;
+}
+.date-filter-dash {
+	width: 9%;
+	text-align: center;
+}
+.method-filter-select {
+	width: 100%;
+}
+.alpha-filter-input {
+	width: 100%;
+}
+.filter-save-btn {
+	width: 100%;
+	margin-top: 5px;
 }

@@ -13,12 +13,18 @@ export class SearchQueryService {
 
 	public from_year: number;
 	public to_year: number;
+	public method: string;
+	public alpha: number;
 
 	constructor(private http: Http) {
 		if(localStorage.getItem("from_year"))
 			this.from_year = localStorage.getItem("from_year");
 		if(localStorage.getItem("to_year"))
 			this.to_year = localStorage.getItem("to_year");
+		if(localStorage.getItem("method"))
+			this.method = localStorage.getItem("method");
+		if(localStorage.getItem("alpha"))
+			this.alpha = localStorage.getItem("alpha");
 	}
 
 	public searchForCategory(queryString: string): Observable<{ title: string, id: number }[]>
@@ -32,11 +38,17 @@ export class SearchQueryService {
 	public getEventNetwork(category_id: number): Observable<any>
 	{
 		var url : string;
+
+		url = this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id;
 	   
 		if(this.from_year && this.to_year && this.from_year != 0 && this.to_year != 0)
-			url = encodeURI(this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id + "&from-year=" + this.from_year + "&to-year=" + this.to_year);
-		else
-			url = encodeURI(this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id);
+			url += "&from-year=" + this.from_year + "&to-year=" + this.to_year;
+		if(this.method)
+			url += "&method=" + this.method;
+		if(this.method == "alpha" && this.alpha)
+			url += "&alpha=" + this.alpha;
+			
+		url = encodeURI(url);
 
 		return this.http.get(url).map(
 			(response: Response) => response.json()
