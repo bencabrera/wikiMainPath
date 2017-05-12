@@ -180,7 +180,7 @@ export class SidebarInformationComponent implements OnChanges
 			console.log("final", this.main_path);
 			if(this.network_data.main_path.length > 0)
 			{
-				var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][0];
+				var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][1];
 				this.main_path.push({ date: this.network_data.events[last_i_event].date.format("YYYY-MM-DD"), title: this.network_data.events[last_i_event].title });
 			}
 

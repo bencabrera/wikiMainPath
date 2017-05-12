@@ -47,28 +47,6 @@ const std::vector<std::size_t>& ServerDataCache::get_article_list(std::size_t ca
 	return _article_list_cache.at(hash);
 }
 
-const ArticleGraph& ServerDataCache::get_event_network(std::size_t category_id, const RequestParameters& request_parameters)
-{
-	auto hash = compute_hash(category_id, request_parameters);
-	if(_event_network_cache.count(category_id) == 0)
-	{
-		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
-		compute_event_network(category_id, request_parameters);	
-		_event_network_priority_list.push_front(hash);
-
-		auto which_to_delete = _event_network_priority_list.back();
-		if(_event_network_priority_list.size() > MAX_CACHE_SIZE)
-		{
-			Poco::Mutex::ScopedLock lock(_mutices[which_to_delete % N_MUTEX]);	
-			_event_network_cache.erase(which_to_delete);
-			_event_network_priority_list.pop_back();
-		}
-	}
-
-	return _event_network_cache.at(hash);
-}
-
-
 const std::vector<ServerDataCache::Event>& ServerDataCache::get_event_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	auto hash = compute_hash(category_id, request_parameters);
@@ -89,6 +67,30 @@ const std::vector<ServerDataCache::Event>& ServerDataCache::get_event_list(std::
 
 	return _event_list_cache.at(hash);
 }
+
+
+
+const EventNetwork& ServerDataCache::get_event_network(std::size_t category_id, const RequestParameters& request_parameters)
+{
+	auto hash = compute_hash(category_id, request_parameters);
+	if(_event_network_cache.count(category_id) == 0)
+	{
+		Poco::Mutex::ScopedLock lock(_mutices[category_id % N_MUTEX]);	
+		compute_event_network(category_id, request_parameters);	
+		_event_network_priority_list.push_front(hash);
+
+		auto which_to_delete = _event_network_priority_list.back();
+		if(_event_network_priority_list.size() > MAX_CACHE_SIZE)
+		{
+			Poco::Mutex::ScopedLock lock(_mutices[which_to_delete % N_MUTEX]);	
+			_event_network_cache.erase(which_to_delete);
+			_event_network_priority_list.pop_back();
+		}
+	}
+
+	return _event_network_cache.at(hash);
+}
+
 
 
 const std::vector<double>& ServerDataCache::get_network_positions(std::size_t category_id, const RequestParameters& request_parameters)
@@ -168,7 +170,7 @@ void ServerDataCache::compute_article_list(std::size_t category_id, const Reques
 
 
 namespace {
-	void add_correct_edge_between_events(std::size_t i_event_1, std::size_t i_event_2, const ServerDataCache::Event& event_1, const ServerDataCache::Event& event_2, ArticleGraph& g)
+	void add_correct_edge_between_events(std::size_t i_event_1, std::size_t i_event_2, const ServerDataCache::Event& event_1, const ServerDataCache::Event& event_2, EventNetwork& g)
 	{
 		if(i_event_2 != i_event_1)
 		{
@@ -214,6 +216,10 @@ void ServerDataCache::compute_event_list(std::size_t category_id, const RequestP
 		}
 	}
 
+	std::sort(event_list.begin(), event_list.end(), [](const Event& e1, const Event& e2) {
+		return e1.Date < e2.Date;
+	});
+
 	_event_list_cache.insert({ compute_hash(category_id, request_parameters), std::move(event_list) });
 }
 
@@ -238,7 +244,7 @@ void ServerDataCache::compute_event_network(std::size_t category_id, const Reque
 		i_event++;
 	}
 
-	ArticleGraph g(event_list.size());
+	EventNetwork g(event_list.size());
 	for (std::size_t i_event_1 = 0; i_event_1 < event_list.size(); i_event_1++)
 	{
 		const auto& event_1 = event_list[i_event_1];
@@ -320,13 +326,13 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 		return;
 	}
 
-	ArticleGraph g;
+	EventNetwork g;
 	boost::copy_graph(network, g);
 	MainPathAnalysis::set_increasing_edge_index(g);
 
 	// add s and t vertex
-	ArticleGraph::vertex_descriptor s, t;
-	MainPathAnalysis::add_source_and_sink_vertex<ArticleGraph>(g, s, t);
+	EventNetwork::vertex_descriptor s, t;
+	MainPathAnalysis::add_source_and_sink_vertex<EventNetwork>(g, s, t);
 
 	// compute spc weights
 	// auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
@@ -340,7 +346,7 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 	}
 
 	// compute global main path
-	std::vector<ArticleGraph::edge_descriptor> main_path;
+	std::vector<EventNetwork::edge_descriptor> main_path;
 	// double alpha = 1;
 	// do {
 		// main_path.clear();
@@ -358,6 +364,16 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 		MainPathAnalysis::global(std::back_inserter(main_path), g, weights, s, t);
 	if(request_parameters.method == RequestParameters::ALPHA)
 		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, request_parameters.alpha);
+
+
+	for (auto& e : main_path) {
+		std::cout <<  boost::source(e,g) << "->" << boost::target(e,g) << std::endl;
+	}
+
+	for (std::size_t i = 0; i < main_path.size()-1; i++) {
+		if(boost::target(main_path[i],g) != boost::source(main_path[i+1],g))
+			std::cout << "VIOLATED MAIN PATH CONSTRAINT" <<  boost::target(main_path[i],g) << " -> "<< boost::source(main_path[i+1],g) << std::endl;
+	}
 
 	// remove s and t from main path and from copy of graph
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path);

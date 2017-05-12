@@ -32,12 +32,12 @@ namespace WikiMainPath {
 		{
 			private:
 
-				const ArticleGraph& _event_network;
+				const EventNetwork& _event_network;
 				const std::vector<double>& _x_positions;
 				const std::size_t _n;
 
 			public:
-				ForceDirectedFunctor(const ArticleGraph& event_network, const std::vector<double>& x_positions);
+				ForceDirectedFunctor(const EventNetwork& event_network, const std::vector<double>& x_positions);
 
 				int operator()(const InputType& y, ValueType& fvec) const;
 				int df(const InputType& y, JacobianType& fjac) const;
@@ -50,12 +50,12 @@ namespace WikiMainPath {
 		{
 			private:
 
-				const ArticleGraph& _event_network;
+				const EventNetwork& _event_network;
 				const std::vector<double>& _x_positions;
 				const std::size_t _n;
 
 			public:
-				ForceDirectedSparseFunctor(const ArticleGraph& event_network, const std::vector<double>& x_positions);
+				ForceDirectedSparseFunctor(const EventNetwork& event_network, const std::vector<double>& x_positions);
 
 				int operator()(const InputType& y, ValueType& fvec) const;
 				int df(const InputType& y, JacobianType& fjac) const;

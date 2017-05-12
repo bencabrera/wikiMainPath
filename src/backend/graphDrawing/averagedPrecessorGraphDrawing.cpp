@@ -6,7 +6,7 @@
 
 namespace WikiMainPath {
 	namespace GraphDrawing {
-		std::vector<double> averaged_precessor_graph_drawing(const ArticleGraph& event_network)
+		std::vector<double> averaged_precessor_graph_drawing(const EventNetwork& event_network)
 		{
 			std::size_t n_wo_incoming = 0;
 			for(std::size_t i = 0; i < boost::num_vertices(event_network); i++)
@@ -22,7 +22,7 @@ namespace WikiMainPath {
 					positions[i] = cur_pos;
 				}
 
-			// std::vector<ArticleGraph::vertex_descriptor> topological_order;
+			// std::vector<EventNetwork::vertex_descriptor> topological_order;
 			// boost::topological_sort(event_network, std::back_inserter(topological_order));
 
 			// for(std::size_t v = 0; v < boost::num_vertices(event_network); v++)

@@ -3,7 +3,7 @@
 
 namespace WikiMainPath {
 	namespace GraphDrawing {
-		std::vector<double> random_graph_drawing(const ArticleGraph& event_network)
+		std::vector<double> random_graph_drawing(const EventNetwork& event_network)
 		{
 			std::mt19937 rand_gen(3);
 

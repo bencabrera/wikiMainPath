@@ -26,8 +26,9 @@ class ServerDataCache {
 		ServerDataCache(const WikiMainPath::WikiDataCache& wiki_data_cache);
 
 		const std::vector<std::size_t>& get_article_list(std::size_t category_id, const RequestParameters& request_parameters);
-		const ArticleGraph& get_event_network(std::size_t category_id, const RequestParameters& request_parameters);
 		const EventList& get_event_list(std::size_t category_id, const RequestParameters& request_parameters);
+
+		const EventNetwork& get_event_network(std::size_t category_id, const RequestParameters& request_parameters);
 		const std::vector<double>& get_network_positions(std::size_t category_id, const RequestParameters& request_parameters);
 		const EdgeList& get_global_main_path(std::size_t category_id, const RequestParameters& request_parameters);
 
@@ -42,7 +43,7 @@ class ServerDataCache {
 		std::list<std::size_t> _article_list_priority_list;
 
 		void compute_event_network(std::size_t category_id, const RequestParameters& request_parameters);
-		std::map<std::size_t, ArticleGraph> _event_network_cache;
+		std::map<std::size_t, EventNetwork> _event_network_cache;
 		std::list<std::size_t> _event_network_priority_list;
 
 		void compute_event_list(std::size_t category_id, const RequestParameters& request_parameters);
@@ -68,8 +69,6 @@ class ServerDataCache {
 		const std::vector<std::vector<std::size_t>>& _category_has_article;
 		const std::vector<std::vector<std::size_t>>& _article_network;
 		const CategoryHirachyGraph& _category_hirachy_graph;
-		// const std::vector<std::size_t>& _event_indices;
-		// ArticleGraph _event_network;
 
 		std::array<Poco::Mutex, N_MUTEX> _mutices;
 };

@@ -26,7 +26,7 @@ namespace WikiMainPath {
 		}
 
 
-		std::vector<double> force_directed_graph_drawing(const ArticleGraph& event_network, const std::vector<double>& x_positions)
+		std::vector<double> force_directed_graph_drawing(const EventNetwork& event_network, const std::vector<double>& x_positions)
 		{
 			ForceDirectedFunctor f(event_network, x_positions);
 			// ForceDirectedSparseFunctor f_sparse(event_network, x_positions);

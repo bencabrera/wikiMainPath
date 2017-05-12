@@ -37,7 +37,7 @@ namespace WikiMainPath {
 			return (y1 - y2) / norm(x1,x2,y1,y2);
 		}
 
-		int compute_n_values(const ArticleGraph& event_network, const std::vector<double>& x_positions)
+		int compute_n_values(const EventNetwork& event_network, const std::vector<double>& x_positions)
 		{
 			int rtn = 0;
 			rtn += x_positions.size(); 								// boundary conditions
@@ -69,7 +69,7 @@ namespace WikiMainPath {
 
 
 		// --- non-sparse jacobian ---
-		ForceDirectedFunctor::ForceDirectedFunctor(const ArticleGraph& event_network, const std::vector<double>& x_positions)
+		ForceDirectedFunctor::ForceDirectedFunctor(const EventNetwork& event_network, const std::vector<double>& x_positions)
 			:Functor(x_positions.size(), compute_n_values(event_network,x_positions)),
 			_event_network(event_network),
 			_x_positions(x_positions),
@@ -156,7 +156,7 @@ namespace WikiMainPath {
 
 		// --- sparse jacobian ---
 		
-		ForceDirectedSparseFunctor::ForceDirectedSparseFunctor(const ArticleGraph& event_network, const std::vector<double>& x_positions)
+		ForceDirectedSparseFunctor::ForceDirectedSparseFunctor(const EventNetwork& event_network, const std::vector<double>& x_positions)
 			:Functor(x_positions.size(), compute_n_values(event_network,x_positions)),
 			_event_network(event_network),
 			_x_positions(x_positions),

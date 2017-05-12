@@ -132,10 +132,13 @@ namespace WikiMainPath {
 			// build list of articles in category
 			timer.start_timing_step("build_event_list", "Build event list", &std::cout);
 			const auto& event_list = _server_data_cache.get_event_list(category_id, request_parameters);
-			for (auto& event : event_list) {
+			for (std::size_t i = 0; i < event_list.size(); i++) {
+				auto& event = event_list[i];
+
 				Object el;
 				el.set("title", event.Title);
 				el.set("date", to_iso_string(event.Date));
+				el.set("id", i);
 
 				events_array.add(el);
 			}
