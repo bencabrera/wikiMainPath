@@ -16,6 +16,7 @@ export class SearchQueryService {
 	public method: string;
 	public alpha: number;
 	public no_persons: boolean;
+	public not_recursive: boolean;
 	public not_containing: string;
 
 	constructor(private http: Http) {
@@ -33,6 +34,8 @@ export class SearchQueryService {
 			this.alpha = parseFloat(localStorage.getItem("alpha"));
 		if(localStorage.getItem("no_persons"))
 			this.no_persons = (localStorage.getItem("no_persons") == 'true');
+		if(localStorage.getItem("not_recursive"))
+			this.not_recursive = (localStorage.getItem("not_recursive") == 'true');
 		if(localStorage.getItem("not_containing") && localStorage.getItem("not_containing") != undefined && localStorage.getItem("not_containing") != "undefined")
 			this.not_containing = localStorage.getItem("not_containing");
 	}
@@ -64,6 +67,9 @@ export class SearchQueryService {
 		console.log("no_persons bool", this.no_persons == true);
 		if(this.no_persons && this.no_persons == true)
 			url += "&no_persons=true";
+
+		if(this.not_recursive && this.not_recursive == true)
+			url += "&not_recursive=true";
 
 		if(this.not_containing && this.not_containing != "")
 			url += "&not_containing=" + this.not_containing;

@@ -131,6 +131,7 @@ td.main-path-date-cell {
 }
 .date-filter-input {
 	width: 46%;
+	display: inline-block;
 	/* flex: 1; */
 }
 .date-filter-dash {
@@ -152,4 +153,9 @@ td.main-path-date-cell {
 }
 .not-containing-input {
 	width: 100%;
+}
+.filter-value-checkbox-label {
+	padding-left: 5px;
+	display: inline-block;
+	margin-top: -2px;
 }

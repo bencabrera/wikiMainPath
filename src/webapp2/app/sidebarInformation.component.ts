@@ -15,9 +15,9 @@ import { ActivatedRoute } from '@angular/router';
 				<th class="filter-label-cell">Years</th>
 				<td class="filter-value-cell">
 					<div class="date-filter-cell">
-						<input class="date-filter-input" type="number" [(ngModel)]="from_year">
+						<input class="date-filter-input form-control input-sm" type="number" [(ngModel)]="from_year">
 						<span class="date-filter-dash">&mdash;</span>
-						<input class="date-filter-input" type="number" [(ngModel)]="to_year">
+						<input class="date-filter-input form-control input-sm" type="number" [(ngModel)]="to_year">
 					</div>
 				</td>
 			<tr>
@@ -25,7 +25,7 @@ import { ActivatedRoute } from '@angular/router';
 			<tr>
 				<th class="filter-label-cell">Method</th>
 				<td class="filter-value-cell">
-					<select class="method-filter-select" [(ngModel)]="method">
+					<select class="method-filter-select form-control input-sm" [(ngModel)]="method">
 						<option value="local" selected="selected">Local</option>
 						<option value="global">Global</option>
 						<option value="alpha">Global Alpha</option>
@@ -36,25 +36,22 @@ import { ActivatedRoute } from '@angular/router';
 			<tr [hidden]="method != 'alpha'">
 				<th class="filter-label-cell">Alpha</th>
 				<td class="filter-value-cell">
-					<input class="alpha-filter-input" type="number" [(ngModel)]="alpha">
+					<input class="alpha-filter-input form-control input-sm" type="number" [(ngModel)]="alpha">
 				</td>
 			<tr>
 
 			<tr>
 				<th class="filter-label-cell">Additional</th>
 				<td class="filter-value-cell">
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" [(ngModel)]="no_persons"> No Persons
-						</label>
-					</div>
+					<input type="checkbox" [(ngModel)]="no_persons"><span class="filter-value-checkbox-label">No Persons</span>
+					<input type="checkbox" [(ngModel)]="not_recursive"><span class="filter-value-checkbox-label">Not recursive</span>
 				</td>
 			</tr>
 
 			<tr>
 				<th class="filter-label-cell">Not containing</th>
 				<td class="filter-value-cell">
-					<input class="not-containing-input" type="text" [(ngModel)]="not_containing">
+					<input class="not-containing-input form-control input-sm" type="text" [(ngModel)]="not_containing">
 				</td>
 			<tr>
 
@@ -99,6 +96,7 @@ export class SidebarInformationComponent implements OnChanges
 	public method : string;
 	public alpha : number;
 	public no_persons : boolean;
+	public not_recursive : boolean;
 	public not_containing : string;
 
 	@Output("filter-changed")
@@ -113,6 +111,7 @@ export class SidebarInformationComponent implements OnChanges
 		localStorage.setItem("method", this.method);
 		localStorage.setItem("alpha", this.alpha.toString());
 		localStorage.setItem("no_persons", this.no_persons.toString());
+		localStorage.setItem("not_recursive", this.not_recursive.toString());
 		localStorage.setItem("not_containing", this.not_containing);
 
 		console.log(this.from_year);
@@ -120,6 +119,7 @@ export class SidebarInformationComponent implements OnChanges
 		console.log(this.method);
 		console.log(this.alpha);
 		console.log(this.no_persons);
+		console.log(this.not_recursive);
 		console.log(this.not_containing);
 
 		this.filter_changed_event.emit();
@@ -139,6 +139,7 @@ export class SidebarInformationComponent implements OnChanges
 		this.method = "local";
 		this.alpha = 0;
 		this.no_persons = false;
+		this.not_recursive = false;
 		this.not_containing = "";
 
 		if(localStorage.getItem("from_year"))
@@ -151,6 +152,8 @@ export class SidebarInformationComponent implements OnChanges
 			this.alpha = parseFloat(localStorage.getItem("alpha"));
 		if(localStorage.getItem("no_persons"))
 			this.no_persons = (localStorage.getItem("no_persons") == 'true');
+		if(localStorage.getItem("not_recursive"))
+			this.not_recursive = (localStorage.getItem("not_recursive") == 'true');
 		if(localStorage.getItem("not_containing") && localStorage.getItem("not_containing") != undefined && localStorage.getItem("not_containing") != "undefined")
 			this.not_containing = localStorage.getItem("not_containing");
 	}
@@ -178,7 +181,7 @@ export class SidebarInformationComponent implements OnChanges
 			if(this.network_data.main_path.length > 0)
 			{
 				var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][0];
-				this.main_path.push({ date: this.network_data.events[last_i_event].date, title: this.network_data.events[last_i_event].title });
+				this.main_path.push({ date: this.network_data.events[last_i_event].date.format("YYYY-MM-DD"), title: this.network_data.events[last_i_event].title });
 			}
 
 			console.log(this.main_path);
