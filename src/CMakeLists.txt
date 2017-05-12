@@ -148,10 +148,8 @@ set(BACKEND_FILES
 	backend/serverApplication.cpp
 	backend/filters.cpp
 	# backend/serverData.cpp
-	# backend/httpRequestHandlers/mpaHandler.cpp
 	backend/httpRequestHandlers/categorySearchHandler.cpp
 	backend/httpRequestHandlers/notFoundHandler.cpp
-	backend/httpRequestHandlers/articleListHandler.cpp
 	backend/httpRequestHandlers/eventNetworkHandler.cpp
 	# backend/httpRequestHandlers/articleNetworkHandler.cpp
 	backend/graphDrawing/randomGraphDrawing.cpp

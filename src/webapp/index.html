@@ -1,164 +1,43 @@
 <html>
-	<head>
+<head>
 
-		<title>Angular QuickStart</title>
+<base href="/">
+<!-- <base href="/data/webapp2/"> -->
 
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WikiMainPath - Compute the Main Path through History based on Wikipedia!</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet" href="css/styles.css">
 
-		<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
-		<link rel="stylesheet" href="css/styles.css">
+<!-- external libraries -->
+<script src="node_modules/d3/build/d3.js"></script>
+<script src="node_modules/moment/moment.js"></script>
 
-		<script src="node_modules/jquery/dist/jquery.js"></script>
-		<script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
-		<script src="node_modules/d3/build/d3.js"></script>
-	
-	</head>
-	
-	<body>
-		<nav class="navbar navbar-default navbar-fixed-top">
-			<div class="container-fluid">
-				<div class="row search-bar-row">
-					<div class="col-md-12">
-						<div class="input-group input-group-lg search-field">
-							<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
-							<span class="input-group-btn">
-								<button class="btn btn-default" type="button" (click)="onSearch()">
-									<span class="glyphicon glyphicon-search"></span>
-								</button>
-							</span>
-						</div>
-						<ul class="dropdown-menu search-result-box">
-							<li class="dropdown-header">Matching categories for your search query</li>
-							<li><a href="#" (mousedown)="onSelectCategory(res)">Hallo</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</nav>
-		
-		<div class="container-fluid">
-			<div class="row">
-				<div class="info-sidebar">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title">Category information</h3>
-						</div>
-						<div class="panel-body">
-							Panel content
-						</div>
-					</div>
-				</div>
-				<div class="main-content">
-					<svg id="graph-visualization">
+<!-- 1. Load libraries -->
+<!-- Polyfill(s) for older browsers -->
+<script src="node_modules/core-js/client/shim.min.js"></script>
+<script src="node_modules/zone.js/dist/zone.js"></script>
+<script src="node_modules/reflect-metadata/Reflect.js"></script>
+<script src="node_modules/systemjs/dist/system.src.js"></script>
+<!-- 2. Configure SystemJS -->
+<script src="systemjs.config.js"></script>
+<script>
+System.import('app').catch(function(err){ console.error(err); });
+</script>
+</head>
 
-					</svg>		
-				</div>
-			</div>
+<body>
+
+<global>
+	<div class="startup-spinner">
+		<div class="startup-spinner-box">
+			<img src="images/spinner.gif">
+			<h1>App is loading</h1>
 		</div>
+	</div>
+</global>
 
-		<script type="text/javascript" charset="utf-8">
-
-			var mpaGraph = {
-				vertices: [
-					[ new Date(1789, 1, 3, 0, 0, 0, 0), 90, "Women's March on Versailles" ],
-					[ new Date(1790, 1, 3, 0, 0, 0, 0), 50, "National Assembly (French Revolution)" ],
-					[ new Date(1790, 1, 3, 0, 0, 0, 0), 33, "A Vindication of the Rights of Men" ],
-					[ new Date(1791, 1, 3, 0, 0, 0, 0), 95, "Flight to Varennes" ],
-					[ new Date(1793, 1, 3, 0, 0, 0, 0), 12, "Massacres of La Glacière" ],
-					[ new Date(1792, 1, 3, 0, 0, 0, 0), 44, "Proclamation of the abolition of the monarchy" ],
-					[ new Date(1793, 1, 3, 0, 0, 0, 0), 67, "Revolt of Lyon against the National Convention" ],
-					[ new Date(1795, 1, 3, 0, 0, 0, 0), 21, "Council of Five Hundred" ],
-					[ new Date(1795, 1, 3, 0, 0, 0, 0), 88, "Council of Ancients" ]
-				],
-				edges: [
-					[ 0, 1, 10 ],
-					[ 1, 2, 5 ],
-					[ 2, 5, 17 ],
-					[ 5, 6, 8 ],
-					[ 3, 4, 18 ],
-					[ 1, 5, 16 ],
-					[ 1, 7, 24 ]
-				]
-			};
-
-			var mainPath = {
-				vertices: [ 0, 1, 5, 6 ],
-				edges: [ 0, 5, 3 ]
-			};
-
-			var svg = d3.select("#graph-visualization");
-
-			var svgHeight = parseInt(svg.style("height").replace("px", ""));
-			var svgWidth = parseInt(svg.style("width").replace("px", ""));
-			var padding = 50;
-
-			var minTime = d3.min(mpaGraph.vertices, function(d) { return d[0] }); 
-			var maxTime = d3.max(mpaGraph.vertices, function(d) { return d[0] }); 
-
-			var minDegree = d3.min(mpaGraph.vertices, function(d) { return d[1] }); 
-			var maxDegree = d3.max(mpaGraph.vertices, function(d) { return d[1] }); 
-
-			var minWeight = d3.min(mpaGraph.edges, function(d) { return d[2] }); 
-			var maxWeight = d3.max(mpaGraph.edges, function(d) { return d[2] }); 
-			
-			var timeScale = d3.scaleTime()
-				.domain([minTime, maxTime])
-				.range([0, svgWidth - 2*padding]);
-
-			var yScale = d3.scaleLinear()
-				.domain([0, 100])
-				.range([0, svgHeight - 2*padding]);
-
-			var radiusScale = d3.scaleLinear()
-				.domain([minDegree, maxDegree])
-				.range([5, 15]);
-
-			var weightScale = d3.scaleLinear()
-				.domain([minWeight, maxWeight])
-				.range([1, 5]);
-
-			var xAxis = d3.axisBottom()
-				.scale(timeScale);
-
-			var MAIN_PATH_COLOR = "black";
-			var NON_MAIN_PATH_COLOR = "grey";
-
-			svg.selectAll("line")
-				.data(mpaGraph.edges)
-				.enter()
-				.append("line")
-				.attr("x1", function(d) { return timeScale(mpaGraph.vertices[d[0]][0]) + padding; })
-				.attr("y1", function(d) { return yScale(mpaGraph.vertices[d[0]][1]) + padding; })
-				.attr("x2", function(d) { return timeScale(mpaGraph.vertices[d[1]][0]) + padding; })
-				.attr("y2", function(d) { return yScale(mpaGraph.vertices[d[1]][1]) + padding; })
-				.attr("stroke", function(d, i) { return (mainPath.edges.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); })
-				.attr("stroke-width", function(d) { return weightScale(d[2]); });
-
-			svg.selectAll("circle")
-				.data(mpaGraph.vertices)
-				.enter()
-				.append("circle")
-				.attr("cx", function(d) { return timeScale(d[0]) + padding; })
-				.attr("cy", function(d) { return yScale(d[1]) + padding; })
-				.attr("r", function(d) { return radiusScale(d[1]); })
-				.attr("fill", function(d, i) { return (mainPath.vertices.includes(i) ? MAIN_PATH_COLOR : NON_MAIN_PATH_COLOR); });
-
-			svg.selectAll("text")
-				.data(mpaGraph.vertices)
-				.enter()
-				.append("text")
-				.attr("x", function(d) { return timeScale(d[0]) + padding; })
-				.attr("y", function(d) { return yScale(d[1]) + padding - radiusScale(d[1]) - 5; })
-				.attr("text-anchor", "middle")
-				.attr("style", "font-size: 16px;")
-				.text(function(d) { return d[2] });
-
-			svg.append("g")
-				.call(xAxis)
-				.attr("transform", "translate(" + padding + "," + (svgHeight-padding) + ")");
-		</script>
-
-	</body>
+</body>
 
 </html>

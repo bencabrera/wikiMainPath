@@ -5,8 +5,6 @@
 
 // #include "httpRequestHandlers/mpaHandler.h"
 #include "httpRequestHandlers/categorySearchHandler.h"
-#include "httpRequestHandlers/articleListHandler.h"
-// #include "httpRequestHandlers/articleNetworkHandler.h"
 #include "httpRequestHandlers/notFoundHandler.h"
 #include "httpRequestHandlers/eventNetworkHandler.h"
 
