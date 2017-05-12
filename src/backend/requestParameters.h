@@ -17,6 +17,7 @@ class RequestParameters {
 		Method method;
 		double alpha;
 		bool no_persons;
+		bool not_recursive;
 		std::string not_containing;
 
 
@@ -29,6 +30,7 @@ class RequestParameters {
 			boost::hash_combine(seed, method);
 			boost::hash_combine(seed, alpha);
 			boost::hash_combine(seed, no_persons);
+			boost::hash_combine(seed, not_recursive);
 			boost::hash_combine(seed, not_containing);
 
 			return seed;

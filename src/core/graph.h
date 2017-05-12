@@ -5,5 +5,6 @@
 #include <boost/graph/subgraph.hpp>
 #include <boost/graph/copy.hpp>
 
-using ArticleGraph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::property<boost::edge_index_t,std::size_t>, boost::vecS>;
+using ArticleNetwork = boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::no_property, boost::property<boost::edge_index_t,std::size_t>, boost::vecS>;
+using EventNetwork = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::property<boost::edge_index_t,std::size_t>, boost::vecS>;
 using CategoryHirachyGraph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, boost::no_property, boost::no_property, boost::vecS> ;

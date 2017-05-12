@@ -139,7 +139,16 @@ const ServerDataCache::EdgeList& ServerDataCache::get_global_main_path(std::size
 void ServerDataCache::compute_article_list(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	// build recursively all articles in category
-	auto articles_in_category = build_one_category_recursively(category_id, _category_hirachy_graph, _category_has_article);
+	std::set<std::size_t> articles_in_category;
+	if(request_parameters.not_recursive)
+	{
+		for (auto a : _category_has_article[category_id]) {
+			articles_in_category.insert(a);	
+		}
+	}
+	else
+   		articles_in_category = build_one_category_recursively(category_id, _category_hirachy_graph, _category_has_article);
+
 	std::vector<std::size_t> rtn(articles_in_category.begin(), articles_in_category.end()); 
 
 	auto article_filters=request_parameters.article_filters();
@@ -176,6 +185,38 @@ namespace {
 		}
 	}
 }
+
+
+
+void ServerDataCache::compute_event_list(std::size_t category_id, const RequestParameters& request_parameters)
+{
+	const auto& article_list = get_article_list(category_id, request_parameters);
+
+	EventList event_list;
+
+	auto event_filters = request_parameters.event_filters();
+
+	for (auto article_id : article_list) {
+		for (auto d : _article_dates[article_id]) {
+			std::string event_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
+
+			bool wrong = false;
+			for (auto& f : event_filters) {
+				if(!f(event_title,d))
+				{
+					wrong = true;
+					break;	
+				}
+			}
+			
+			if(!wrong)
+				event_list.push_back(Event{ event_title, d.Begin, article_id });
+		}
+	}
+
+	_event_list_cache.insert({ compute_hash(category_id, request_parameters), std::move(event_list) });
+}
+
 
 void ServerDataCache::compute_event_network(std::size_t category_id, const RequestParameters& request_parameters)
 {
@@ -226,77 +267,7 @@ void ServerDataCache::compute_event_network(std::size_t category_id, const Reque
 
 	_event_network_cache.insert({ compute_hash(category_id, request_parameters), g });
 }
-/* { */
-// const auto& article_list = get_article_list(category_id);
 
-// std::map<std::size_t,std::pair<std::size_t,std::size_t>> events_in_category;	
-// std::size_t cur_event_id = 0;
-// for (auto article_id : article_list) {
-// events_in_category.insert({ article_id, { cur_event_id, cur_event_id + _article_dates[article_id].size() - 1 } });
-// cur_event_id += _article_dates[article_id].size();
-// }
-
-// std::set<std::size_t> articles_in_network;
-// for(auto& ev : events_in_category) 
-// articles_in_network.insert(ev.first);		
-
-// ArticleGraph g(cur_event_id);
-
-// for(auto& ev : events_in_category)
-// {
-// std::vector<std::size_t> neighbors_in_network;
-// std::set_intersection(_article_network[ev.first].begin(), _article_network[ev.first].end(), articles_in_network.begin(), articles_in_network.end(), std::back_inserter(neighbors_in_network));		
-
-// for(std::size_t event_1 = ev.second.first; event_1 <= ev.second.second; event_1++)
-// for(auto neighbor_article : neighbors_in_network)
-// for(std::size_t event_2 = events_in_category.at(neighbor_article).first; event_2 <= events_in_category.at(neighbor_article).second; event_2++)
-// {
-// auto& date_1 = _article_dates[ev.first][event_1 - ev.second.first];
-// auto& date_2 = _article_dates[neighbor_article][event_2 - events_in_category.at(neighbor_article).first];
-// if((date_1 == date_2 && event_1 < event_2) || date_1 < date_2)
-// {
-// if(!boost::edge(event_1, event_2, g).second)
-// boost::add_edge(event_1, event_2, g);
-// }
-// else
-// {
-// if(!boost::edge(event_2, event_1, g).second)
-// boost::add_edge(event_2, event_1, g);
-// }
-// }
-// }
-
-// _event_network_cache.insert({ category_id, g });
-/* } */
-
-void ServerDataCache::compute_event_list(std::size_t category_id, const RequestParameters& request_parameters)
-{
-	const auto& article_list = get_article_list(category_id, request_parameters);
-
-	EventList event_list;
-
-	auto event_filters = request_parameters.event_filters();
-
-	for (auto article_id : article_list) {
-		for (auto d : _article_dates[article_id]) {
-			std::string event_title = boost::to_upper_copy(d.Description) + ": " + _article_titles[article_id];
-
-			bool wrong = false;
-			for (auto& f : event_filters) {
-				if(!f(event_title,d))
-				{
-					wrong = true;
-					break;	
-				}
-			}
-			
-			if(!wrong)
-				event_list.push_back(Event{ event_title, d.Begin, article_id });
-		}
-	}
-
-	_event_list_cache.insert({ compute_hash(category_id, request_parameters), std::move(event_list) });
-}
 
 std::vector<double> ServerDataCache::compute_x_positions(const EventList& event_list)
 {
@@ -343,7 +314,7 @@ void ServerDataCache::compute_network_positions(std::size_t category_id, const R
 void ServerDataCache::compute_global_main_path(std::size_t category_id, const RequestParameters& request_parameters)
 {
 	const auto& network = get_event_network(category_id, request_parameters);
-	if(boost::num_vertices(network) == 0)
+	if(boost::num_vertices(network) < 3 || boost::num_edges(network) < 2)
 	{
 		_global_main_path_cache.insert({ compute_hash(category_id, request_parameters), EdgeList() });
 		return;
