@@ -366,10 +366,6 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, request_parameters.alpha);
 
 
-	for (auto& e : main_path) {
-		std::cout <<  boost::source(e,g) << "->" << boost::target(e,g) << std::endl;
-	}
-
 	for (std::size_t i = 0; i < main_path.size()-1; i++) {
 		if(boost::target(main_path[i],g) != boost::source(main_path[i+1],g))
 			std::cout << "VIOLATED MAIN PATH CONSTRAINT" <<  boost::target(main_path[i],g) << " -> "<< boost::source(main_path[i+1],g) << std::endl;

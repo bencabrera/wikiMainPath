@@ -53,6 +53,23 @@ export class NetworkDisplayComponent
 		this.error_message = "";	
 	}
 
+	public deserialize_date(date_str)
+	{
+		if(date_str[0] == '-')
+		{
+			date_str = date_str.split("T")[0];
+			var split = date_str.split("-");
+			var year = -parseInt(split[1]);
+			var month = parseInt(split[2]);
+			var day = parseInt(split[3]);
+			console.log(date_str);
+			console.log(year, month, day);
+			return moment(new Date(year, month, day));
+		}
+		else
+			return moment(date_str);
+	}
+
 	public update_data() {
 		this.is_spinner_hidden = false;	
 		console.log("category_id is set");
@@ -63,13 +80,13 @@ export class NetworkDisplayComponent
 				this.is_error = false;
 				for(var i = 0; i < value['events'].length; i++)
 				{
-					value["events"][i]["date"] = moment(value["events"][i]["date"]);
+					value["events"][i]["date"] = this.deserialize_date(value["events"][i]["date"]);
 				}
 				this.networkData = value;
 				console.log("set network data");
 				this.is_spinner_hidden = true;	
-				this.networkData.timespan[0] = moment(this.networkData.timespan[0]);
-				this.networkData.timespan[1] = moment(this.networkData.timespan[1]);
+				this.networkData.timespan[0] = this.deserialize_date(this.networkData.timespan[0]);
+				this.networkData.timespan[1] = this.deserialize_date(this.networkData.timespan[1]);
 			},
 			error => {
 				var error_obj = JSON.parse(error._body);

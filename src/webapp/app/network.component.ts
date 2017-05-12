@@ -34,6 +34,7 @@ export class NetworkComponent implements AfterViewInit
 	private time_axis : any;
 	private label_box : any;
 	private label: any;
+	private zoom_obj : any;
 
 	// constants
 	readonly MAX_ZOOM_RATIO : number = 500;
@@ -133,8 +134,9 @@ export class NetworkComponent implements AfterViewInit
 		.attr("text-anchor", "middle")
 		.attr("style", "visibility: hidden");
 
-		var zoom = d3.zoom().scaleExtent([1, this.MAX_ZOOM_RATIO]).on('zoom', () => { return this.zoom(); });
-		svg.call(zoom);
+		svg.on(".zoom", null);
+		this.zoom_obj = d3.zoom().scaleExtent([1, this.MAX_ZOOM_RATIO]).on('zoom', () => { return this.zoom(); });
+		svg.call(this.zoom_obj);
 	}
 
 
