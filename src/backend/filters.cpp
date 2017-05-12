@@ -33,3 +33,15 @@ std::function<bool(const std::string&, const Date&)> events_in_date_range(Date d
 			return true;	
 	};
 }
+
+std::function<bool(const std::string&, const Date&)> events_not_containing(std::vector<std::string> contain_strs)
+{
+	return [contain_strs](const std::string& event_title, const Date& event_date) {
+		for (auto& str : contain_strs) {
+			if(boost::to_lower_copy(event_title).find(str) != std::string::npos)
+				return false;	
+		}
+		
+		return true;	
+	};
+}

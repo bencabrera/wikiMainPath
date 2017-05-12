@@ -14,9 +14,11 @@ import { ActivatedRoute } from '@angular/router';
 			<tr>
 				<th class="filter-label-cell">Years</th>
 				<td class="filter-value-cell">
-					<input class="date-filter-input" type="number" [(ngModel)]="from_year">
-					<span class="date-filter-dash">&mdash;</span>
-					<input class="date-filter-input" type="number" [(ngModel)]="to_year">
+					<div class="date-filter-cell">
+						<input class="date-filter-input" type="number" [(ngModel)]="from_year">
+						<span class="date-filter-dash">&mdash;</span>
+						<input class="date-filter-input" type="number" [(ngModel)]="to_year">
+					</div>
 				</td>
 			<tr>
 
@@ -35,6 +37,24 @@ import { ActivatedRoute } from '@angular/router';
 				<th class="filter-label-cell">Alpha</th>
 				<td class="filter-value-cell">
 					<input class="alpha-filter-input" type="number" [(ngModel)]="alpha">
+				</td>
+			<tr>
+
+			<tr>
+				<th class="filter-label-cell">Additional</th>
+				<td class="filter-value-cell">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" [(ngModel)]="no_persons"> No Persons
+						</label>
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<th class="filter-label-cell">Not containing</th>
+				<td class="filter-value-cell">
+					<input class="not-containing-input" type="text" [(ngModel)]="not_containing">
 				</td>
 			<tr>
 
@@ -78,6 +98,8 @@ export class SidebarInformationComponent implements OnChanges
 	public to_year : number;
 	public method : string;
 	public alpha : number;
+	public no_persons : boolean;
+	public not_containing : string;
 
 	public filter_changed()
 	{
@@ -87,11 +109,15 @@ export class SidebarInformationComponent implements OnChanges
 		localStorage.setItem("to_year", this.to_year.toString());
 		localStorage.setItem("method", this.method);
 		localStorage.setItem("alpha", this.alpha);
+		localStorage.setItem("no_persons", this.no_persons);
+		localStorage.setItem("not_containing", this.not_containing);
 
 		console.log(this.from_year);
 		console.log(this.to_year);
 		console.log(this.method);
 		console.log(this.alpha);
+		console.log(this.no_persons);
+		console.log(this.not_containing);
 	}
 
 	constructor(private searchQueryService: SearchQueryService)
@@ -107,6 +133,8 @@ export class SidebarInformationComponent implements OnChanges
 		this.to_year = 0;
 		this.method = "local";
 		this.alpha = 0;
+		this.no_persons = false;
+		this.not_containing = "";
 
 		if(localStorage.getItem("from_year"))
 			this.from_year = localStorage.getItem("from_year");
@@ -116,6 +144,10 @@ export class SidebarInformationComponent implements OnChanges
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
 			this.alpha = localStorage.getItem("alpha");
+		if(localStorage.getItem("no_persons"))
+			this.no_persons = localStorage.getItem("no_persons");
+		if(localStorage.getItem("not_containing"))
+			this.not_containing = localStorage.getItem("not_containing");
 	}
 
 	ngOnChanges() 

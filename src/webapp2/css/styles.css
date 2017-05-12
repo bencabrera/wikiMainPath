@@ -130,7 +130,8 @@ td.main-path-date-cell {
 	padding: 5px 0;
 }
 .date-filter-input {
-	width: 45%;
+	width: 46%;
+	/* flex: 1; */
 }
 .date-filter-dash {
 	width: 9%;
@@ -145,4 +146,10 @@ td.main-path-date-cell {
 .filter-save-btn {
 	width: 100%;
 	margin-top: 5px;
+}
+.date-filter-cell {
+	width: 100%;
+}
+.not-containing-input {
+	width: 100%;
 }

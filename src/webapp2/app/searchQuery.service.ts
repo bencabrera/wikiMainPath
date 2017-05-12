@@ -15,6 +15,8 @@ export class SearchQueryService {
 	public to_year: number;
 	public method: string;
 	public alpha: number;
+	public no_persons: boolean;
+	public not_containing: string;
 
 	constructor(private http: Http) {
 		if(localStorage.getItem("from_year"))
@@ -25,6 +27,10 @@ export class SearchQueryService {
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
 			this.alpha = localStorage.getItem("alpha");
+		if(localStorage.getItem("no_persons"))
+			this.no_persons = localStorage.getItem("no_persons");
+		if(localStorage.getItem("not_containing"))
+			this.not_containing = localStorage.getItem("not_containing");
 	}
 
 	public searchForCategory(queryString: string): Observable<{ title: string, id: number }[]>
@@ -48,6 +54,12 @@ export class SearchQueryService {
 		if(this.method == "alpha" && this.alpha)
 			url += "&alpha=" + this.alpha;
 			
+		if(this.no_persons)
+			url += "&no_persons=true";
+
+		if(this.not_containing != "")
+			url += "&not_containing=" + this.not_containing;
+
 		url = encodeURI(url);
 
 		return this.http.get(url).map(
