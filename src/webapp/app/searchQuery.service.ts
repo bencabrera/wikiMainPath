@@ -56,7 +56,7 @@ export class SearchQueryService {
 
 		url = this.BACKEND_SERVER_URI + "/event-network-in-category?category-id=" + category_id;
 	   
-		if(this.from_year && this.to_year && this.from_year != 0 && this.to_year != 0)
+		if(this.from_year != undefined && this.to_year != undefined && (this.from_year != 0 || this.to_year != 0) && this.from_year < this.to_year)
 			url += "&from-year=" + this.from_year + "&to-year=" + this.to_year;
 		if(this.method)
 			url += "&method=" + this.method;
