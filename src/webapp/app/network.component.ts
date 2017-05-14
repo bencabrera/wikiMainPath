@@ -53,12 +53,15 @@ export class NetworkComponent implements AfterViewInit
 	{
 		this.d3_canvas = d3.select(this.svg_element.nativeElement);
 		this.is_d3_initialized = true;
-		this.redraw_d3();
+		this.reset_full_drawing();
+		// this.redraw_d3();
+		setTimeout(() => { this.reset_full_drawing() }, 100);
 	}
 
 	ngOnChanges(changes: SimpleChanges) 
 	{
-		this.reset_full_drawing();
+		// this.reset_full_drawing();
+		setTimeout(() => { this.reset_full_drawing() }, 100);
 	}
 
 	reset_full_drawing() : void
@@ -101,7 +104,6 @@ export class NetworkComponent implements AfterViewInit
 
 		var svgHeight = parseInt(svg.style("height").replace("px", ""));
 		var svgWidth = parseInt(svg.style("width").replace("px", ""));
-		
 		console.log("svgWidth", svgWidth);
 
 		// var minTime = d3.min(this.network_data.events, (d: EventItem) => { return d.date }); 

@@ -31,8 +31,8 @@ html, body {
 	padding: 10px;
 	top: 100px;
 	bottom: 10px;
-	width: 10%;
-	min-width: 400px;
+	width: 350px;
+	/* min-width: 400px; */
 	background-color: #f8f8f8;
 	border: 1px solid #e7e7e7;
 	min-height: 500px;
@@ -42,6 +42,7 @@ sidebar-information {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	overflow-y: auto;
 }
 
 .main-content {
@@ -114,6 +115,7 @@ sidebar-information {
 	flex: 1;
 	overflow-y: auto;
 	display: block;
+	min-height: 50px;
 }
 
 td.main-path-date-cell {
@@ -130,7 +132,7 @@ td.main-path-date-cell {
 	padding: 5px 0;
 }
 .date-filter-input {
-	width: 46%;
+	width: 45%;
 	display: inline-block;
 	/* flex: 1; */
 }
