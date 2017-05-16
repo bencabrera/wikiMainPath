@@ -5,6 +5,7 @@
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/property_map/vector_property_map.hpp>
+#include <list>
 
 #include "../../libs/shared/cpp/stepTimer.hpp"
 
@@ -138,12 +139,12 @@ int main(int argc, char** argv)
 	// _server_data_cache.event_filters.push_back(events_in_date_range(create_date_range(1750,1,1,1820,1,1)));
 
 	// const std::size_t category_id = 722580; // friendly fire incidents
-	// const std::size_t category_id = 719007; // french revolution
+	const std::size_t category_id = 719007; // french revolution
 	// const std::size_t category_id = 1564179; // world war II
 	// const std::size_t category_id = 1409141; // thirty years war
 	// const std::size_t category_id = 719009; // french revolution films 
 	// const std::size_t category_id = 627973; // edward snowden
-	const std::size_t category_id = 1033233; // norman conquest
+	// const std::size_t category_id = 1033233; // norman conquest
 
 
 	std::cout << "CATEGORY: " << category_titles[category_id] << std::endl;
@@ -161,24 +162,75 @@ int main(int argc, char** argv)
 	else
 		std::cout << "Not found" << std::endl;
 
-	RequestParameters request_parameters{ true, 0, 2200, RequestParameters::LOCAL, 0.0, false, false, "" };
 
-	std::ofstream network_file("/home/cabrera/Schreibtisch/network.txt");
-	_server_data_cache.export_event_network_to_file(network_file, category_id, request_parameters);
+	// build category subhirachy graph
 	auto category_subhirachy = compute_category_subhirachy(category_has_article, category_id, category_hirachy_graph, category_titles);
 
 	std::ofstream hirachy_file("/home/cabrera/Schreibtisch/hirachy.dot");
 	write_category_subhirachy(hirachy_file, category_subhirachy);
 
+
+	// see where a particular article comes from in category_hirachy
+	std::string article_name = "Battle of Pensacola (1814)";
+	auto battle_it2 = std::lower_bound(article_titles.begin(), article_titles.end(), article_name);
+	std::size_t where_article_id = battle_it2 - article_titles.begin();
+
+	std::cout << article_titles[where_article_id] << std::endl;
+
+	// find category in which this article lives
+	bool found_containing_category = false;
+	std::size_t containing_category = 0;
+	Graph::vertex_descriptor cat_vertex;
 	for (auto v : boost::make_iterator_range(boost::vertices(category_subhirachy))) {
 		auto global_cat_id = boost::get(boost::vertex_local_index, category_subhirachy, v);	
-		auto category_title = category_titles[global_cat_id];
+		for (std::size_t i : category_has_article[global_cat_id]) {
+			if(where_article_id == i)
+			{
+				containing_category = global_cat_id;
+				found_containing_category = true;
+				cat_vertex = v;
+				break;
+			}
 
-		std::cout << "--- " << category_title << " ---" << std::endl;
-		for (auto i_article : category_has_article[global_cat_id]) 
-			std::cout << article_titles[i_article] << std::endl;	
-		std::cout << "--- " << " ---" << std::endl;
+			if(found_containing_category) 
+				break;
+		}
 	}
+
+	if(found_containing_category)
+		std::cout << "CONTAINING CATEGORY: " << category_titles[containing_category] << std::endl;
+	else
+		std::cout << "DID NOT FIND CONTAINING CATEGORY: " << std::endl;
+
+	std::list<std::string> categories_that_lead_here;
+	while(boost::in_degree(cat_vertex, category_subhirachy) != 0)
+	{
+		categories_that_lead_here.push_front(category_titles[boost::get(boost::vertex_local_index, category_subhirachy, cat_vertex)]);
+		cat_vertex = boost::source(*boost::in_edges(cat_vertex, category_subhirachy).first, category_subhirachy);
+	}
+	categories_that_lead_here.push_front(category_titles[boost::get(boost::vertex_local_index, category_subhirachy, cat_vertex)]);
+
+	for (auto c : categories_that_lead_here) {
+		std::cout << c << std::endl;	
+	}
+
+	std::cout << "-----------------" << std::endl;
+
+
+	RequestParameters request_parameters{ true, 0, 2200, RequestParameters::LOCAL, 0.0, false, false, "" };
+
+	std::ofstream network_file("/home/cabrera/Schreibtisch/network.txt");
+	_server_data_cache.export_event_network_to_file(network_file, category_id, request_parameters);
+
+	// for (auto v : boost::make_iterator_range(boost::vertices(category_subhirachy))) {
+		// auto global_cat_id = boost::get(boost::vertex_local_index, category_subhirachy, v);	
+		// auto category_title = category_titles[global_cat_id];
+
+		// std::cout << "--- " << category_title << " ---" << std::endl;
+		// for (auto i_article : category_has_article[global_cat_id]) 
+			// std::cout << article_titles[i_article] << std::endl;	
+		// std::cout << "--- " << " ---" << std::endl;
+	// }
 
 
 	// timer_server.start_timing_step("build_article_list", "Build article list", &std::cout);
