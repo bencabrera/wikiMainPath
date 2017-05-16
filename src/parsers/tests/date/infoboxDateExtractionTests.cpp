@@ -14,6 +14,23 @@
 
 BOOST_AUTO_TEST_SUITE(infobox_date_extraction_tests)
 
+BOOST_AUTO_TEST_CASE(replacing_html_entities_should_work)
+{
+	std::string article = " \
+			{{Infobox military conflict \n\
+		| date       = 14&nbsp;October 1066 \n\
+	}}";
+
+	std::vector<WikiMainPath::InfoboxDateExtractionError> errors;
+	auto extracted_dates = extract_all_dates_from_infobox(article, errors);
+
+	BOOST_CHECK_EQUAL(1, extracted_dates.size());
+
+	// Date expected_date{false, {	   0,	   0,		 0,		14,		9,	  -834 }, {}};
+	// BOOST_CHECK_EQUAL(expected_date, extracted_dates[0]);
+}
+
+
 BOOST_DATA_TEST_CASE(
 	extract_all_dates_from_infobox_correctly,
 	WikiMainPath::Tests::FileListDataset("../../src/parsers/tests/date/data", "INFOBOX_SYNTAX", ".wikisyntax")

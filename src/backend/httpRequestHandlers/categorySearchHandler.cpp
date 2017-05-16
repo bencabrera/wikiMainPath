@@ -67,6 +67,7 @@ namespace WikiMainPath {
 			el.set("title", _wiki_data_cache.category_titles()[res]);
 			el.set("id", res);
 			el.set("n_articles", _wiki_data_cache.category_has_article()[res].size());
+			el.set("n_subcategories", boost::out_degree(res, _wiki_data_cache.category_hirachy_graph()));
 
 			matchingCategoriesArray.add(el);
 			count++;

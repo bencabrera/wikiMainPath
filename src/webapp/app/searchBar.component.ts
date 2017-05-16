@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
 						</div>
 						<ul class="dropdown-menu search-result-box" *ngIf="resultsVisible">
 							<li class="dropdown-header">Matching categories for your search query</li>
-							<li *ngFor="let res of searchResults | async"><a [routerLink]="['category',res.id]" (mousedown)="onSelectCategory(res.id)">{{ res.title }} ({{ res.n_articles }} Articles)</a></li>
+							<li *ngFor="let res of searchResults | async"><a [routerLink]="['category',res.id]" (mousedown)="onSelectCategory(res.id)">{{ res.title }} ({{ res.n_subcategories }} Subcategories)</a></li>
 						</ul>
 					</div>
 				</div>

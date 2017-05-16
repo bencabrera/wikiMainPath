@@ -3,8 +3,87 @@
 #include "filters.h"
 #include <boost/filesystem.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/property_map/vector_property_map.hpp>
 
 #include "../../libs/shared/cpp/stepTimer.hpp"
+
+using VertexProperties = boost::property<boost::vertex_name_t, std::string, boost::property<boost::vertex_local_index_t,std::size_t>>;
+using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, VertexProperties, boost::property<boost::edge_index_t,std::size_t>, boost::vecS>;
+
+
+class VertexLabelWriter {
+	public:
+		VertexLabelWriter(Graph& g) 
+			:_g(g)
+		{}
+
+		template <class VertexOrEdge>
+			void operator()(std::ostream& out, const VertexOrEdge& v) const {
+				out << "[label=\"" << boost::get(boost::vertex_name, _g, v) << "\"]";
+			}
+
+	private:
+		Graph& _g;
+};
+
+Graph compute_category_subhirachy(const std::vector<std::vector<std::size_t>>& category_has_article, std::size_t i_category, const CategoryHirachyGraph& graph, const std::vector<std::string>& category_titles)
+{
+	class CategoryTree : public boost::default_dfs_visitor
+	{
+		public:
+			CategoryTree(const std::vector<std::vector<std::size_t>>& category_has_article, std::set<std::size_t>& s, std::set<std::size_t>& s2)
+				:_category_has_article(category_has_article),
+				articles_in_category(s),
+				vertices_in_category_graph(s2)
+		{}
+
+			void discover_vertex(CategoryHirachyGraph::vertex_descriptor v, const CategoryHirachyGraph& g)
+			{
+				articles_in_category.insert(_category_has_article[v].begin(), _category_has_article[v].end());	
+				vertices_in_category_graph.insert(v);
+			}
+
+			const std::vector<std::vector<std::size_t>>& _category_has_article;
+			std::set<std::size_t>& articles_in_category;
+			std::set<std::size_t>& vertices_in_category_graph;
+	};
+
+	std::set<std::size_t> articles_in_category;
+	std::set<std::size_t> vertices_in_category_graph;
+	CategoryTree tree(category_has_article, articles_in_category, vertices_in_category_graph);
+	boost::vector_property_map<boost::default_color_type> color_map;
+	boost::depth_first_visit(graph, i_category, tree, color_map);
+
+	std::map<CategoryHirachyGraph::vertex_descriptor, std::size_t> v_map;
+	std::size_t i = 0;
+	Graph subgraph(vertices_in_category_graph.size());
+	for (const auto& v : vertices_in_category_graph) 
+	{
+		v_map.insert({ v, i });	
+		std::string title = category_titles[v];
+		boost::put(boost::vertex_name, subgraph, i, title);
+		boost::put(boost::vertex_local_index, subgraph, i, v);
+		i++;
+	}
+
+	std::cout << "tree.size: " << vertices_in_category_graph.size() << std::endl;
+
+	for (const auto& v : vertices_in_category_graph) {
+		for (auto e : boost::make_iterator_range(boost::out_edges(v,graph))) {
+			if(vertices_in_category_graph.find(boost::target(e,graph)) != vertices_in_category_graph.end())
+				boost::add_edge(v_map.at(v), v_map.at(boost::target(e,graph)), subgraph);
+		}
+	}
+
+	return subgraph;
+}
+
+void write_category_subhirachy(std::ostream& ostr, Graph& category_subhirachy)
+{
+	VertexLabelWriter vertex_label_writer(category_subhirachy);
+	boost::write_graphviz(ostr, category_subhirachy, vertex_label_writer);
+}
 
 int main(int argc, char** argv)
 {
@@ -26,13 +105,13 @@ int main(int argc, char** argv)
 
 	WikiDataCache data(data_path.string());
 	timer.start_timing_step("read_article_titles","Reading in 'article_titles'", &std::cout);
-	data.article_titles();
+	const auto& article_titles = data.article_titles();
 	timer.stop_timing_step("read_article_titles",&std::cout);
 	timer.start_timing_step("read_category_titles","Reading in 'category_titles'", &std::cout);
 	const auto& category_titles = data.category_titles();
 	timer.stop_timing_step("read_category_titles",&std::cout);
 	timer.start_timing_step("read_category_has_article","Reading in 'category_has_article'", &std::cout);
-	data.category_has_article();
+	const auto& category_has_article = data.category_has_article();
 	timer.stop_timing_step("read_category_has_article",&std::cout);
 	timer.start_timing_step("read_article_dates","Reading in 'article_dates'", &std::cout);
 	data.article_dates();
@@ -41,11 +120,11 @@ int main(int argc, char** argv)
 	data.article_network();
 	timer.stop_timing_step("read_article_network",&std::cout);
 	timer.start_timing_step("read_category_hirachy_graph","Reading in 'category_hirachy_graph'", &std::cout);
-	data.category_hirachy_graph();
+	const auto& category_hirachy_graph = data.category_hirachy_graph();
 	timer.stop_timing_step("read_category_hirachy_graph",&std::cout);
 
 	std::cout << "---------------------------------------------------" << std::endl;
-	 std::cout << "IO Timings: " << std::endl;
+	std::cout << "IO Timings: " << std::endl;
 	timer.print_timings(std::cout);
 	std::cout << "---------------------------------------------------" << std::endl;
 
@@ -63,52 +142,81 @@ int main(int argc, char** argv)
 	// const std::size_t category_id = 1564179; // world war II
 	// const std::size_t category_id = 1409141; // thirty years war
 	// const std::size_t category_id = 719009; // french revolution films 
+	// const std::size_t category_id = 627973; // edward snowden
 	const std::size_t category_id = 1033233; // norman conquest
 
 
 	std::cout << "CATEGORY: " << category_titles[category_id] << std::endl;
 
-	RequestParameters request_parameters{ true, 1600, 1700, RequestParameters::LOCAL, 0.0, true, true, "" };
+	auto battle_it = std::lower_bound(article_titles.begin(), article_titles.end(), "Battle of Hastings");
+	std::cout << "Battle of Hastings" << std::endl;
+	if(battle_it != article_titles.end())
+	{
+		auto article_id = battle_it - article_titles.begin();
+		std::cout << article_id << std::endl;
+		std::cout << article_titles[article_id-1] << std::endl;
+		std::cout << article_titles[article_id] << std::endl;
+		std::cout << article_titles[article_id+1] << std::endl;
+	}
+	else
+		std::cout << "Not found" << std::endl;
+
+	RequestParameters request_parameters{ true, 0, 2200, RequestParameters::LOCAL, 0.0, false, false, "" };
 
 	std::ofstream network_file("/home/cabrera/Schreibtisch/network.txt");
 	_server_data_cache.export_event_network_to_file(network_file, category_id, request_parameters);
+	auto category_subhirachy = compute_category_subhirachy(category_has_article, category_id, category_hirachy_graph, category_titles);
+
+	std::ofstream hirachy_file("/home/cabrera/Schreibtisch/hirachy.dot");
+	write_category_subhirachy(hirachy_file, category_subhirachy);
+
+	for (auto v : boost::make_iterator_range(boost::vertices(category_subhirachy))) {
+		auto global_cat_id = boost::get(boost::vertex_local_index, category_subhirachy, v);	
+		auto category_title = category_titles[global_cat_id];
+
+		std::cout << "--- " << category_title << " ---" << std::endl;
+		for (auto i_article : category_has_article[global_cat_id]) 
+			std::cout << article_titles[i_article] << std::endl;	
+		std::cout << "--- " << " ---" << std::endl;
+	}
+
 
 	// timer_server.start_timing_step("build_article_list", "Build article list", &std::cout);
-	const auto& article_list = _server_data_cache.get_article_list(category_id, request_parameters);
-	std::cout << article_list.size() << std::endl;
-	// timer_server.stop_timing_step("build_article_list", &std::cout);
+	// const auto& article_list = _server_data_cache.get_article_list(category_id, request_parameters);
+	// std::cout << article_list.size() << std::endl;
+	// // timer_server.stop_timing_step("build_article_list", &std::cout);
 
-	// timer_server.start_timing_step("build_event_list", "Build event list", &std::cout);
-	const auto& event_list = _server_data_cache.get_event_list(category_id, request_parameters);
-	std::cout << event_list.size() << std::endl;
-	// timer_server.stop_timing_step("build_event_list", &std::cout);
+	// // timer_server.start_timing_step("build_event_list", "Build event list", &std::cout);
+	// const auto& event_list = _server_data_cache.get_event_list(category_id, request_parameters);
+	// std::cout << event_list.size() << std::endl;
+	// // timer_server.stop_timing_step("build_event_list", &std::cout);
 
-	// for (auto event : event_list) {
-		// std::cout << std::setw(80) << event.Title << " " << to_iso_string(event.Date) << std::endl;	
-	// }
-
-	// timer_server.start_timing_step("build_event_network", "Build event network", &std::cout);
-	const auto& event_network = _server_data_cache.get_event_network(category_id, request_parameters);
-	std::cout << boost::num_vertices(event_network) << std::endl;
-	// timer_server.stop_timing_step("build_event_network", &std::cout);
-
-	// // std::ofstream graphviz_file("/home/cabrera/Schreibtisch/test.dot");
-	// // boost::write_graphviz(graphviz_file, event_network);
-
-	// timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
-	_server_data_cache.get_network_positions(category_id, request_parameters);
-	// // std::cout << positions.size() << std::endl;
-	// // std::cout << "positions: " << std::endl;
-	// // for (auto pos : positions) {
-		// // std::cout << pos << std::endl;
+	// // for (auto event : event_list) {
+	// // std::cout << std::setw(80) << event.Title << " " << to_iso_string(event.Date) << std::endl;	
 	// // }
-	// timer_server.stop_timing_step("build_positions", &std::cout);
+
+	// // timer_server.start_timing_step("build_event_network", "Build event network", &std::cout);
+	// const auto& event_network = _server_data_cache.get_event_network(category_id, request_parameters);
+	// std::cout << boost::num_vertices(event_network) << std::endl;
+	// // timer_server.stop_timing_step("build_event_network", &std::cout);
+
+	// // // std::ofstream graphviz_file("/home/cabrera/Schreibtisch/test.dot");
+	// // // boost::write_graphviz(graphviz_file, event_network);
+
+	// // timer_server.start_timing_step("build_positions", "Build positions", &std::cout);
+	// _server_data_cache.get_network_positions(category_id, request_parameters);
+	// // // std::cout << positions.size() << std::endl;
+	// // // std::cout << "positions: " << std::endl;
+	// // // for (auto pos : positions) {
+	// // // std::cout << pos << std::endl;
+	// // // }
+	// // timer_server.stop_timing_step("build_positions", &std::cout);
 
 
-	// timer_server.start_timing_step("build_main_path", "Build main path", &std::cout);
-	const auto& main_path = _server_data_cache.get_global_main_path(category_id, request_parameters);
-	std::cout << main_path.size() << std::endl;
-	// timer_server.stop_timing_step("build_main_path", &std::cout);
+	// // timer_server.start_timing_step("build_main_path", "Build main path", &std::cout);
+	// const auto& main_path = _server_data_cache.get_global_main_path(category_id, request_parameters);
+	// std::cout << main_path.size() << std::endl;
+	// // timer_server.stop_timing_step("build_main_path", &std::cout);
 
 	timer_server.print_timings(std::cout);
 

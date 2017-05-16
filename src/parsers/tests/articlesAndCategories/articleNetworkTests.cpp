@@ -13,6 +13,7 @@
 // wiki xml dump lib
 #include "../helpers/buildArtificialDump.h"
 #include "../../../core/wikiDataCache.h"
+#include "../../../core/graph.h"
 #include "../../helpers/sortTitlesHelper.h"
 #include "../../wikiArticleHandlers/articleDatesAndCategoriesHandler.h"
 #include "../../wikiArticleHandlers/allLinksArticleHandler.h"
@@ -63,7 +64,7 @@ BOOST_AUTO_TEST_CASE(there_should_be_links_between_the_articles)
 	auto& category_titles = wiki_data_cache.category_titles();
 	auto& redirects = wiki_data_cache.redirects();
 	std::vector<boost::container::flat_set<std::size_t>> category_has_article(category_titles.size());
-	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph(category_titles.size());
+	CategoryHirachyGraph category_hirachy_graph(category_titles.size());
 	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list(article_titles.size());
 	VectorMutex<1000> vector_mutex;
 
@@ -158,7 +159,7 @@ BOOST_AUTO_TEST_CASE(there_should_be_links_between_the_articles_articial)
 	auto& category_titles = wiki_data_cache.category_titles();
 	auto& redirects = wiki_data_cache.redirects();
 	std::vector<boost::container::flat_set<std::size_t>> category_has_article(category_titles.size());
-	AllLinksArticleHander::CategoryHirachyGraph category_hirachy_graph(category_titles.size());
+	CategoryHirachyGraph category_hirachy_graph(category_titles.size());
 	std::vector<boost::container::flat_set<std::size_t>> article_adjacency_list(article_titles.size());
 	VectorMutex<1000> vector_mutex;
 

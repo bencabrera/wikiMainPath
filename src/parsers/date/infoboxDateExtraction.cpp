@@ -2,6 +2,7 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "grammars/plainYearGrammar.hpp"
 #include "grammars/infoboxKeyValueGrammar.hpp"
@@ -30,12 +31,34 @@ namespace WikiMainPath {
 		return key_values;
 	}
 
+	void clean_html_tags(std::string& str)
+	{
+		static const std::map<std::string, std::string> html_entity_replacements = {
+			{ "&nbsp;", " " },
+			{ "&ndash;", "-" },
+			{ "&mdash;", "-" }
+		};
+
+		if(str.find("&") != std::string::npos)
+		{
+			for (const auto& replacement : html_entity_replacements)
+				boost::algorithm::replace_all(str, replacement.first, replacement.second);
+		}
+	}
+
+
 	// could add an error category if the descriptions don't match
 	std::vector<Date> extract_all_dates_from_infobox(const std::string& article_syntax, std::vector<InfoboxDateExtractionError>& errors)
 	{
 		std::vector<Date> rtn;
 
 		auto key_values = extract_all_key_values_from_infobox(article_syntax);
+
+		for (auto& pair : key_values) 
+		{
+			clean_html_tags(pair.second);
+		}
+
 		for (const auto& pair : key_values) 
 		{
 			auto key = pair.first;
