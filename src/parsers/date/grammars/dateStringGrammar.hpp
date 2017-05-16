@@ -34,6 +34,9 @@ namespace WikiMainPath {
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_range_dmy_date;
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> year_range_dmy_date;
 
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> day_range_mdy_date;
+			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_range_mdy_date;
+
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_year_date;
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> day_month_year_date;
 			boost::spirit::qi::rule<Iterator, Date(), Skipper> month_day_year_date;

@@ -14,6 +14,8 @@ namespace WikiMainPath {
 			start =	(&day_range_dmy_date >> day_range_dmy_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
 					| (&month_range_dmy_date >> month_range_dmy_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
 					| (&year_range_dmy_date >> year_range_dmy_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
+					| (&day_range_mdy_date >> day_range_mdy_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
+					| (&month_range_mdy_date >> month_range_mdy_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
 					| (&day_month_year_date >> day_month_year_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
 					| (&month_day_year_date >> month_day_year_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
 					| (&year_month_day_date >> year_month_day_date [at_c<0>(_val) = true, at_c<1>(_val) = boost::spirit::_1])
@@ -95,6 +97,22 @@ namespace WikiMainPath {
 				>> int_ [at_c<2>(at_c<2>(_val)) = boost::spirit::_1, _pass = boost::spirit::_1 < 32]
 				>> (no_case[long_month_str] | no_case[short_month_str]) [at_c<1>(at_c<2>(_val)) = boost::spirit::_1] 
 				>> int_ [at_c<0>(_val) = true, at_c<0>(at_c<2>(_val)) = boost::spirit::_1 - 1900];
+
+			day_range_mdy_date = 
+				(no_case[long_month_str] | no_case[short_month_str]) [at_c<1>(at_c<1>(_val)) = boost::spirit::_1, at_c<1>(at_c<2>(_val)) = boost::spirit::_1] 
+				>> int_ [at_c<2>(at_c<1>(_val)) = boost::spirit::_1, _pass = boost::spirit::_1 < 32] >> to_separator
+				>> int_ [at_c<2>(at_c<2>(_val)) = boost::spirit::_1, _pass = boost::spirit::_1 < 32]
+				>> -lit(",")
+				>> int_ [at_c<0>(_val) = true, at_c<0>(at_c<1>(_val)) = boost::spirit::_1 - 1900, at_c<0>(at_c<2>(_val)) = boost::spirit::_1 - 1900];
+
+			month_range_mdy_date = 
+				(no_case[long_month_str] | no_case[short_month_str]) [at_c<1>(at_c<1>(_val)) = boost::spirit::_1] 
+				>> int_ [at_c<2>(at_c<1>(_val)) = boost::spirit::_1, _pass = boost::spirit::_1 < 32]  
+				>> to_separator 
+				>> (no_case[long_month_str] | no_case[short_month_str]) [at_c<1>(at_c<2>(_val)) = boost::spirit::_1] 
+				>> int_ [at_c<2>(at_c<2>(_val)) = boost::spirit::_1, _pass = boost::spirit::_1 < 32]
+				>> -lit(",")
+				>> int_ [at_c<0>(_val) = true, at_c<0>(at_c<1>(_val)) = boost::spirit::_1 - 1900, at_c<0>(at_c<2>(_val)) = boost::spirit::_1 - 1900];
 				
 				// int_ [at_c<0>(_val) = true, at_c<0>(at_c<1>(_val)) = boost::spirit::_1];
 			day_month_year_date = day_month_year [at_c<0>(_val) = false, at_c<1>(_val) = boost::spirit::_1];

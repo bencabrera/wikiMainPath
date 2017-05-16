@@ -26,6 +26,9 @@ std::vector<std::string> date_examples = {
 	"April 29, 1829 (aged 79)",
 	"31 March − 1 April 1942",
 	"December 15th, 2004",
+	"May 25–27, 1813",
+	"November 7–9, 1814",
+	"August 4 – September 21, 1814"
 };
 
 std::vector<std::string> not_parse_date_examples = {
@@ -50,6 +53,9 @@ std::vector<Date> expected_dates = {
 	{false, {	   0,	   0,		 0,		29,		3,	  -71 }, {}},
 	{true, {	   0,	   0,		 0,		31,		2,	  42 }, {	   0,	   0,		 0,		1,		3,	  42 }},
 	{false, {	   0,	   0,		 0,		15,		11,	  104 }, {}},
+	{true, {	   0,	   0,		 0,		25,		4,	  -87 }, {	   0,	   0,		 0,		27,		4,	  -87 }},
+	{true, {	   0,	   0,		 0,		7,		10,	  -86 }, {	   0,	   0,		 0,		9,		10,	  -86 }},
+	{true, {	   0,	   0,		 0,		4,		7,	  -86 }, {	   0,	   0,		 0,		21,		8,	  -86 }},
 };
 
 BOOST_DATA_TEST_CASE(
