@@ -163,6 +163,7 @@ export class SidebarInformationComponent implements OnChanges
 		console.log(this.network_data);
 		if(this.network_data)
 		{
+			console.log("network_data", this.network_data);
 			this.category_title = this.network_data.category_title;
 			this.event_number = this.network_data.events.length;
 			this.from_date = this.network_data.timespan[0].format("YYYY");
@@ -181,6 +182,7 @@ export class SidebarInformationComponent implements OnChanges
 			if(this.network_data.main_path.length > 0)
 			{
 				var last_i_event = this.network_data.main_path[this.network_data.main_path.length-1][1];
+				console.log("BEN", last_i_event, this.network_data.events.length);
 				this.main_path.push({ date: this.network_data.events[last_i_event].date.format("YYYY-MM-DD"), title: this.network_data.events[last_i_event].title });
 			}
 
