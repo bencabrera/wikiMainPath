@@ -11,6 +11,7 @@
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/edgeWeightGeneration.hpp"
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/mpaAlgorithms.hpp"
 #include "../../libs/main_path_analysis/src/mainPathAnalysis/preAndPostProcessing.hpp"
+#include "../../libs/main_path_analysis/src/mainPathAnalysis/propertyMaps.hpp"
 
 using VertexProperties = boost::property<boost::vertex_name_t, std::string, boost::property<boost::vertex_finish_time_t, std::tm>>;
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, VertexProperties, boost::property<boost::edge_index_t,std::size_t>, boost::vecS>;
@@ -126,9 +127,8 @@ class VertexLabelWriter {
 
 class EdgeLabelWriter {
 	public:
-		EdgeLabelWriter(Graph& g, MainPathAnalysis::DoubleEdgePropertyMap<Graph>& edge_weights, std::vector<std::vector<Graph::edge_descriptor>> main_paths) 
+		EdgeLabelWriter(Graph& g, std::vector<std::vector<Graph::edge_descriptor>> main_paths) 
 			:_g(g),
-			_edge_weights(edge_weights),
 			main_path_colors({ "blue", "green", "red" })
 		{
 			for (auto mp : main_paths) {
@@ -140,7 +140,6 @@ class EdgeLabelWriter {
 		template <class VertexOrEdge>
 			void operator()(std::ostream& out, const VertexOrEdge& e) const {
 				out << "[";
-				// out << "label=\"" << _edge_weights[e] << "\" ";
 				out << "fontsize=40 ";
 
 				std::size_t i = 0;
@@ -164,7 +163,6 @@ class EdgeLabelWriter {
 
 	private:
 		Graph& _g;
-		MainPathAnalysis::DoubleEdgePropertyMap<Graph>& _edge_weights;
 		std::vector<std::set<Graph::edge_descriptor>> _main_path_sets;
 		const std::vector<std::string> main_path_colors;
 };
@@ -224,14 +222,63 @@ int main(int argc, char *argv[])
 	// while(main_path.size() > 50);
 
 	std::vector<Graph::edge_descriptor> main_path_local, main_path_global, main_path_alpha;
-	MainPathAnalysis::localForward(std::back_inserter(main_path_local), g, weights, s, t);
-	MainPathAnalysis::global(std::back_inserter(main_path_global), g, weights, s, t);
+	MainPathAnalysis::localForward<Graph, MainPathAnalysis::BigInt, std::back_insert_iterator<std::vector<Graph::edge_descriptor>>>(std::back_inserter(main_path_local), g, weights, s, t);
+	// MainPathAnalysis::global(std::back_inserter(main_path_global), g, weights, s, t);
 
 	if(argc > 5)
 	{
-		double alpha = std::stod(argv[5]);
 		main_path_local.clear();
-		MainPathAnalysis::globalAlpha(std::back_inserter(main_path_local), g, weights, s, t, alpha);
+
+		std::cout << "Alpha Main Path" << std::endl;
+		std::size_t max_length = std::stoul(argv[5]);
+
+		MainPathAnalysis::BigInt upper_alpha = 1;
+		MainPathAnalysis::BigInt lower_alpha = 0;
+
+		MainPathAnalysis::globalAlpha(std::back_inserter(main_path_local), g, weights, s, t, lower_alpha);
+
+		// multiply by 2 until bigger
+		while(main_path_local.size() > max_length)
+		{
+			main_path_local.clear();
+			MainPathAnalysis::globalAlpha(std::back_inserter(main_path_local), g, weights, s, t, upper_alpha);
+			upper_alpha *= 2;
+		}
+
+		std::cout << "UPPER ALPHA " << upper_alpha << std::endl;
+
+		// binary search
+		bool found = false;
+		while(!found)
+		{
+			std::cout << "loop" << std::endl;
+			MainPathAnalysis::BigInt middle_alpha = (upper_alpha + lower_alpha) / 2;
+
+			std::cout <<  lower_alpha << std::endl;
+			std::cout <<  middle_alpha << std::endl;
+			std::cout <<  upper_alpha << std::endl;
+
+			main_path_local.clear();
+			MainPathAnalysis::globalAlpha(std::back_inserter(main_path_local), g, weights, s, t, middle_alpha);
+
+			std::cout << "SIZE: " << main_path_local.size() << std::endl;
+
+			if(middle_alpha == upper_alpha || middle_alpha == lower_alpha)
+				break;
+
+			if(main_path_local.size() > max_length)
+				lower_alpha = middle_alpha;
+			else
+				upper_alpha = middle_alpha;
+
+			if(main_path_local.size() == max_length)
+				found = true;
+
+			std::cout << std::endl;
+
+
+		}	
+
 	}
 
 	// remove s and t from main path and from copy of graph
@@ -256,7 +303,7 @@ int main(int argc, char *argv[])
 	{
 		std::ofstream output_file(argv[3]);
 		VertexLabelWriter vertex_label_writer(g, { main_path_local });
-		EdgeLabelWriter edge_label_writer(g, weights, { main_path_local });
+		EdgeLabelWriter edge_label_writer(g, { main_path_local });
 		boost::write_graphviz(output_file, g, vertex_label_writer, edge_label_writer);
 	}
 
