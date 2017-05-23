@@ -79,9 +79,19 @@ Graph read_graph_from_file(std::istream& input, std::set<std::size_t> forbidden_
 
 class VertexLabelWriter {
 	public:
-		VertexLabelWriter(Graph& g) 
-			:_g(g)
-		{}
+		VertexLabelWriter(Graph& g, std::vector<std::vector<Graph::edge_descriptor>> main_paths = std::vector<std::vector<Graph::edge_descriptor>>()) 
+			:_g(g),
+			main_path_colors({ "blue", "green", "red" })
+		{
+			for (auto main_path : main_paths) {
+				std::set<Graph::vertex_descriptor> vertices_in_path;
+				for (auto e : main_path) {
+					vertices_in_path.insert(boost::source(e,g));	
+					vertices_in_path.insert(boost::target(e,g));	
+				}
+				_main_path_vertex_sets.push_back(vertices_in_path);
+			}	
+		}
 
 		template <class VertexOrEdge>
 			void operator()(std::ostream& out, const VertexOrEdge& v) const {
@@ -91,13 +101,27 @@ class VertexLabelWriter {
 					lab = lab.substr(0, MAX_LENGTH) + "[...]";
 				out << "[";
 				out << "label=\"" << lab << "\" ";
-				// out << "shape=rect ";
+
+				std::size_t i = 0;
+				for (auto mp : _main_path_vertex_sets) 
+				{
+					if(mp.find(v) != mp.end())
+					{
+						out << "color=\"" << main_path_colors[i] << "\" ";
+					}
+					i++;
+				}
+				// out << "shape=point ";
+
 				out << "fontsize=70 ";
 				out << "]";
 			}
 
 	private:
 		Graph& _g;
+
+		std::vector<std::set<Graph::vertex_descriptor>> _main_path_vertex_sets;
+		const std::vector<std::string> main_path_colors;
 };
 
 class EdgeLabelWriter {
@@ -132,7 +156,9 @@ class EdgeLabelWriter {
 				}
 
 				if(found)
-					out << "penwidth=\"8\" ";
+					out << "penwidth=\"20\" ";
+				else
+					out << "penwidth=\"15\" ";
 				out << "]";
 			}
 
@@ -212,7 +238,7 @@ int main(int argc, char *argv[])
 	// MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path_global);
 	MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path_local);
 	// MainPathAnalysis::remove_edges_containing_source_or_sink(g, s, t, main_path_alpha);
-	// MainPathAnalysis::remove_source_and_sink_vertex(g, s, t);
+	MainPathAnalysis::remove_source_and_sink_vertex(g, s, t);
 
 	// build json object of main path
 	// EdgeList main_path_edges;
@@ -229,8 +255,8 @@ int main(int argc, char *argv[])
 	if(argc > 3)
 	{
 		std::ofstream output_file(argv[3]);
-		VertexLabelWriter vertex_label_writer(g);
-		EdgeLabelWriter edge_label_writer(g, weights, { main_path_local, main_path_global, main_path_alpha });
+		VertexLabelWriter vertex_label_writer(g, { main_path_local });
+		EdgeLabelWriter edge_label_writer(g, weights, { main_path_local });
 		boost::write_graphviz(output_file, g, vertex_label_writer, edge_label_writer);
 	}
 
