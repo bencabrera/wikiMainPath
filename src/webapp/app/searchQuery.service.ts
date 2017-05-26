@@ -15,6 +15,7 @@ export class SearchQueryService {
 	public to_year: number;
 	public method: string;
 	public alpha: number;
+	public main_path_length: number;
 	public no_persons: boolean;
 	public not_recursive: boolean;
 	public not_containing: string;
@@ -32,6 +33,8 @@ export class SearchQueryService {
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
 			this.alpha = parseFloat(localStorage.getItem("alpha"));
+		if(localStorage.getItem("main_path_length"))
+			this.main_path_length = parseInt(localStorage.getItem("main_path_length"));
 		if(localStorage.getItem("no_persons"))
 			this.no_persons = (localStorage.getItem("no_persons") == 'true');
 		if(localStorage.getItem("not_recursive"))
@@ -62,6 +65,8 @@ export class SearchQueryService {
 			url += "&method=" + this.method;
 		if(this.method == "alpha" && this.alpha)
 			url += "&alpha=" + this.alpha;
+		if(this.method == "alpha_length" && this.main_path_length)
+			url += "&main_path_length=" + this.main_path_length;
 			
 		console.log("no_persons", this.no_persons);
 		console.log("no_persons bool", this.no_persons == true);
@@ -80,26 +85,4 @@ export class SearchQueryService {
 			(response: Response) => response.json()
 		);	
 	}
-
-	// public getArticlesInCategory(category: string): Observable<string[]>
-	// {
-		// var url : string = encodeURI("listArticlesInCategory.php?category=" + category);
-		// return this.http.get(url).map(this.extractData).catch(this.handleError);	
-	// }
-
-	// public getMessages(): Observable<Message[]> {
-		// return this.http.get("http://" + ServerConfig.HOST + ":" + ServerConfig.PORT +'/messages/' + this.configService.roomname)
-			// .map((response: Response) => <Message[]>response.json());
-	// }
-
-	// private extractData(res: Response) {
-		// let body = res.json();
-		// return body || Array();
-	// }
-	// private handleError (error: any) {
-		// let errMsg = (error.message) ? error.message :
-			// error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-		// console.error(errMsg); // log to console instead
-		// return Observable.throw(errMsg);
-	// }
 }

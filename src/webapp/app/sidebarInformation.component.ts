@@ -29,6 +29,7 @@ import { ActivatedRoute } from '@angular/router';
 						<option value="local" selected="selected">Local</option>
 						<option value="global">Global</option>
 						<option value="alpha">Global Alpha</option>
+						<option value="alpha_length">Global Alpha (Length Based)</option>
 					</select>
 				</td>
 			</tr>
@@ -37,6 +38,13 @@ import { ActivatedRoute } from '@angular/router';
 				<th class="filter-label-cell">Alpha</th>
 				<td class="filter-value-cell">
 					<input class="alpha-filter-input form-control input-sm" type="number" [(ngModel)]="alpha">
+				</td>
+			<tr>
+
+			<tr [hidden]="method != 'alpha_length'">
+				<th class="filter-label-cell">Target Main Path Length</th>
+				<td class="filter-value-cell">
+					<input class="alpha-filter-input form-control input-sm" type="number" step="1" [(ngModel)]="main_path_length">
 				</td>
 			<tr>
 
@@ -95,6 +103,7 @@ export class SidebarInformationComponent implements OnChanges
 	public to_year : number;
 	public method : string;
 	public alpha : number;
+	public main_path_length : number;
 	public no_persons : boolean;
 	public not_recursive : boolean;
 	public not_containing : string;
@@ -110,6 +119,7 @@ export class SidebarInformationComponent implements OnChanges
 		localStorage.setItem("to_year", this.to_year.toString());
 		localStorage.setItem("method", this.method);
 		localStorage.setItem("alpha", this.alpha.toString());
+		localStorage.setItem("main_path_length", this.main_path_length.toString());
 		localStorage.setItem("no_persons", this.no_persons.toString());
 		localStorage.setItem("not_recursive", this.not_recursive.toString());
 		localStorage.setItem("not_containing", this.not_containing);
@@ -118,6 +128,7 @@ export class SidebarInformationComponent implements OnChanges
 		console.log(this.to_year);
 		console.log(this.method);
 		console.log(this.alpha);
+		console.log("main_path_length", this.main_path_length);
 		console.log(this.no_persons);
 		console.log(this.not_recursive);
 		console.log(this.not_containing);
@@ -138,6 +149,7 @@ export class SidebarInformationComponent implements OnChanges
 		this.to_year = 0;
 		this.method = "local";
 		this.alpha = 0;
+		this.main_path_length = 0;
 		this.no_persons = false;
 		this.not_recursive = false;
 		this.not_containing = "";
@@ -150,6 +162,8 @@ export class SidebarInformationComponent implements OnChanges
 			this.method = localStorage.getItem("method");
 		if(localStorage.getItem("alpha"))
 			this.alpha = parseFloat(localStorage.getItem("alpha"));
+		if(localStorage.getItem("main_path_length"))
+			this.main_path_length = parseInt(localStorage.getItem("main_path_length"));
 		if(localStorage.getItem("no_persons"))
 			this.no_persons = (localStorage.getItem("no_persons") == 'true');
 		if(localStorage.getItem("not_recursive"))

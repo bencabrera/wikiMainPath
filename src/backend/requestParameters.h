@@ -8,7 +8,8 @@ class RequestParameters {
 		enum Method {
 			LOCAL,
 			GLOBAL,
-			ALPHA
+			ALPHA,
+			ALPHA_LENGTH
 		};
 
 		bool has_date_filter;
@@ -16,10 +17,22 @@ class RequestParameters {
 		int end_year;
 		Method method;
 		double alpha;
+		std::size_t main_path_length;
 		bool no_persons;
 		bool not_recursive;
 		std::string not_containing;
 
+		RequestParameters()
+			:has_date_filter(false),
+			start_year(0),
+			end_year(0),
+			method(LOCAL),
+			alpha(0.0),
+			main_path_length(0),
+			no_persons(false),
+			not_recursive(false),
+			not_containing("")
+		{}
 
 
 		std::size_t hash() const {
@@ -29,6 +42,7 @@ class RequestParameters {
 			boost::hash_combine(seed, end_year);
 			boost::hash_combine(seed, method);
 			boost::hash_combine(seed, alpha);
+			boost::hash_combine(seed, main_path_length);
 			boost::hash_combine(seed, no_persons);
 			boost::hash_combine(seed, not_recursive);
 			boost::hash_combine(seed, not_containing);

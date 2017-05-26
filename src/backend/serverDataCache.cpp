@@ -357,57 +357,13 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 		MainPathAnalysis::global<EventNetwork, MainPathAnalysis::BigInt, std::back_insert_iterator<std::vector<EventNetwork::edge_descriptor>>>(std::back_inserter(main_path), g, weights, s, t);
 	if(request_parameters.method == RequestParameters::ALPHA)
 	{
-		std::size_t alpha_int = (std::size_t) request_parameters.alpha;
-
-		main_path.clear();
-
-		std::cout << "Alpha Main Path" << std::endl;
-		std::size_t max_length = alpha_int;
-
-		MainPathAnalysis::BigInt upper_alpha = 1;
-		MainPathAnalysis::BigInt lower_alpha = 0;
-
-		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, lower_alpha);
-
-		// multiply by 2 until bigger
-		while(main_path.size() > max_length)
-		{
-			main_path.clear();
-			MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, upper_alpha);
-			upper_alpha *= 2;
-		}
-
-		std::cout << "UPPER ALPHA " << upper_alpha << std::endl;
-
-		// binary search
-		bool found = false;
-		while(!found)
-		{
-			std::cout << "loop" << std::endl;
-			MainPathAnalysis::BigInt middle_alpha = (upper_alpha + lower_alpha) / 2;
-
-			std::cout <<  lower_alpha << std::endl;
-			std::cout <<  middle_alpha << std::endl;
-			std::cout <<  upper_alpha << std::endl;
-
-			main_path.clear();
-			MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, middle_alpha);
-
-			std::cout << "SIZE: " << main_path.size() << std::endl;
-
-			if(middle_alpha == upper_alpha || middle_alpha == lower_alpha)
-				break;
-
-			if(main_path.size() > max_length)
-				lower_alpha = middle_alpha;
-			else
-				upper_alpha = middle_alpha;
-
-			if(main_path.size() == max_length)
-				found = true;
-
-			std::cout << std::endl;
-		}	
+		MainPathAnalysis::BigInt alpha = (std::size_t) request_parameters.alpha;
+		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, alpha);
+	}
+	if(request_parameters.method == RequestParameters::ALPHA_LENGTH)
+	{
+		MainPathAnalysis::BigInt length = request_parameters.main_path_length;
+		MainPathAnalysis::globalAlphaLength(std::back_inserter(main_path), g, weights, s, t, length);
 	}
 
 

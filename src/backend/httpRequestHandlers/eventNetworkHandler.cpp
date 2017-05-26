@@ -80,7 +80,7 @@ namespace WikiMainPath {
 		ServerDataCache _server_data_cache(_wiki_data_cache);
 		timer.stop_timing_step("build_cache", &std::cout);
 
-		RequestParameters request_parameters{ false, 0, 0, RequestParameters::LOCAL, 0.0, false, false, "" };
+		RequestParameters request_parameters;
 
 		if(parameter_map.count("from-year") > 0 && parameter_map.count("to-year"))
 		{
@@ -104,6 +104,11 @@ namespace WikiMainPath {
 			{
 				request_parameters.method = RequestParameters::ALPHA;
 				request_parameters.alpha = std::stod(parameter_map.at("alpha"));
+			}
+			if(method_str == "alpha_length" && parameter_map.count("main_path_length") > 0)
+			{
+				request_parameters.method = RequestParameters::ALPHA_LENGTH;
+				request_parameters.main_path_length = std::stoul(parameter_map.at("main_path_length"));
 			}
 		}
 
