@@ -48,8 +48,8 @@ namespace WikiMainPath {
 			// std::cout << "FLAG: " << flag_to_string(flag) << std::endl;
 
 			std::vector<double> rtn;
-			// rtn.resize(y.size());
-			// Eigen::VectorXd::Map(&rtn[0], y.size()) = y;
+			rtn.resize(y.size());
+			Eigen::VectorXd::Map(&rtn[0], y.size()) = y;
 
 			return rtn;
 		}
