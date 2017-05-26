@@ -338,13 +338,6 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 	// auto weights = MainPathAnalysis::generate_spc_weights(g, s, t);
 	auto weights = MainPathAnalysis::generate_spc_weights_big_int(g, s, t);
 
-	// temporary output 
-	const std::string weights_file_path = "/home/ace7k3/Desktop/weights.txt";
-	std::ofstream weights_file(weights_file_path);
-	for (auto e : boost::make_iterator_range(boost::edges(g))) {
-		weights_file << weights[e] << std::endl;
-	}
-
 	// compute global main path
 	std::vector<EventNetwork::edge_descriptor> main_path;
 	// double alpha = 1;
@@ -359,11 +352,63 @@ void ServerDataCache::compute_global_main_path(std::size_t category_id, const Re
 	// while(main_path.size() > 50);
 
 	if(request_parameters.method == RequestParameters::LOCAL)
-		MainPathAnalysis::localForward(std::back_inserter(main_path), g, weights, s, t);
+		MainPathAnalysis::localForward<EventNetwork, MainPathAnalysis::BigInt, std::back_insert_iterator<std::vector<EventNetwork::edge_descriptor>>>(std::back_inserter(main_path), g, weights, s, t);
 	if(request_parameters.method == RequestParameters::GLOBAL)
-		MainPathAnalysis::global(std::back_inserter(main_path), g, weights, s, t);
+		MainPathAnalysis::global<EventNetwork, MainPathAnalysis::BigInt, std::back_insert_iterator<std::vector<EventNetwork::edge_descriptor>>>(std::back_inserter(main_path), g, weights, s, t);
 	if(request_parameters.method == RequestParameters::ALPHA)
-		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, request_parameters.alpha);
+	{
+		std::size_t alpha_int = (std::size_t) request_parameters.alpha;
+
+		main_path.clear();
+
+		std::cout << "Alpha Main Path" << std::endl;
+		std::size_t max_length = alpha_int;
+
+		MainPathAnalysis::BigInt upper_alpha = 1;
+		MainPathAnalysis::BigInt lower_alpha = 0;
+
+		MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, lower_alpha);
+
+		// multiply by 2 until bigger
+		while(main_path.size() > max_length)
+		{
+			main_path.clear();
+			MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, upper_alpha);
+			upper_alpha *= 2;
+		}
+
+		std::cout << "UPPER ALPHA " << upper_alpha << std::endl;
+
+		// binary search
+		bool found = false;
+		while(!found)
+		{
+			std::cout << "loop" << std::endl;
+			MainPathAnalysis::BigInt middle_alpha = (upper_alpha + lower_alpha) / 2;
+
+			std::cout <<  lower_alpha << std::endl;
+			std::cout <<  middle_alpha << std::endl;
+			std::cout <<  upper_alpha << std::endl;
+
+			main_path.clear();
+			MainPathAnalysis::globalAlpha(std::back_inserter(main_path), g, weights, s, t, middle_alpha);
+
+			std::cout << "SIZE: " << main_path.size() << std::endl;
+
+			if(middle_alpha == upper_alpha || middle_alpha == lower_alpha)
+				break;
+
+			if(main_path.size() > max_length)
+				lower_alpha = middle_alpha;
+			else
+				upper_alpha = middle_alpha;
+
+			if(main_path.size() == max_length)
+				found = true;
+
+			std::cout << std::endl;
+		}	
+	}
 
 
 	for (std::size_t i = 0; i < main_path.size()-1; i++) {
