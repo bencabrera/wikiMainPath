@@ -2,22 +2,25 @@ html, body {
 	height: 100%;
 }
 
-.search-bar-row {
-	padding: 15px 0px;
+/* navbar stuff */
+.navbar-container {
+	display: flex;
+	float: none;
 }
-.search-field {
-	width: 100%;
+.navbar-header {
+	float: none;
+	flex: *;
 }
-.dropdown {
-	position: absolute;
-	border: 1px solid red;
-	display: none;
+.navbar-form {
+	float: none;
+	flex: 1;
+	padding-left: 0;
+	padding-right: 0;
 }
-
-.search-input:focus + .dropdown {
-	display: block;
+.search-field-form-group, 
+.search-field-form-control {
+	width: 100% !important;
 }
-
 .search-result-box {
 	top: 48px; 
 	left: 15px; 
@@ -27,14 +30,16 @@ html, body {
 	overflow-y: scroll;
 }
 
+
+
+/* sidebar */
 .info-sidebar {
 	padding: 10px;
 	top: 100px;
 	bottom: 10px;
 	width: 350px;
-	/* min-width: 400px; */
-	background-color: #f8f8f8;
-	border: 1px solid #e7e7e7;
+	background-color: #f5f5f5;
+	border: 1px solid #e3e3e3;
 	min-height: 500px;
 }
 
@@ -44,13 +49,18 @@ sidebar-information {
 	height: 100%;
 	overflow-y: auto;
 }
+.divider {
+	margin: 10px 0;
+	border-bottom: 1px solid #e3e3e3;
+}
 
+/* main content */
 .main-content {
 	position: fixed;
-	left: 30px;
-	right: 30px;
-	top: 110px;
-	bottom: 30px;
+	left: 15px;
+	right: 15px;
+	top: 65px;
+	bottom: 15px;
 	display: flex;
 	flex-direction: row;
 	/* width: 80%; */

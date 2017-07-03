@@ -9,23 +9,22 @@ import { Router } from '@angular/router';
 	// templateUrl: '../templates/search_category.html'
 	template:	`
 		<nav class="navbar navbar-default navbar-fixed-top">
-			<div class="container-fluid">
-				<div class="row search-bar-row">
-					<div class="col-md-12">
-						<div class="input-group input-group-lg search-field">
-							<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
-							<span class="input-group-btn">
-								<button class="btn btn-default" type="button" (click)="onSearch()">
-									<span class="glyphicon glyphicon-search"></span>
-								</button>
-							</span>
-						</div>
-						<ul class="dropdown-menu search-result-box" *ngIf="resultsVisible">
-							<li class="dropdown-header">Matching categories for your search query</li>
-							<li *ngFor="let res of searchResults | async"><a [routerLink]="['category',res.id]" (mousedown)="onSelectCategory(res.id)">{{ res.title }} ({{ res.n_subcategories }} Subcategories)</a></li>
-						</ul>
-					</div>
-				</div>
+			<div class="container-fluid navbar-container">
+				    <div class="navbar-header">
+				      <a class="navbar-brand" href="#">WikiMainPath</a>
+				    </div>
+				
+				    <!-- Collect the nav links, forms, and other content for toggling -->
+				      <div class="navbar-form">
+				        <div class="search-field-form-group form-group">
+						  <input type="search" class="form-control search-field-form-control" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
+				        </div>
+				      </div>
+
+					<ul class="dropdown-menu search-result-box" *ngIf="resultsVisible">
+						<li class="dropdown-header">Matching categories for your search query</li>
+						<li *ngFor="let res of searchResults | async"><a [routerLink]="['category',res.id]" (mousedown)="onSelectCategory(res.id)">{{ res.title }} ({{ res.n_subcategories }} Subcategories)</a></li>
+					</ul>
 			</div>
 		</nav>
 	`

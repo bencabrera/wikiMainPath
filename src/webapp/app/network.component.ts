@@ -41,8 +41,9 @@ export class NetworkComponent implements AfterViewInit
 	readonly NORMAL_LINK_WIDTH : number = 1;
 	readonly NORMAL_LINK_COLOR : string = "grey";
 	readonly NORMAL_VERTEX_COLOR : string = "black";
-	readonly MAIN_PATH_LINK_COLOR : string = "blue";
-	readonly MAIN_PATH_LINK_WIDTH : number = 5;
+	// readonly MAIN_PATH_LINK_COLOR : string = "blue";
+	readonly MAIN_PATH_LINK_COLOR : string = "#e95420";
+	readonly MAIN_PATH_LINK_WIDTH : number = 4;
 	readonly MAIN_PATH_VERTEX_COLOR : string = "black";
 	readonly PADDING : number = 40;
 	readonly LABEL_BOX_PADDING : number = 10;

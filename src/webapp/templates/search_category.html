@@ -2,7 +2,7 @@
 	<div class="container-fluid">
 		<div class="row search-bar-row">
 			<div class="col-md-12">
-				<div class="input-group input-group-lg search-field">
+				<div class="input-group search-field">
 					<input type="search" class="form-control search-input" placeholder="Enter keywords to search for category" (keyup)="onSearch()" (blur)="onBlur()" (focus)="onSearch()" [(ngModel)]="searchQuery">
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" (click)="onSearch()">

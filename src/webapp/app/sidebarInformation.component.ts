@@ -69,7 +69,7 @@ import { ActivatedRoute } from '@angular/router';
 				</th>
 			<tr>
 		</table>
-		<hr>
+		<div class="divider"></div>
 		<label>Category:</label> 
 		<p>{{ category_title }}</p>
 		<label>Number of Events:</label> 
