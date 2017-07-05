@@ -1,0 +1,53 @@
+html, body {
+	background-color: #e95420;
+}
+
+.greeter-wrapper {
+	font-size: 18px;
+	text-align: center;
+	color: white;
+}
+
+.greeter-wrapper h1 {
+	font-size: 4.5em;
+}
+
+.greeter-wrapper h3 {
+	font-style: italic;
+}
+
+.enic-link {
+	color: white;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.abstract {
+	text-align: justify;
+	padding: 15px;
+}
+
+.btn-wrapper {
+	margin-top: 15px;
+}
+.codedirection {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+}
+
+html,
+body,
+.container {
+    height: 100%;
+}
+
+.flexbox-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+    align-items: center;
+    height: 100%;
+}

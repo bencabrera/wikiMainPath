@@ -14,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 				<div class="main-content">
 					<div class="startup-spinner" [hidden]="is_spinner_hidden">
 						<div class="startup-spinner-box">
-							<img src="images/spinner.gif">
+							<img src="app/images/spinner.gif">
 							<h1>Loading category...</h1>
 						</div>
 						<div class="error-message alert alert-danger" [hidden]="!is_error">

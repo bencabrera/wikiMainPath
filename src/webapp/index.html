@@ -1,49 +1,61 @@
 <html>
-<head>
+	<head>
 
-<base href="/">
-<!-- <base href="/data/webapp2/"> -->
+		<title>WikiMainPath - Compute the Main Path through History based on Wikipedia!</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css"> -->
+		<link type="text/css" rel="stylesheet" href="app/libs/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<link type="text/css" rel="stylesheet" href="app/css/bootstrap-orange.min.css">
+		<link type="text/css" rel="stylesheet" href="index.css">
 
-<title>WikiMainPath - Compute the Main Path through History based on Wikipedia!</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css"> -->
-<link type="text/css" rel="stylesheet" href="libs/bootstrap-3.3.7-dist/css/bootstrap.min.css">
-<link type="text/css" rel="stylesheet" href="css/bootstrap-orange.min.css">
-<link rel="stylesheet" href="css/styles.css">
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+		<link rel="icon" type="image/png" href="/favicon.png" />
 
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" href="/favicon.png" />
+	</head>
 
-<!-- external libraries -->
-<script src="node_modules/d3/build/d3.js"></script>
-<script src="node_modules/moment/moment.js"></script>
+	<body>
+		<div class="container">
+			<div class="flexbox-container">
+				<div class="row">
+					<div class="col-md-12 greeter-wrapper">
+						<h1>WikiMainPath</h1>
+						<h3>Compute the Main Path through historic events based on Wikipedia!</h3>
+					</div>
 
-<!-- 1. Load libraries -->
-<!-- Polyfill(s) for older browsers -->
-<script src="node_modules/core-js/client/shim.min.js"></script>
-<script src="node_modules/zone.js/dist/zone.js"></script>
-<script src="node_modules/reflect-metadata/Reflect.js"></script>
-<script src="node_modules/systemjs/dist/system.src.js"></script>
-<!-- 2. Configure SystemJS -->
-<script src="systemjs.config.js"></script>
-<script>
-System.import('app').catch(function(err){ console.error(err); });
-</script>
-</head>
+					<div class="col-md-offset-2 col-md-8 greeter-wrapper">
+						<p class="abstract">
+						<strong>Abstract.</strong> 
+						The large online encyclopedia of Wikipedia has become a	valuable information resource. 
+						However, its large size and interconnectedness of its pages can make it easy to get lost in detail and difficult to	gain a good overview of a topic. 
+						As a solution we propose a procedure to	extract, summarize and visualize large categories of historic Wikipedia	articles. 
+						At the heart of this procedure we apply the method of main path analysis originally developed for citation networks to a modified network of linked Wikipedia articles. 
+						You can try out our method in a proof-of-concept web app.
+						</p>
+					</div>
 
-<body>
+					<div class="col-md-offset-2 col-md-8 greeter-wrapper">
+						<p>
+							This work will be published as
+						</p>
+						<p>
+							<em>Benjamin Cabrera and Barbara König, "Extracting the Main Path of Historic Events From Wikipedia" Network Intelligence Conference (ENIC), 2017 European.</em>
+						</p>
+						<p>
+							in the conference proceedings of <a class="enic-link" href="http://enic.collide.info/">ENIC 2017</a>.
+							For reporting potential errors, questions and feedback please contact <strong class="codedirection">ed.eud-inu[ta]arerbac.nimajneb</strong>.
+						</p>
+					</div>
 
-<global>
-	<div class="startup-spinner">
-		<div class="startup-spinner-box">
-			<img src="images/spinner.gif">
-			<h1>App is loading</h1>
+					<div class="col-md-offset-2 col-md-8 greeter-wrapper btn-wrapper">
+						<a class="btn btn-lg btn-default" href="app/">Take me to the app!</a>
+					</div>
+				</div>
+			</div>
+
 		</div>
-	</div>
-</global>
 
-</body>
+	</body>
 
 </html>

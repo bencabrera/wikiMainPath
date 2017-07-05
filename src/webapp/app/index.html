@@ -1,0 +1,49 @@
+<html>
+<head>
+
+<base href="/app">
+<!-- <base href="/data/webapp2/"> -->
+
+<title>WikiMainPath - Compute the Main Path through History based on Wikipedia!</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css"> -->
+<link type="text/css" rel="stylesheet" href="app/libs/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+<link type="text/css" rel="stylesheet" href="app/css/bootstrap-orange.min.css">
+<link rel="stylesheet" href="app/css/styles.css">
+
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+<!-- external libraries -->
+<script src="app/node_modules/d3/build/d3.js"></script>
+<script src="app/node_modules/moment/moment.js"></script>
+
+<!-- 1. Load libraries -->
+<!-- Polyfill(s) for older browsers -->
+<script src="app/node_modules/core-js/client/shim.min.js"></script>
+<script src="app/node_modules/zone.js/dist/zone.js"></script>
+<script src="app/node_modules/reflect-metadata/Reflect.js"></script>
+<script src="app/node_modules/systemjs/dist/system.src.js"></script>
+<!-- 2. Configure SystemJS -->
+<script src="app/systemjs.config.js"></script>
+<script>
+System.import('app').catch(function(err){ console.error(err); });
+</script>
+</head>
+
+<body>
+
+<global>
+	<div class="startup-spinner">
+		<div class="startup-spinner-box">
+			<img src="app/images/spinner.gif">
+			<h1>App is loading</h1>
+		</div>
+	</div>
+</global>
+
+</body>
+
+</html>
