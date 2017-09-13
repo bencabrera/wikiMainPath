@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(isolated_vertex_should_be_place_at_middle)
 {
 	using namespace WikiMainPath::GraphDrawing;
 
-	ArticleGraph g;
+	EventNetwork g;
 	boost::add_vertex(g);
 
 	std::vector<double> x_positions = { 0.5 };
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test2)
 {
 	using namespace WikiMainPath::GraphDrawing;
 
-	ArticleGraph g;
+	EventNetwork g;
 	auto v1 = boost::add_vertex(g);
 	auto v2 = boost::add_vertex(g);
 	boost::add_edge(v1, v2, g);
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test3)
 {
 	using namespace WikiMainPath::GraphDrawing;
 	
-	ArticleGraph g;
+	EventNetwork g;
 	auto v1 = boost::add_vertex(g);
 	auto v2 = boost::add_vertex(g);
 	auto v3 = boost::add_vertex(g);

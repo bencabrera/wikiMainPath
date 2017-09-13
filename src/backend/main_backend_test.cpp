@@ -223,7 +223,17 @@ int main(int argc, char** argv)
 	std::cout << "-----------------" << std::endl;
 
 
-	RequestParameters request_parameters{ true, 1939, 1945, RequestParameters::ALPHA, 179.3, true, false, "" };
+	RequestParameters request_parameters;
+
+	request_parameters.has_date_filter = true;
+	request_parameters.start_year = 1939;
+	request_parameters.end_year = 1945;
+	request_parameters.method = RequestParameters::ALPHA;
+	request_parameters.alpha = 179.3;
+	request_parameters.main_path_length = true;
+	request_parameters.no_persons = true;
+	request_parameters.not_recursive = false;
+	request_parameters.not_containing = "true";
 
 	std::ofstream network_file("/home/ace7k3/Desktop/network.txt");
 	_server_data_cache.export_event_network_to_file(network_file, category_id, request_parameters);

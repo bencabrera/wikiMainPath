@@ -6,6 +6,7 @@ project(WikiMainPath)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+set(CMAKE_CXX_STANDARD 11)
 
 include_directories(../libs/eigen)
 
