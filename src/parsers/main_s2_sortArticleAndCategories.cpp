@@ -5,11 +5,31 @@
 #include "../core/wikiDataCache.h"
 #include "helpers/sortTitlesHelper.h"
 
+// boost
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 int main(int argc, char** argv)
 {
-	auto output_folder = boost::filesystem::path(argv[1]);
+	po::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "Produce help message.")
+		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
+		;
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::notify(vm);
+
+	// display help if --help was specified
+	if (vm.count("help")) {
+		std::cout << desc << std::endl;
+		return 0;
+	}
+
+	auto output_folder = boost::filesystem::path(vm["output-folder"].as<std::string>());
 
 	// sort articles
 	{
