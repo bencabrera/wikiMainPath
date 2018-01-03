@@ -123,10 +123,14 @@ int main(int argc, char* argv[])
 
 	if(!pageCounts.empty())
 	{
+		std::set<std::string> used_paths(paths.begin(), paths.end());
 		for(const auto& p : pageCounts)
 		{
-			total_count += p.second;
-			current_counts[p.first] = 0;
+			if(used_paths.count(p.first) > 0)
+			{
+				total_count += p.second;
+				current_counts[p.first] = 0;
+			}
 		}
 
 		parser_properties.ProgressCallback = std::bind(print_progress, std::ref(mutex), std::ref(current_counts), std::cref(total_count), std::cref(start_time), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
