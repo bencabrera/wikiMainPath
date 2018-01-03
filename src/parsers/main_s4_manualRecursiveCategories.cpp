@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
 	timer.stop_timing_step("remove_cycles", &std::cout);
 
 	// write final category_has_article file
-	// timer.start_timing_step("final_cha", "Writing final category_has_article", &std::cout);
-	// wiki_data_cache.write_category_has_article(category_has_article);
-	// timer.stop_timing_step("final_cha", &std::cout);
+	timer.start_timing_step("final_cha", "Writing final category_has_article", &std::cout);
+	wiki_data_cache.write_category_has_article(category_has_article);
+	timer.stop_timing_step("final_cha", &std::cout);
 
 
 	timer.stop_timing_step("global");

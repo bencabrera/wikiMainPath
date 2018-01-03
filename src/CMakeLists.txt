@@ -57,6 +57,7 @@ set(PARSER_FILES
 
 	parsers/helpers/shared.h
 	parsers/helpers/shared.cpp
+	parsers/helpers/printProgress.cpp
 	parsers/helpers/sortTitlesHelper.cpp
 
 	parsers/helpers/buildCategoryHirachyRecursively.cpp
@@ -69,12 +70,6 @@ add_library(ParserLib STATIC ${PARSER_FILES})
 
 
 # --- parser executables ---
-
-add_executable(count_pages parsers/main_countPages.cpp)
-target_link_libraries(count_pages ParserLib)
-target_link_libraries(count_pages ${Boost_LIBRARIES})
-target_link_libraries(count_pages xerces-c)
-target_link_libraries(count_pages pthread)
 
 add_executable(s1_articlesAndCategories parsers/main_s1_articlesAndCategories.cpp)
 target_link_libraries(s1_articlesAndCategories CoreLib)

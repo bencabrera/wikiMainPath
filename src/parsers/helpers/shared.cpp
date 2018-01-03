@@ -1,7 +1,10 @@
 #include "shared.h"
 
-#include "../../libs/shared/cpp/cliProgressBar.hpp"
 #include <set>
+#include <sstream>
+#include <fstream>
+#include <chrono>
+#include <mutex>
 #include <boost/algorithm/string/trim.hpp>
 
 std::string timingToReadable(std::size_t milliseconds)
@@ -22,66 +25,24 @@ std::map<std::string, std::size_t> readPageCountsFile(std::string path)
 	std::ifstream istr(path);
 	std::map<std::string, std::size_t> rtn;
 
-	while(!istr.eof())
+	std::string line;
+	while(std::getline(istr, line))
 	{
 		std::string filename;
 		std::size_t count;
-		istr >> filename >> count;
+
+		boost::trim(line);
+
+		if(line.empty())
+			continue;
+
+		std::stringstream ss(line);
+		ss >> filename >> count;
 
 		rtn.insert({ filename, count });
 	}
 
 	return rtn;
-}
-
-std::vector<std::string> selected_filename_in_folder(boost::filesystem::path input_folder, boost::filesystem::path selection_file_path)
-{
-	namespace fs = boost::filesystem;
-
-	// read in selection file if possible
-	std::set<std::string> selected_file_names;
-	if(!selection_file_path.empty() && fs::is_regular_file(selection_file_path))
-	{
-		std::ifstream selection_file(selection_file_path.string());
-		std::string line;
-		while(std::getline(selection_file, line))
-		{
-			boost::trim(line);
-			if(line.length() > 0)
-				selected_file_names.insert(line);
-		}
-	}
-
-	std::vector<std::string> xml_file_list;
-	for(auto dir_it = fs::directory_iterator(input_folder); dir_it != fs::directory_iterator(); dir_it++)
-	{
-		std::string filename = dir_it->path().filename().string();
-		if(fs::is_regular_file(dir_it->path()) && (selected_file_names.size() == 0 || selected_file_names.count(filename) > 0))
-			xml_file_list.push_back(dir_it->path().string());
-	}
-
-	return xml_file_list;
-}
-
-void printProgress(const std::map<std::string, std::size_t>& pageCounts, const std::string& path_str, std::size_t count, std::string article_title)
-{
-	boost::filesystem::path path(path_str);
-	auto it = pageCounts.find(path.filename().c_str());
-	std::cout << path.filename();
-	if(!article_title.empty())
-		std::cout << " [" << article_title << "]";
-	std::cout << ": ";
-
-	if(it != pageCounts.end())
-	{
-		std::cout << std::endl;
-		Shared::cli_progress_bar(count, it->second);
-		std::cout << std::endl;
-		// std::cout << std::right << count << " / " << it->second << "  [" << ((int)(100*(double)count/it->second)) << " %]" << std::endl;
-	}
-	else
-		std::cout << std::right << count << std::endl;
-	std::cout.flush();
 }
 
 bool getPosition(const std::vector<std::string>& vec, std::string str, std::size_t& pos)
@@ -95,3 +56,18 @@ bool getPosition(const std::vector<std::string>& vec, std::string str, std::size
 		return true;
 	}
 }
+
+std::vector<std::string> read_lines_from_file(std::istream& input)
+{
+	std::vector<std::string> lines;
+	std::string line;
+	while(std::getline(input,line))
+	{
+		boost::trim(line);
+		if(!line.empty() && line.front() != '#')
+			lines.push_back(line);
+	}
+
+	return lines;
+}
+

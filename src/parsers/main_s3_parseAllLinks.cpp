@@ -21,6 +21,7 @@
 
 // local files
 #include "helpers/shared.h"
+#include "helpers/printProgress.h"
 #include "../core/wikiDataCache.h"
 #include "helpers/removeCyclesInCategoryHirachy.h"
 
@@ -48,9 +49,8 @@ int main(int argc, char* argv[])
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "Produce help message.")
-		("input-xml-folder", po::value<std::string>(), "The folder that should be scanned for wikidump .xml files.")
+		("input-paths-file", po::value<std::string>(), "File of which each line is absolute path to an xml file that is part of a Wikipedia dump.")
 		("page-counts-file", po::value<std::string>(), "The file that contains counts of pages for each .xml file.")
-		("selection-file", po::value<std::string>(), "The file that contains a list of all .xml files which should be considered.")
 		("output-folder", po::value<std::string>(), "The folder in which the results (articlesWithDates.txt, categories.txt, redirects.txt) should be stored.")
 		;
 	po::variables_map vm;
@@ -63,22 +63,16 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(!vm.count("input-xml-folder") || !vm.count("output-folder"))
+	if(!vm.count("input-paths-file") || !vm.count("output-folder"))
 	{
-		std::cerr << "Please specify the parameters --input-xml-folder and --output-folder." << std::endl;
+		std::cerr << "Please specify the parameters --input-paths-file and --output-folder." << std::endl;
 		return 1;
 	}
 
-	const fs::path inputXmlFolder(vm["input-xml-folder"].as<std::string>());
+	const std::string paths_file_path = vm["input-paths-file"].as<std::string>();
 	const fs::path outputFolder(vm["output-folder"].as<std::string>());
 
 	auto pageCounts = (vm.count("page-counts-file") ? readPageCountsFile(vm["page-counts-file"].as<std::string>()) : std::map<std::string, std::size_t>());
-
-	if(!fs::is_directory(inputXmlFolder))
-	{
-		std::cerr << "Parameter --input-xml-folder is no folder." << std::endl;
-		return 1;
-	}
 
 	if(!fs::is_directory(outputFolder))
 	{
@@ -90,12 +84,8 @@ int main(int argc, char* argv[])
 	xercesc::XMLPlatformUtils::Initialize();
 
 	// scan for xml files in the input-folder
-	std::vector<std::string> paths;
-	if(vm.count("selection-file"))
-		paths = selected_filename_in_folder(inputXmlFolder, fs::path(vm["selection-file"].as<std::string>()));
-	else
-		paths = selected_filename_in_folder(inputXmlFolder);
-		
+	std::ifstream paths_file(paths_file_path);
+	auto paths = read_lines_from_file(paths_file);
 
 	std::cout << "-----------------------------------------------------------------------" << std::endl;
 	std::cout << "Found the following files: " << std::endl;
@@ -124,7 +114,24 @@ int main(int argc, char* argv[])
 
 	WikiXmlDumpXerces::WikiDumpHandlerProperties parser_properties;
 	parser_properties.TitleFilter = WikiXmlDumpXerces::only_articles_and_categories(); 		
-	parser_properties.ProgressCallback = std::bind(printProgress, pageCounts, std::placeholders::_2, std::placeholders::_1, std::placeholders::_3);
+
+
+	auto start_time = std::chrono::steady_clock::now();
+	std::size_t total_count = 0;
+	std::map<std::string, std::size_t> current_counts;
+	std::mutex mutex;
+
+	if(!pageCounts.empty())
+	{
+		for(const auto& p : pageCounts)
+		{
+			total_count += p.second;
+			current_counts[p.first] = 0;
+		}
+
+		parser_properties.ProgressCallback = std::bind(print_progress, std::ref(mutex), std::ref(current_counts), std::cref(total_count), std::cref(start_time), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+		parser_properties.ProgressReportInterval = 5000;
+	}
 
 	WikiXmlDumpXerces::ParallelParser<AllLinksArticleHander> parser([&article_titles, &category_titles, &redirects, &category_has_article, &category_hirachy_graph, &article_adjacency_list, &vecMutex](){ 
 		return AllLinksArticleHander(article_titles, category_titles, redirects, category_has_article, category_hirachy_graph, article_adjacency_list, vecMutex); 
