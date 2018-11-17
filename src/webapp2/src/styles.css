@@ -1,0 +1,177 @@
+html, body {
+	height: 100%;
+}
+
+/* navbar stuff */
+.navbar-container {
+	display: flex;
+	float: none;
+}
+.navbar-header {
+	float: none;
+	flex: *;
+}
+.navbar-form {
+	float: none;
+	flex: 1;
+	padding-left: 0;
+	padding-right: 0;
+}
+.search-field-form-group, 
+.search-field-form-control {
+	width: 100% !important;
+}
+.search-result-box {
+	top: 48px; 
+	left: 15px; 
+	right: 15px; 
+	display: block;
+	max-height: 700px;
+	overflow-y: scroll;
+}
+
+
+
+/* sidebar */
+.info-sidebar {
+	padding: 10px;
+	top: 100px;
+	bottom: 10px;
+	width: 350px;
+	background-color: #f5f5f5;
+	border: 1px solid #e3e3e3;
+	min-height: 500px;
+}
+
+sidebar-information {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow-y: auto;
+}
+.divider {
+	margin: 10px 0;
+	border-bottom: 1px solid #e3e3e3;
+}
+
+/* main content */
+.main-content {
+	position: fixed;
+	left: 15px;
+	right: 15px;
+	top: 65px;
+	bottom: 15px;
+	display: flex;
+	flex-direction: row;
+	/* width: 80%; */
+}
+
+.network {
+	flex: 1;
+}
+
+.label {
+	font-size: 20px;
+	font-weight: normal;
+	margin-bottom: 5px;
+	padding: 5px;
+	border-radius: 3px;
+}
+
+.label-box {
+	fill: lightgrey;
+	rx: 5;
+	ry: 5;
+}
+
+.startup-spinner {
+	position: absolute;
+	z-index: 10;
+	left: 2%;
+	right: 2%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	flex-direction: column;
+}
+.startup-spinner-box {
+	height: 200px;
+}
+.startup-spinner-box > img {
+	height: 150px;
+	width: 150px;
+	display: block;
+	margin: auto;
+}
+
+.startup-spinner-box > h1 {
+	display: block;
+	font-family: sans-serif;
+	text-align: center;
+	font-size: 22px;
+}
+
+.error-message {
+	margin-top: 30px;
+}
+
+*[hidden] {
+	display: none;
+}
+
+.table-main-path {
+	font-size: 10px;
+	flex: 1;
+	overflow-y: auto;
+	display: block;
+	min-height: 50px;
+}
+
+td.main-path-date-cell {
+	min-width: 100px;
+}
+
+.filter-table {
+	font-size: 13px;
+}
+.filter-label-cell {
+	padding-right: 10px;
+}
+.filter-value-cell {
+	padding: 5px 0;
+}
+.date-filter-input {
+	width: 45%;
+	display: inline-block;
+	/* flex: 1; */
+}
+.date-filter-dash {
+	width: 9%;
+	text-align: center;
+}
+.method-filter-select {
+	width: 100%;
+}
+.alpha-filter-input {
+	width: 100%;
+}
+.filter-save-btn {
+	width: 100%;
+	margin-top: 5px;
+}
+.date-filter-cell {
+	width: 100%;
+}
+.not-containing-input {
+	width: 100%;
+}
+.filter-value-checkbox-label {
+	padding-left: 5px;
+	display: inline-block;
+	margin-top: -2px;
+}
+
+.dropdown-menu {
+	display: block !important;
+}
